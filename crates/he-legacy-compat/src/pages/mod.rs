@@ -29,11 +29,10 @@ pub mod log;
 pub mod log_edit;
 pub mod missions;
 pub mod university;
-pub mod create_software;
-pub mod hardware_items;
 pub mod war;
 pub mod doom;
 pub mod ddos;
+pub mod list;
 
 // User management
 pub mod profile;
@@ -86,3 +85,7 @@ pub use ranking::ranking_handler;
 pub use clan::clan_handler;
 pub use create_software::create_software_handler;
 pub use log::log_handler;
+pub use log_edit::log_edit_handler;
+pub use research_table::research_table_handler;
+pub use webserver::webserver_handler;
+pub use list::list_handler;
