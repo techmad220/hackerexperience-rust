@@ -79,7 +79,7 @@ pub async fn login_handler(
     }
 
     // Attempt login
-    let login_result = db.login(username, password, client_ip).await;
+    let login_result = db.login(username, password, None).await;
 
     match login_result {
         Ok(success) => {
