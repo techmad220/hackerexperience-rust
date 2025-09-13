@@ -15,6 +15,332 @@ body {
     height: 100vh;
 }
 
+/* Logout button */
+.logout-btn {
+    background: transparent;
+    border: 1px solid #ff4444;
+    color: #ff4444;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    margin-left: 15px;
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background: #ff4444;
+    color: #000;
+    box-shadow: 0 0 5px rgba(255, 68, 68, 0.5);
+}
+
+/* Game pages styling */
+.servers-grid, .missions-list, .ranking-list {
+    display: grid;
+    gap: 15px;
+    padding: 20px 0;
+}
+
+.server-item, .mission-item, .ranking-item {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 15px;
+    transition: border-color 0.3s;
+}
+
+.server-item:hover, .mission-item:hover {
+    border-color: #00ff00;
+}
+
+.server-actions, .mission-actions {
+    margin-top: 10px;
+}
+
+.btn {
+    background: #333;
+    border: 1px solid #555;
+    color: #00ff00;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    margin-right: 5px;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: #00ff00;
+    color: #000;
+    border-color: #00ff00;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #888;
+    border-color: #555;
+}
+
+.btn-danger {
+    background: #ff4444;
+    color: #fff;
+    border-color: #ff4444;
+}
+
+.btn-small {
+    padding: 3px 6px;
+    font-size: 12px;
+}
+
+.btn:hover {
+    opacity: 0.8;
+    transform: translateY(-1px);
+}
+
+/* Chat styling */
+.chat-container {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+}
+
+.chat-message {
+    margin-bottom: 5px;
+    word-wrap: break-word;
+}
+
+.chat-time {
+    color: #666;
+    font-size: 12px;
+}
+
+.chat-sender {
+    color: #00ff00;
+    font-weight: bold;
+}
+
+.chat-text {
+    color: #fff;
+    margin-left: 5px;
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input {
+    flex: 1;
+    background: #000;
+    border: 1px solid #333;
+    color: #00ff00;
+    padding: 8px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: #00ff00;
+}
+
+/* Logs styling */
+.logs-actions {
+    margin-bottom: 15px;
+}
+
+.log-item {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 3px;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.log-time {
+    color: #666;
+    font-size: 12px;
+}
+
+.log-type {
+    color: #00ff00;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.log-message {
+    color: #fff;
+    font-size: 14px;
+}
+
+/* Process styling enhancements */
+.process-item {
+    display: flex;
+    align-items: center;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.process-info {
+    flex: 1;
+}
+
+.process-progress {
+    width: 150px;
+    margin: 0 15px;
+}
+
+.process-actions {
+    width: 80px;
+}
+
+.progress-bar {
+    background: #333;
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #00ff00, #00cc00);
+    height: 100%;
+    transition: width 0.3s;
+}
+
+.progress-text {
+    font-size: 12px;
+    color: #00ff00;
+    text-align: center;
+    display: block;
+}
+
+/* Network scan results */
+.scan-results {
+    display: grid;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.scan-result {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.server-ip {
+    font-family: 'Courier New', monospace;
+    color: #00ff00;
+    font-weight: bold;
+    min-width: 120px;
+}
+
+.server-info {
+    flex: 1;
+}
+
+.server-info p {
+    margin: 2px 0;
+    color: #ccc;
+    font-size: 14px;
+}
+
+/* Ranking styling */
+.ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 3px;
+    margin-bottom: 5px;
+}
+
+.rank {
+    color: #00ff00;
+    font-weight: bold;
+    min-width: 40px;
+}
+
+.username {
+    color: #fff;
+    min-width: 150px;
+}
+
+.status.online {
+    color: #00ff00;
+}
+
+.status.offline {
+    color: #666;
+}
+
+/* Members list */
+.member-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 8px;
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 3px;
+    margin-bottom: 3px;
+}
+
+/* Clan actions */
+.clan-actions {
+    margin-top: 20px;
+}
+
+/* General improvements */
+.loading {
+    text-align: center;
+    color: #00ff00;
+    padding: 20px;
+}
+
+.error {
+    color: #ff4444;
+    text-align: center;
+    padding: 20px;
+}
+
+.success {
+    color: #00ff00;
+}
+
+.no-processes, .no-software, .no-logs {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+    font-style: italic;
+}
+
 /* Loading screen */
 .loading-screen {
     position: fixed;

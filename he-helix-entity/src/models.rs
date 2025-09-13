@@ -4,20 +4,7 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 use he_core::id::{ComponentId, EntityId, ServerId};
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, sqlx::Type)]
-#[sqlx(type_name = "entity_type", rename_all = "lowercase")]
-pub enum EntityType {
-    Account,
-    Npc,
-    Clan,
-}
-
-impl EntityType {
-    pub fn possible_types() -> Vec<EntityType> {
-        vec![EntityType::Account, EntityType::Npc, EntityType::Clan]
-    }
-}
+use he_core::{EntityType, EntitySpecialization};
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
 pub struct Entity {
@@ -80,8 +67,3 @@ pub struct CreateDatabaseParams {
     pub hacked_by_id: Option<EntityId>,
 }
 
-/// Trait for objects that can be converted to entities
-pub trait EntitySpecialization {
-    fn get_entity_id(&self) -> EntityId;
-    fn get_entity_type(&self) -> EntityType;
-}

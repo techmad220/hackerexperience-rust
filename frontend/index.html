@@ -33,6 +33,7 @@
                     <span class="username" id="username">Player</span>
                     <span class="level">Level <span id="player-level">1</span></span>
                     <span class="money">$<span id="player-money">1000</span></span>
+                    <button id="logout-btn" class="logout-btn" title="Logout">⏻</button>
                 </div>
             </div>
 
@@ -65,7 +66,8 @@
                                 <li><a href="#" data-page="clan" class="nav-link">Clan</a></li>
                                 <li><a href="#" data-page="missions" class="nav-link">Missions</a></li>
                                 <li><a href="#" data-page="ranking" class="nav-link">Ranking</a></li>
-                                <li><a href="#" data-page="mail" class="nav-link">Mail <span class="badge" id="mail-count">0</span></a></li>
+                                <li><a href="#" data-page="mail" class="nav-link">Chat</a></li>
+                                <li><a href="#" data-page="logs" class="nav-link">Logs</a></li>
                             </ul>
                         </div>
                     </nav>
@@ -143,12 +145,73 @@
                             <div class="address-bar">
                                 <input type="text" id="address-input" placeholder="Enter IP address..." class="address-input">
                                 <button id="connect-btn" class="connect-btn">Connect</button>
+                                <button onclick="window.gameInstance.scanNetwork()" class="connect-btn">Scan Network</button>
                             </div>
                             <div class="browser-content" id="browser-content">
                                 <div class="welcome-message">
                                     <h3>Welcome to the Internet</h3>
-                                    <p>Enter an IP address to connect to a server.</p>
+                                    <p>Enter an IP address to connect to a server, or scan the network to find available targets.</p>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page" id="servers-page" style="display: none;">
+                        <h2>My Servers</h2>
+                        <div class="servers-content">
+                            <!-- Server content will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="page" id="connections-page" style="display: none;">
+                        <h2>Network Connections</h2>
+                        <div class="connections-content">
+                            <p>Active network connections will be displayed here.</p>
+                        </div>
+                    </div>
+
+                    <div class="page" id="clan-page" style="display: none;">
+                        <div class="clan-content">
+                            <!-- Clan content will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="page" id="missions-page" style="display: none;">
+                        <div class="missions-content">
+                            <!-- Mission content will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="page" id="ranking-page" style="display: none;">
+                        <div class="ranking-content">
+                            <!-- Ranking content will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="page" id="mail-page" style="display: none;">
+                        <h2>Mail System</h2>
+                        <div class="mail-content">
+                            <div class="chat-container">
+                                <div class="chat-messages" id="chat-messages">
+                                    <!-- Chat messages will appear here -->
+                                </div>
+                                <div class="chat-input-container">
+                                    <input type="text" id="chat-input" placeholder="Type your message..." class="chat-input">
+                                    <button onclick="window.gameInstance.sendChatMessage()" class="btn btn-primary">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page" id="logs-page" style="display: none;">
+                        <h2>System Logs</h2>
+                        <div class="logs-content">
+                            <div class="logs-actions">
+                                <button onclick="window.gameInstance.refreshLogs()" class="btn btn-primary">Refresh</button>
+                                <button onclick="window.gameInstance.clearLogs()" class="btn btn-danger">Clear Logs</button>
+                            </div>
+                            <div class="logs-list" id="logs-list">
+                                <!-- Logs will be loaded here -->
                             </div>
                         </div>
                     </div>
@@ -185,9 +248,10 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/game.js"></script>
-    <script src="js/websocket.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/game-client.js"></script>
+    <script src="js/websocket.js"></script>
+    <script src="js/game.js"></script>
     <script>
         // Initialize the game when page loads
         document.addEventListener('DOMContentLoaded', function() {

@@ -238,7 +238,7 @@ impl Fame {
 
         // Filter by category if specified
         if let Some(cat) = category {
-            achievements.retain(|a| matches!(a.category, cat) if std::mem::discriminant(&a.category) == std::mem::discriminant(&cat) else false);
+            achievements.retain(|a| std::mem::discriminant(&a.category) == std::mem::discriminant(&cat));
         }
 
         // Filter out inactive achievements

@@ -36,11 +36,25 @@ class Game {
             // Initialize API connection
             await API.initialize();
             
+            // Check if user is authenticated
+            if (!API.isAuthenticated()) {
+                console.log('User not authenticated, redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+            
             // Load player data
-            await this.loadPlayerData();
+            const playerLoaded = await this.loadPlayerData();
+            if (!playerLoaded) {
+                console.log('Failed to load player data, redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
             
             // Initialize WebSocket connection
             if (typeof WebSocketManager !== 'undefined') {
+                // Set up WebSocket event handlers
+                this.setupWebSocketHandlers();
                 WebSocketManager.connect();
             }
             
@@ -60,6 +74,10 @@ class Game {
             console.error('Failed to initialize game:', error);
             this.showError('Failed to initialize game: ' + error.message);
         }
+    }
+
+    showLoginForm() {
+        window.location.href = 'login.html';
     }
 
     showLoadingScreen() {
@@ -87,36 +105,44 @@ class Game {
 
     async loadPlayerData() {
         try {
-            const playerData = await API.getPlayerInfo();
-            if (playerData) {
-                this.player = { ...this.player, ...playerData };
+            const response = await API.getPlayerInfo();
+            if (response && response.success && response.data) {
+                this.player = { ...this.player, ...response.data };
                 this.updatePlayerUI();
+                return true;
+            } else {
+                console.warn('Failed to load player data:', response);
+                return false;
             }
         } catch (error) {
             console.warn('Could not load player data:', error);
+            if (error.status === 401) {
+                API.clearAuthToken();
+            }
+            return false;
         }
     }
 
     async loadInitialData() {
         try {
             // Load processes
-            const processes = await API.getProcesses();
-            if (processes) {
-                this.processes = processes;
+            const processResult = await API.safeGet('/processes/active');
+            if (processResult.success && processResult.data.success) {
+                this.processes = processResult.data.data || [];
                 this.updateProcessList();
             }
 
             // Load software
-            const software = await API.getSoftware();
-            if (software) {
-                this.software = software;
+            const softwareResult = await API.safeGet('/software/installed');
+            if (softwareResult.success && softwareResult.data.success) {
+                this.software = softwareResult.data.data || [];
                 this.updateSoftwareGrid();
             }
 
             // Load hardware info
-            const hardware = await API.getHardware();
-            if (hardware) {
-                this.updateHardwareInfo(hardware);
+            const hardwareResult = await API.safeGet('/hardware/owned');
+            if (hardwareResult.success && hardwareResult.data.success) {
+                this.updateHardwareInfo(hardwareResult.data.data);
             }
 
         } catch (error) {
@@ -129,9 +155,110 @@ class Game {
         const levelEl = document.getElementById('player-level');
         const moneyEl = document.getElementById('player-money');
 
-        if (usernameEl) usernameEl.textContent = this.player.username;
-        if (levelEl) levelEl.textContent = this.player.level;
-        if (moneyEl) moneyEl.textContent = this.player.money.toLocaleString();
+        if (usernameEl) usernameEl.textContent = this.player.username || 'Player';
+        if (levelEl) levelEl.textContent = this.calculateLevel(this.player.experience || 0);
+        if (moneyEl) moneyEl.textContent = (this.player.money || 0).toLocaleString();
+    }
+
+    calculateLevel(experience) {
+        // Simple level calculation based on experience
+        return Math.floor(experience / 1000) + 1;
+    }
+
+    setupWebSocketHandlers() {
+        // Override WebSocket handlers to update game state
+        const originalHandleProcessStart = WebSocketManager.handleProcessStart;
+        const originalHandleProcessComplete = WebSocketManager.handleProcessComplete;
+        const originalHandleProcessKilled = WebSocketManager.handleProcessKilled;
+        const originalHandleAllProcessesKilled = WebSocketManager.handleAllProcessesKilled;
+        const originalHandlePlayerUpdate = WebSocketManager.handlePlayerUpdate;
+
+        WebSocketManager.handleProcessStart = (data) => {
+            originalHandleProcessStart.call(WebSocketManager, data);
+            // Refresh processes if we're on the processes page
+            if (this.currentPage === 'processes') {
+                this.loadPageData('processes');
+            }
+        };
+
+        WebSocketManager.handleProcessComplete = (data) => {
+            originalHandleProcessComplete.call(WebSocketManager, data);
+            // Refresh processes and potentially player data
+            if (this.currentPage === 'processes') {
+                this.loadPageData('processes');
+            }
+            // Reload player data to update money/experience
+            this.loadPlayerData();
+        };
+
+        WebSocketManager.handleProcessKilled = (data) => {
+            originalHandleProcessKilled.call(WebSocketManager, data);
+            // Refresh processes
+            if (this.currentPage === 'processes') {
+                this.loadPageData('processes');
+            }
+        };
+
+        WebSocketManager.handleAllProcessesKilled = (data) => {
+            originalHandleAllProcessesKilled.call(WebSocketManager, data);
+            // Clear processes and refresh
+            this.processes = [];
+            if (this.currentPage === 'processes') {
+                this.updateProcessList();
+            }
+        };
+
+        WebSocketManager.handlePlayerUpdate = (data) => {
+            originalHandlePlayerUpdate.call(WebSocketManager, data);
+            // Update local player data
+            this.player = { ...this.player, ...data };
+            this.updatePlayerUI();
+        };
+    }
+
+    // Method to refresh current page data
+    refreshCurrentPage() {
+        if (this.currentPage && this.isInitialized) {
+            this.loadPageData(this.currentPage);
+        }
+    }
+
+    // Method to handle real-time data updates
+    handleRealtimeUpdate(type, data) {
+        switch (type) {
+            case 'process_update':
+                // Update specific process
+                const processIndex = this.processes.findIndex(p => p.id === data.id);
+                if (processIndex !== -1) {
+                    this.processes[processIndex] = { ...this.processes[processIndex], ...data };
+                    if (this.currentPage === 'processes') {
+                        this.updateProcessList();
+                    }
+                }
+                break;
+            case 'player_update':
+                this.player = { ...this.player, ...data };
+                this.updatePlayerUI();
+                break;
+            case 'money_update':
+                if (this.player) {
+                    this.player.money = data.new_amount;
+                    this.updatePlayerUI();
+                }
+                break;
+            case 'software_update':
+                // Refresh software if we're on the software page
+                if (this.currentPage === 'software') {
+                    this.loadPageData('software');
+                }
+                break;
+            case 'hardware_update':
+                // Refresh hardware if we're on the hardware page
+                if (this.currentPage === 'hardware') {
+                    this.loadPageData('hardware');
+                }
+                break;
+        }
     }
 
     updateProcessList() {
@@ -148,16 +275,24 @@ class Game {
         this.processes.forEach(process => {
             const processItem = document.createElement('div');
             processItem.className = 'process-item';
+            const progress = Math.round((process.progress || 0) * 100);
+            const timeLeft = process.time_left || 0;
+            const timeLeftStr = timeLeft > 0 ? `${timeLeft}s remaining` : 'Completed';
+            
             processItem.innerHTML = `
                 <div class="process-info">
-                    <h4>${process.name || process.type}</h4>
-                    <p>Target: ${process.target || 'N/A'} | Status: ${process.status}</p>
+                    <h4>${process.action || process.type} Process</h4>
+                    <p>Target: ${process.target_ip || process.target || 'N/A'}</p>
+                    <p>Status: ${process.status} | ${timeLeftStr}</p>
                 </div>
                 <div class="process-progress">
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${process.progress || 0}%"></div>
+                        <div class="progress-fill" style="width: ${progress}%"></div>
                     </div>
-                    <span class="progress-text">${process.progress || 0}%</span>
+                    <span class="progress-text">${progress}%</span>
+                </div>
+                <div class="process-actions">
+                    <button onclick="window.gameInstance.killProcess(${process.id})" class="btn btn-danger btn-small">Kill</button>
                 </div>
             `;
             processList.appendChild(processItem);
@@ -167,6 +302,41 @@ class Game {
         const processCount = document.getElementById('active-process-count');
         if (processCount) {
             processCount.textContent = this.processes.length;
+        }
+    }
+
+    // Process management functions
+    async killProcess(processId) {
+        try {
+            const result = await API.safePost(`/processes/${processId}/kill`);
+            if (result.success && result.data.success) {
+                this.showSuccess('Process killed');
+                // Remove from local array
+                this.processes = this.processes.filter(p => p.id !== processId);
+                this.updateProcessList();
+            } else {
+                this.showError(result.message || 'Failed to kill process');
+            }
+        } catch (error) {
+            this.showError('Failed to kill process: ' + error.message);
+        }
+    }
+
+    async killAllProcesses() {
+        if (confirm('Kill all running processes?')) {
+            try {
+                const result = await API.safePost('/processes/kill-all');
+                if (result.success && result.data.success) {
+                    this.showSuccess('All processes killed');
+                    // Clear local array
+                    this.processes = [];
+                    this.updateProcessList();
+                } else {
+                    this.showError(result.message || 'Failed to kill processes');
+                }
+            } catch (error) {
+                this.showError('Failed to kill processes: ' + error.message);
+            }
         }
     }
 
@@ -263,6 +433,11 @@ class Game {
             if (e.target.matches('#connect-btn')) {
                 this.handleConnect();
             }
+
+            // Logout button
+            if (e.target.matches('#logout-btn')) {
+                this.handleLogout();
+            }
         });
 
         // Terminal input
@@ -275,6 +450,13 @@ class Game {
                 }
             });
         }
+
+        // Chat input
+        document.addEventListener('keypress', (e) => {
+            if (e.target.id === 'chat-input' && e.key === 'Enter') {
+                this.sendChatMessage();
+            }
+        });
 
         // Address bar
         const addressInput = document.getElementById('address-input');
@@ -314,27 +496,48 @@ class Game {
         try {
             switch (page) {
                 case 'processes':
-                    const processes = await API.getProcesses();
-                    if (processes) {
-                        this.processes = processes;
+                    const processResult = await API.safeGet('/processes/active');
+                    if (processResult.success && processResult.data.success) {
+                        this.processes = processResult.data.data || [];
                         this.updateProcessList();
                     }
                     break;
                 case 'software':
-                    const software = await API.getSoftware();
-                    if (software) {
-                        this.software = software;
+                    const softwareResult = await API.safeGet('/software/installed');
+                    if (softwareResult.success && softwareResult.data.success) {
+                        this.software = softwareResult.data.data || [];
                         this.updateSoftwareGrid();
                     }
                     break;
                 case 'hardware':
-                    const hardware = await API.getHardware();
-                    if (hardware) {
-                        this.updateHardwareInfo(hardware);
+                    const hardwareResult = await API.safeGet('/hardware/owned');
+                    if (hardwareResult.success && hardwareResult.data.success) {
+                        this.updateHardwareInfo(hardwareResult.data.data);
                     }
                     break;
+                case 'servers':
+                    await this.loadServers();
+                    break;
+                case 'internet':
+                    await this.loadAvailableServers();
+                    break;
+                case 'clan':
+                    await this.loadClan();
+                    break;
+                case 'missions':
+                    await this.loadMissions();
+                    break;
+                case 'ranking':
+                    await this.loadRankings();
+                    break;
                 case 'mail':
-                    await this.loadMail();
+                    await this.loadChat();
+                    break;
+                case 'logs':
+                    await this.loadLogs();
+                    break;
+                case 'connections':
+                    await this.loadConnections();
                     break;
             }
         } catch (error) {
@@ -529,9 +732,9 @@ class Game {
 
     async updateProcesses() {
         try {
-            const processes = await API.getProcesses();
-            if (processes) {
-                this.processes = processes;
+            const result = await API.safeGet('/processes/active');
+            if (result.success && result.data.success) {
+                this.processes = result.data.data || [];
                 if (this.currentPage === 'processes') {
                     this.updateProcessList();
                 }
@@ -556,6 +759,18 @@ class Game {
         }
     }
 
+    async handleLogout() {
+        try {
+            await API.logout();
+            window.location.href = 'login.html';
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Force logout even if API call fails
+            API.clearAuthToken();
+            window.location.href = 'login.html';
+        }
+    }
+
     showError(message) {
         console.error(message);
         this.showModal('Error', `<p class="error">${message}</p>`, [
@@ -567,6 +782,392 @@ class Game {
         this.showModal('Success', `<p class="success">${message}</p>`, [
             { text: 'OK', class: 'btn-primary', onclick: 'window.gameInstance.closeModal()' }
         ]);
+    }
+
+    // Display functions for different data types
+    displayServers(servers) {
+        const content = document.querySelector('#servers-page .page-content') || document.getElementById('servers-page');
+        if (!content) return;
+
+        if (servers.length === 0) {
+            content.innerHTML = '<h2>My Servers</h2><p>No servers owned</p>';
+            return;
+        }
+
+        let html = '<h2>My Servers</h2><div class="servers-grid">';
+        servers.forEach(server => {
+            html += `
+                <div class="server-item">
+                    <h4>${server.ip}</h4>
+                    <p>Type: ${server.server_type || 'Unknown'}</p>
+                    <p>Status: ${server.is_online ? 'Online' : 'Offline'}</p>
+                    <button onclick="window.gameInstance.manageServer(${server.id})" class="btn btn-primary">Manage</button>
+                </div>
+            `;
+        });
+        html += '</div>';
+        content.innerHTML = html;
+    }
+
+    displayAvailableServers(servers) {
+        const browserContent = document.getElementById('browser-content');
+        if (!browserContent) return;
+
+        if (servers.length === 0) {
+            browserContent.innerHTML = '<div class="welcome-message"><h3>No servers found</h3><p>Try scanning the network first.</p></div>';
+            return;
+        }
+
+        let html = '<h3>Available Servers</h3><div class="servers-list">';
+        servers.forEach(server => {
+            html += `
+                <div class="server-item">
+                    <div class="server-info">
+                        <strong>${server.ip}</strong>
+                        <span>Type: ${server.server_type || 'Unknown'}</span>
+                        <span>Security: ${server.password_protected ? 'High' : 'Low'}</span>
+                    </div>
+                    <div class="server-actions">
+                        <button onclick="window.gameInstance.hackServer('${server.ip}')" class="btn btn-primary">Hack</button>
+                        <button onclick="window.gameInstance.scanServer('${server.ip}')" class="btn btn-secondary">Scan</button>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        browserContent.innerHTML = html;
+    }
+
+    displayClanInfo(clanData) {
+        const content = document.querySelector('#clan-page .page-content') || document.getElementById('clan-page');
+        if (!content) return;
+
+        const { clan, members } = clanData;
+        let html = `
+            <h2>${clan.name} [${clan.tag}]</h2>
+            <p>${clan.description}</p>
+            <div class="clan-stats">
+                <span>Members: ${members.length}</span>
+                <span>Founded: ${new Date(clan.created_at).toLocaleDateString()}</span>
+            </div>
+            <h3>Members</h3>
+            <div class="members-list">
+        `;
+        
+        members.forEach(member => {
+            html += `
+                <div class="member-item">
+                    <span class="username">${member.username}</span>
+                    <span class="level">Level ${this.calculateLevel(member.experience)}</span>
+                    <span class="status ${member.is_online ? 'online' : 'offline'}">${member.is_online ? 'Online' : 'Offline'}</span>
+                </div>
+            `;
+        });
+        
+        html += `
+            </div>
+            <div class="clan-actions">
+                <button onclick="window.gameInstance.leaveClan()" class="btn btn-danger">Leave Clan</button>
+            </div>
+        `;
+        
+        content.innerHTML = html;
+    }
+
+    displayNoClan() {
+        const content = document.querySelector('#clan-page .page-content') || document.getElementById('clan-page');
+        if (!content) return;
+
+        content.innerHTML = `
+            <h2>Clan System</h2>
+            <p>You are not a member of any clan.</p>
+            <div class="clan-actions">
+                <button onclick="window.gameInstance.showCreateClanForm()" class="btn btn-primary">Create Clan</button>
+                <button onclick="window.gameInstance.showJoinClanForm()" class="btn btn-secondary">Find Clans</button>
+            </div>
+        `;
+    }
+
+    displayMissions(missions) {
+        const content = document.querySelector('#missions-page .page-content') || document.getElementById('missions-page');
+        if (!content) return;
+
+        if (missions.length === 0) {
+            content.innerHTML = '<h2>Active Missions</h2><p>No active missions</p>';
+            return;
+        }
+
+        let html = '<h2>Active Missions</h2><div class="missions-list">';
+        missions.forEach(mission => {
+            html += `
+                <div class="mission-item">
+                    <h4>${mission.title}</h4>
+                    <p>${mission.description}</p>
+                    <div class="mission-info">
+                        <span>Reward: $${mission.reward_money}</span>
+                        <span>XP: ${mission.reward_experience}</span>
+                        <span>Difficulty: ${mission.difficulty}</span>
+                    </div>
+                    <div class="mission-actions">
+                        <button onclick="window.gameInstance.completeMission(${mission.id})" class="btn btn-primary">Complete</button>
+                        <button onclick="window.gameInstance.abandonMission(${mission.id})" class="btn btn-danger">Abandon</button>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        content.innerHTML = html;
+    }
+
+    displayRankings(rankings) {
+        const content = document.querySelector('#ranking-page .page-content') || document.getElementById('ranking-page');
+        if (!content) return;
+
+        let html = '<h2>Player Rankings</h2><div class="rankings-list">';
+        rankings.forEach((player, index) => {
+            html += `
+                <div class="ranking-item">
+                    <span class="rank">#${index + 1}</span>
+                    <span class="username">${player.username}</span>
+                    <span class="level">Level ${this.calculateLevel(player.experience)}</span>
+                    <span class="money">$${player.money.toLocaleString()}</span>
+                    <span class="status ${player.is_online ? 'online' : 'offline'}">${player.is_online ? 'Online' : 'Offline'}</span>
+                </div>
+            `;
+        });
+        html += '</div>';
+        content.innerHTML = html;
+    }
+
+    // Clan management functions
+    async leaveClan() {
+        if (confirm('Are you sure you want to leave your clan?')) {
+            try {
+                const result = await API.safePost('/clan/leave');
+                if (result.success) {
+                    this.showSuccess('Left clan successfully');
+                    this.loadPageData('clan');
+                } else {
+                    this.showError(result.message || 'Failed to leave clan');
+                }
+            } catch (error) {
+                this.showError('Failed to leave clan: ' + error.message);
+            }
+        }
+    }
+
+    // Mission management functions
+    async completeMission(missionId) {
+        try {
+            const result = await API.safePost(`/missions/${missionId}/complete`);
+            if (result.success && result.data.success) {
+                const missionResult = result.data.data;
+                this.showModal('Mission Complete!', `
+                    <p>${missionResult.message}</p>
+                    <p>Reward: $${missionResult.reward_money.toLocaleString()}</p>
+                    <p>Experience: ${missionResult.reward_experience}</p>
+                `, [
+                    { text: 'OK', class: 'btn-primary', onclick: 'window.gameInstance.closeModal(); window.gameInstance.loadPageData("missions");' }
+                ]);
+            } else {
+                this.showError(result.message || 'Failed to complete mission');
+            }
+        } catch (error) {
+            this.showError('Failed to complete mission: ' + error.message);
+        }
+    }
+
+    async abandonMission(missionId) {
+        if (confirm('Are you sure you want to abandon this mission?')) {
+            try {
+                const result = await API.safePost(`/missions/${missionId}/abandon`);
+                if (result.success) {
+                    this.showSuccess('Mission abandoned');
+                    this.loadPageData('missions');
+                } else {
+                    this.showError(result.message || 'Failed to abandon mission');
+                }
+            } catch (error) {
+                this.showError('Failed to abandon mission: ' + error.message);
+            }
+        }
+    }
+
+    // Additional page loading functions
+    async loadChat() {
+        try {
+            const result = await API.safeGet('/chat/history', { limit: 50 });
+            if (result.success && result.data.success) {
+                this.displayChatMessages(result.data.data || []);
+            }
+        } catch (error) {
+            console.warn('Failed to load chat history:', error);
+        }
+    }
+
+    async loadLogs() {
+        try {
+            const result = await API.safeGet('/logs/recent');
+            if (result.success && result.data.success) {
+                this.displayLogs(result.data.data || []);
+            }
+        } catch (error) {
+            console.warn('Failed to load logs:', error);
+        }
+    }
+
+    async loadConnections() {
+        // This would show active network connections
+        const content = document.querySelector('#connections-page .connections-content');
+        if (content) {
+            content.innerHTML = '<p>Network connections feature will be implemented in a future update.</p>';
+        }
+    }
+
+    // Display functions
+    displayChatMessages(messages) {
+        const chatMessages = document.getElementById('chat-messages');
+        if (!chatMessages) return;
+
+        chatMessages.innerHTML = '';
+        messages.forEach(msg => {
+            this.addChatMessage(msg.sender, msg.message, msg.timestamp);
+        });
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    addChatMessage(sender, message, timestamp) {
+        const chatMessages = document.getElementById('chat-messages');
+        if (!chatMessages) return;
+
+        const messageEl = document.createElement('div');
+        messageEl.className = 'chat-message';
+        const time = new Date(timestamp).toLocaleTimeString();
+        messageEl.innerHTML = `
+            <span class="chat-time">[${time}]</span>
+            <span class="chat-sender">${sender}:</span>
+            <span class="chat-text">${message}</span>
+        `;
+        chatMessages.appendChild(messageEl);
+        
+        // Auto-scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    displayLogs(logs) {
+        const logsList = document.getElementById('logs-list');
+        if (!logsList) return;
+
+        if (logs.length === 0) {
+            logsList.innerHTML = '<p class="no-logs">No logs found</p>';
+            return;
+        }
+
+        logsList.innerHTML = '';
+        logs.forEach(log => {
+            const logItem = document.createElement('div');
+            logItem.className = 'log-item';
+            const time = new Date(log.created_at).toLocaleString();
+            logItem.innerHTML = `
+                <div class="log-header">
+                    <span class="log-time">${time}</span>
+                    <span class="log-type">${log.log_type}</span>
+                </div>
+                <div class="log-message">${log.message}</div>
+            `;
+            logsList.appendChild(logItem);
+        });
+    }
+
+    // Chat functions
+    sendChatMessage() {
+        const chatInput = document.getElementById('chat-input');
+        if (!chatInput) return;
+
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Send via WebSocket for real-time delivery
+        if (window.WebSocketManager && window.WebSocketManager.isConnected) {
+            window.WebSocketManager.sendChatMessage(message);
+        } else {
+            // Fallback to API
+            this.sendChatMessageAPI(message);
+        }
+
+        chatInput.value = '';
+    }
+
+    async sendChatMessageAPI(message) {
+        try {
+            const result = await API.safePost('/chat/send', { message });
+            if (!result.success) {
+                this.showError('Failed to send message');
+            }
+        } catch (error) {
+            this.showError('Failed to send message: ' + error.message);
+        }
+    }
+
+    // Log functions
+    refreshLogs() {
+        this.loadPageData('logs');
+    }
+
+    async clearLogs() {
+        if (confirm('Clear all system logs?')) {
+            try {
+                const result = await API.safePost('/logs/clear');
+                if (result.success && result.data.success) {
+                    this.showSuccess('Logs cleared');
+                    this.loadPageData('logs');
+                } else {
+                    this.showError(result.message || 'Failed to clear logs');
+                }
+            } catch (error) {
+                this.showError('Failed to clear logs: ' + error.message);
+            }
+        }
+    }
+
+    // Network functions
+    async scanNetwork() {
+        const browserContent = document.getElementById('browser-content');
+        if (!browserContent) return;
+
+        browserContent.innerHTML = '<div class="loading">Scanning network...</div>';
+
+        try {
+            const result = await API.safePost('/network/scan');
+            if (result.success && result.data.success) {
+                const scanResults = result.data.data;
+                let html = '<h3>Network Scan Results</h3><div class="scan-results">';
+                scanResults.forEach(server => {
+                    html += `
+                        <div class="scan-result">
+                            <div class="server-ip">${server.ip}</div>
+                            <div class="server-info">
+                                ${server.hostname ? `<p>Hostname: ${server.hostname}</p>` : ''}
+                                ${server.os ? `<p>OS: ${server.os}</p>` : ''}
+                                <p>Ports: ${server.open_ports.join(', ')}</p>
+                                <p>Response time: ${server.response_time}ms</p>
+                            </div>
+                            <div class="server-actions">
+                                <button onclick="document.getElementById('address-input').value='${server.ip}'; window.gameInstance.handleConnect()" class="btn btn-primary">Connect</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                browserContent.innerHTML = html;
+            } else {
+                browserContent.innerHTML = '<div class="error">Network scan failed</div>';
+            }
+        } catch (error) {
+            browserContent.innerHTML = `<div class="error">Network scan failed: ${error.message}</div>`;
+        }
     }
 }
 

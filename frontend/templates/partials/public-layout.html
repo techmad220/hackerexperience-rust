@@ -1,0 +1,294 @@
+<!-- Public Layout for Non-Authenticated Users -->
+<div class="public-interface" id="public-interface">
+    <!-- Public Navigation Header -->
+    <header class="public-header">
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <a href="/" class="brand-link">
+                    <img src="/assets/images/logo.svg" alt="HackerExperience" class="brand-logo">
+                    <span class="brand-text">
+                        <span class="brand-primary">HACKER</span>
+                        <span class="brand-secondary">EXPERIENCE</span>
+                    </span>
+                </a>
+            </div>
+            
+            <div class="navbar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link {% if current_page == 'home' %}active{% endif %}">
+                            <i class="fas fa-home"></i>
+                            Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/about" class="nav-link {% if current_page == 'about' %}active{% endif %}">
+                            <i class="fas fa-info-circle"></i>
+                            About
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/features" class="nav-link {% if current_page == 'features' %}active{% endif %}">
+                            <i class="fas fa-star"></i>
+                            Features
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/ranking" class="nav-link {% if current_page == 'ranking' %}active{% endif %}">
+                            <i class="fas fa-trophy"></i>
+                            Ranking
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/news" class="nav-link {% if current_page == 'news' %}active{% endif %}">
+                            <i class="fas fa-newspaper"></i>
+                            News
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/help" class="nav-link {% if current_page == 'help' %}active{% endif %}">
+                            <i class="fas fa-question-circle"></i>
+                            Help
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="navbar-actions">
+                <div class="server-status">
+                    <span class="status-indicator status-{{server_status|default:'online'}}"></span>
+                    <span class="status-text">{{online_users_count|default:0}} online</span>
+                </div>
+                
+                <div class="auth-buttons">
+                    <a href="/login" class="btn btn-outline-primary login-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </a>
+                    <a href="/register" class="btn btn-primary register-btn">
+                        <i class="fas fa-user-plus"></i>
+                        Register
+                    </a>
+                </div>
+                
+                <!-- Theme Toggle -->
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Theme">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
+                
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-menu-toggle d-md-none" id="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-menu" id="mobile-menu" style="display: none;">
+            <div class="mobile-menu-content">
+                <ul class="mobile-nav-list">
+                    <li><a href="/" class="mobile-nav-link">Home</a></li>
+                    <li><a href="/about" class="mobile-nav-link">About</a></li>
+                    <li><a href="/features" class="mobile-nav-link">Features</a></li>
+                    <li><a href="/ranking" class="mobile-nav-link">Ranking</a></li>
+                    <li><a href="/news" class="mobile-nav-link">News</a></li>
+                    <li><a href="/help" class="mobile-nav-link">Help</a></li>
+                </ul>
+                <div class="mobile-auth-buttons">
+                    <a href="/login" class="btn btn-outline-primary btn-block">Login</a>
+                    <a href="/register" class="btn btn-primary btn-block">Register</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Public Content -->
+    <main class="public-main" id="public-main">
+        {% if current_page == 'home' %}
+            {% include 'pages/public/home.html' %}
+        {% elif current_page == 'login' %}
+            {% include 'pages/public/login.html' %}
+        {% elif current_page == 'register' %}
+            {% include 'pages/public/register.html' %}
+        {% elif current_page == 'forgot-password' %}
+            {% include 'pages/public/forgot-password.html' %}
+        {% elif current_page == 'reset-password' %}
+            {% include 'pages/public/reset-password.html' %}
+        {% elif current_page == 'about' %}
+            {% include 'pages/public/about.html' %}
+        {% elif current_page == 'features' %}
+            {% include 'pages/public/features.html' %}
+        {% elif current_page == 'ranking' %}
+            {% include 'pages/public/ranking.html' %}
+        {% elif current_page == 'news' %}
+            {% include 'pages/public/news.html' %}
+        {% elif current_page == 'help' %}
+            {% include 'pages/public/help.html' %}
+        {% elif current_page == 'terms' %}
+            {% include 'pages/public/terms.html' %}
+        {% elif current_page == 'privacy' %}
+            {% include 'pages/public/privacy.html' %}
+        {% else %}
+            {% include 'pages/public/404.html' %}
+        {% endif %}
+    </main>
+
+    <!-- Public Footer -->
+    <footer class="public-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h5 class="footer-title">HackerExperience</h5>
+                    <p class="footer-description">
+                        The ultimate hacking simulation game. Build your hacking empire, 
+                        attack other players, defend your servers, and climb the ranks 
+                        in this realistic cybersecurity simulation.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Discord">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                        <a href="#" class="social-link" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link" title="Reddit">
+                            <i class="fab fa-reddit"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h6 class="footer-subtitle">Game</h6>
+                    <ul class="footer-links">
+                        <li><a href="/features">Features</a></li>
+                        <li><a href="/ranking">Ranking</a></li>
+                        <li><a href="/statistics">Statistics</a></li>
+                        <li><a href="/news">News</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h6 class="footer-subtitle">Community</h6>
+                    <ul class="footer-links">
+                        <li><a href="/discord">Discord</a></li>
+                        <li><a href="/forum">Forum</a></li>
+                        <li><a href="/wiki">Wiki</a></li>
+                        <li><a href="/guides">Guides</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h6 class="footer-subtitle">Support</h6>
+                    <ul class="footer-links">
+                        <li><a href="/help">Help Center</a></li>
+                        <li><a href="/contact">Contact</a></li>
+                        <li><a href="/bug-report">Bug Report</a></li>
+                        <li><a href="/feedback">Feedback</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h6 class="footer-subtitle">Legal</h6>
+                    <ul class="footer-links">
+                        <li><a href="/terms">Terms of Service</a></li>
+                        <li><a href="/privacy">Privacy Policy</a></li>
+                        <li><a href="/cookies">Cookie Policy</a></li>
+                        <li><a href="/dmca">DMCA</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-left">
+                    <p class="copyright">
+                        &copy; {{current_year}} HackerExperience. All rights reserved.
+                        <span class="version">v{{game_version|default:'2.0.0'}}</span>
+                    </p>
+                </div>
+                
+                <div class="footer-bottom-right">
+                    <div class="server-info">
+                        <span class="server-status">
+                            <i class="fas fa-circle status-{{server_status|default:'online'}}"></i>
+                            Server {{server_status_text|default:'Online'}}
+                        </span>
+                        <span class="server-location">{{server_location|default:'Global'}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- Background Animation (Optional) -->
+<div class="background-animation" id="background-animation">
+    <canvas id="bg-canvas"></canvas>
+</div>
+
+<!-- Floating Particles Effect -->
+<div class="particles-container" id="particles" style="display: none;"></div>
+
+<!-- Cookie Consent Banner -->
+{% if show_cookie_consent %}
+<div class="cookie-banner" id="cookie-banner">
+    <div class="cookie-content">
+        <div class="cookie-text">
+            <i class="fas fa-cookie-bite"></i>
+            <span>
+                We use cookies to enhance your gaming experience and provide personalized content. 
+                By continuing to use our site, you agree to our use of cookies.
+            </span>
+        </div>
+        <div class="cookie-actions">
+            <button class="btn btn-sm btn-outline-light" id="cookie-settings">Settings</button>
+            <button class="btn btn-sm btn-primary" id="cookie-accept">Accept All</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Age Verification Modal (If Required) -->
+{% if require_age_verification %}
+<div class="modal-overlay age-verification-modal" id="age-verification" style="display: block;">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <h3 class="modal-title">Age Verification</h3>
+        </div>
+        <div class="modal-body text-center">
+            <i class="fas fa-shield-alt fa-3x mb-3"></i>
+            <p>HackerExperience contains mature themes related to cybersecurity and hacking simulation.</p>
+            <p><strong>Are you 13 years of age or older?</strong></p>
+        </div>
+        <div class="modal-footer justify-content-center">
+            <button class="btn btn-secondary" id="age-deny">No, I'm under 13</button>
+            <button class="btn btn-primary" id="age-confirm">Yes, I'm 13 or older</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Newsletter Signup (Optional) -->
+<div class="newsletter-popup" id="newsletter-popup" style="display: none;">
+    <div class="newsletter-content">
+        <button class="newsletter-close" id="newsletter-close">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="newsletter-icon">
+            <i class="fas fa-envelope"></i>
+        </div>
+        <h4>Stay Updated!</h4>
+        <p>Get the latest game updates, features, and community news delivered to your inbox.</p>
+        <form class="newsletter-form" id="newsletter-form">
+            <div class="form-group">
+                <input type="email" class="form-control" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Subscribe</button>
+        </form>
+        <small class="newsletter-privacy">
+            We respect your privacy. Unsubscribe at any time.
+        </small>
+    </div>
+</div>

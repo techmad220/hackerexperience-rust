@@ -30,6 +30,7 @@ pub mod ses;          // SES.class.php - Amazon SES integration
 pub mod email_verification; // EmailVerification.class.php - Email verification
 pub mod software;       // Software.class.php - Software management
 pub mod player;         // Player.class.php - Player operations
+pub mod player_display; // Player display methods - HTML rendering and UI
 
 // Re-export main classes for easy access
 pub use database::*;

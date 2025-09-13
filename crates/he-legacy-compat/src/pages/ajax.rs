@@ -241,12 +241,12 @@ async fn check_user_handler(db: &DbPool, params: &HashMap<String, String>) -> Aj
         None => return AjaxResponse::error("Missing username parameter"),
     };
     
-    // TODO: Implement user lookup
-    // let user_repo = UserRepository::new(db.clone());
-    // let exists = user_repo.find_by_login(username).await.unwrap_or(None).is_some();
-    
-    // For now, return placeholder
-    AjaxResponse::success_with_data("Username check complete", json!({"available": true}))
+    let user_repo = UserRepository::new(db.clone());
+    match user_repo.find_by_login(username).await {
+        Ok(Some(_)) => AjaxResponse::success_with_data("Username taken", json!({"available": false})),
+        Ok(None) => AjaxResponse::success_with_data("Username available", json!({"available": true})),
+        Err(_) => AjaxResponse::error("Database error checking username"),
+    }
 }
 
 async fn check_mail_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
@@ -256,8 +256,24 @@ async fn check_mail_handler(db: &DbPool, params: &HashMap<String, String>) -> Aj
         None => return AjaxResponse::error("Missing email parameter"),
     };
     
-    // TODO: Implement email lookup
-    AjaxResponse::success_with_data("Email check complete", json!({"available": true}))
+    // Email validation (basic check)
+    if !email.contains('@') || !email.contains('.') {
+        return AjaxResponse::error("Invalid email format");
+    }
+    
+    let user_repo = UserRepository::new(db.clone());
+    // Check if email exists by finding user with this email
+    let exists = sqlx::query!("SELECT id FROM users WHERE email = ?", email)
+        .fetch_optional(db)
+        .await
+        .unwrap_or(None)
+        .is_some();
+    
+    if exists {
+        AjaxResponse::success_with_data("Email taken", json!({"available": false}))
+    } else {
+        AjaxResponse::success_with_data("Email available", json!({"available": true}))
+    }
 }
 
 async fn gettext_handler(params: &HashMap<String, String>) -> AjaxResponse {
@@ -267,8 +283,35 @@ async fn gettext_handler(params: &HashMap<String, String>) -> AjaxResponse {
         None => return AjaxResponse::error("Missing translation key"),
     };
     
-    // TODO: Implement translation system
-    AjaxResponse::success_with_data("Translation retrieved", json!({"text": key}))
+    // Basic translation mapping - in production would use proper i18n system
+    let translations = std::collections::HashMap::from([
+        ("loading", "Loading..."),
+        ("error", "Error occurred"),
+        ("success", "Success"),
+        ("login", "Login"),
+        ("logout", "Logout"),
+        ("register", "Register"),
+        ("username", "Username"),
+        ("password", "Password"),
+        ("email", "Email"),
+        ("submit", "Submit"),
+        ("cancel", "Cancel"),
+        ("close", "Close"),
+        ("save", "Save"),
+        ("delete", "Delete"),
+        ("edit", "Edit"),
+        ("hack", "Hack"),
+        ("mission", "Mission"),
+        ("software", "Software"),
+        ("hardware", "Hardware"),
+        ("finances", "Finances"),
+        ("clan", "Clan"),
+        ("mail", "Mail"),
+        ("settings", "Settings"),
+    ]);
+    
+    let text = translations.get(key.as_str()).unwrap_or(&key);
+    AjaxResponse::success_with_data("Translation retrieved", json!({"text": text}))
 }
 
 // ===== TUTORIAL SYSTEM HANDLERS =====
@@ -420,20 +463,77 @@ async fn get_tutorial_first_victim_handler(db: &DbPool, params: &HashMap<String,
 
 async fn get_player_learning_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
     // Original PHP: Check if player is in learning/tutorial mode
-    // TODO: Implement player learning status check
-    AjaxResponse::success_with_data("Player learning status retrieved", json!({"learning": false}))
+    // Get user ID from session - for now using placeholder
+    let user_id = 1; // TODO: Get from session context
+    
+    let player = Player::new(db.clone());
+    match player.player_learning(user_id).await {
+        Ok(learning_id) => AjaxResponse::success_with_data(
+            "Player learning status retrieved", 
+            json!({"learning": learning_id > 0, "learning_id": learning_id})
+        ),
+        Err(_) => AjaxResponse::error("Failed to get player learning status"),
+    }
 }
 
 async fn get_total_money_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
     // Original PHP: Get player's total money across all accounts
-    // TODO: Implement total money calculation
-    AjaxResponse::success_with_data("Total money retrieved", json!({"total": 0}))
+    let user_id = 1; // TODO: Get from session context
+    
+    // Calculate total money from user stats and bank accounts
+    match sqlx::query!(
+        "SELECT money FROM users_stats WHERE user_id = ?",
+        user_id
+    )
+    .fetch_optional(db)
+    .await
+    {
+        Ok(Some(row)) => {
+            let base_money = row.money;
+            
+            // Add bank account balances
+            let bank_total = sqlx::query!(
+                "SELECT COALESCE(SUM(money), 0) as total FROM banks_accs WHERE user_id = ?",
+                user_id
+            )
+            .fetch_one(db)
+            .await
+            .map(|r| r.total.unwrap_or(0))
+            .unwrap_or(0);
+            
+            let total = base_money + bank_total;
+            AjaxResponse::success_with_data("Total money retrieved", json!({"total": total}))
+        },
+        Ok(None) => AjaxResponse::error("User not found"),
+        Err(_) => AjaxResponse::error("Database error retrieving money"),
+    }
 }
 
 async fn get_bank_accs_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
     // Original PHP: Get player's bank accounts
-    // TODO: Implement bank account retrieval
-    AjaxResponse::success_with_data("Bank accounts retrieved", json!({"accounts": []}))
+    let user_id = 1; // TODO: Get from session context
+    
+    match sqlx::query!(
+        "SELECT bank_id, user_id, money, account_name FROM banks_accs WHERE user_id = ?",
+        user_id
+    )
+    .fetch_all(db)
+    .await
+    {
+        Ok(accounts) => {
+            let account_list: Vec<serde_json::Value> = accounts.into_iter().map(|acc| {
+                json!({
+                    "bank_id": acc.bank_id,
+                    "account_name": acc.account_name,
+                    "money": acc.money,
+                    "formatted_money": format!("${:.2}", acc.money as f64 / 100.0)
+                })
+            }).collect();
+            
+            AjaxResponse::success_with_data("Bank accounts retrieved", json!({"accounts": account_list}))
+        },
+        Err(_) => AjaxResponse::error("Failed to retrieve bank accounts"),
+    }
 }
 
 // ===== GAME MECHANICS HANDLERS =====
@@ -446,8 +546,38 @@ async fn manage_viruses_handler(db: &DbPool, params: &HashMap<String, String>) -
 
 async fn search_clan_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
     // Original PHP: Search for clans
-    // TODO: Implement clan search
-    AjaxResponse::success_with_data("Clan search complete", json!({"clans": []}))
+    let search_term = params.get("search").unwrap_or(&String::new());
+    
+    if search_term.len() < 2 {
+        return AjaxResponse::error("Search term must be at least 2 characters");
+    }
+    
+    let search_pattern = format!("%{}%", search_term);
+    
+    match sqlx::query!(
+        "SELECT id, name, tag, description, member_count, is_recruiting FROM clans WHERE name LIKE ? OR tag LIKE ? LIMIT 20",
+        search_pattern,
+        search_pattern
+    )
+    .fetch_all(db)
+    .await
+    {
+        Ok(clans) => {
+            let clan_list: Vec<serde_json::Value> = clans.into_iter().map(|clan| {
+                json!({
+                    "id": clan.id,
+                    "name": clan.name,
+                    "tag": clan.tag,
+                    "description": clan.description,
+                    "member_count": clan.member_count,
+                    "is_recruiting": clan.is_recruiting != 0
+                })
+            }).collect();
+            
+            AjaxResponse::success_with_data("Clan search complete", json!({"clans": clan_list}))
+        },
+        Err(_) => AjaxResponse::error("Failed to search clans"),
+    }
 }
 
 async fn war_history_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
@@ -477,6 +607,7 @@ async fn load_history_handler(db: &DbPool, params: &HashMap<String, String>) -> 
 // ===== PROCESS MANAGEMENT HANDLERS =====
 
 async fn start_process_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
+    let user_id = 1; // TODO: Get from session context
     let process_type = match params.get("type") {
         Some(t) => t,
         None => return AjaxResponse::error("Missing process type"),
@@ -485,64 +616,220 @@ async fn start_process_handler(db: &DbPool, params: &HashMap<String, String>) ->
     let target_ip = params.get("target").unwrap_or("");
     let target_file = params.get("file").unwrap_or("");
     
-    // TODO: Validate process parameters and start process
-    // let process_id = ProcessService::start_process(process_type, target_ip, target_file).await?;
+    // Validate process type
+    let valid_types = ["hack", "download", "upload", "research", "install", "uninstall", "bruteforce", "analyze"];
+    if !valid_types.contains(&process_type.as_str()) {
+        return AjaxResponse::error("Invalid process type");
+    }
     
-    AjaxResponse::success_with_data("Process started", json!({
-        "process_id": 123,
-        "estimated_time": 300,
-        "status": "running"
-    }))
+    // Check active process limit
+    let active_count = sqlx::query!(
+        "SELECT COUNT(*) as count FROM processes WHERE user_id = ? AND status = 'running'",
+        user_id
+    )
+    .fetch_one(db)
+    .await
+    .map(|r| r.count)
+    .unwrap_or(0);
+    
+    if active_count >= 3 {
+        return AjaxResponse::error("Too many active processes. Maximum 3 allowed.");
+    }
+    
+    // Calculate duration based on type
+    let duration = match process_type.as_str() {
+        "hack" => 30,
+        "bruteforce" => 120,
+        "download" => 60,
+        "upload" => 45,
+        "research" => 300,
+        "install" => 15,
+        "uninstall" => 10,
+        "analyze" => 90,
+        _ => 60,
+    };
+    
+    // Create process record
+    match sqlx::query!(
+        "INSERT INTO processes (user_id, process_type, target_ip, target_file, status, duration, created_at) VALUES (?, ?, ?, ?, 'running', ?, NOW())",
+        user_id,
+        process_type,
+        target_ip,
+        target_file,
+        duration
+    )
+    .execute(db)
+    .await
+    {
+        Ok(result) => {
+            let process_id = result.last_insert_id();
+            AjaxResponse::success_with_data("Process started", json!({
+                "process_id": process_id,
+                "estimated_time": duration,
+                "status": "running",
+                "type": process_type
+            }))
+        },
+        Err(_) => AjaxResponse::error("Failed to start process"),
+    }
 }
 
 async fn pause_process_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
+    let user_id = 1; // TODO: Get from session context
     let process_id = match params.get("id").and_then(|id| id.parse::<i64>().ok()) {
         Some(id) => id,
         None => return AjaxResponse::error("Invalid process ID"),
     };
     
-    // TODO: Implement process pausing
-    AjaxResponse::success("Process paused")
+    // Verify process ownership and status
+    match sqlx::query!(
+        "SELECT status FROM processes WHERE id = ? AND user_id = ?",
+        process_id,
+        user_id
+    )
+    .fetch_optional(db)
+    .await
+    {
+        Ok(Some(row)) => {
+            if row.status != "running" {
+                return AjaxResponse::error("Process is not running");
+            }
+            
+            // Update process status to paused
+            match sqlx::query!(
+                "UPDATE processes SET status = 'paused', paused_at = NOW() WHERE id = ?",
+                process_id
+            )
+            .execute(db)
+            .await
+            {
+                Ok(_) => AjaxResponse::success("Process paused"),
+                Err(_) => AjaxResponse::error("Failed to pause process"),
+            }
+        },
+        Ok(None) => AjaxResponse::error("Process not found or access denied"),
+        Err(_) => AjaxResponse::error("Database error"),
+    }
 }
 
 async fn cancel_process_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
+    let user_id = 1; // TODO: Get from session context
     let process_id = match params.get("id").and_then(|id| id.parse::<i64>().ok()) {
         Some(id) => id,
         None => return AjaxResponse::error("Invalid process ID"),
     };
     
-    // TODO: Implement process cancellation
-    AjaxResponse::success("Process cancelled")
+    // Verify process ownership
+    match sqlx::query!(
+        "SELECT status FROM processes WHERE id = ? AND user_id = ?",
+        process_id,
+        user_id
+    )
+    .fetch_optional(db)
+    .await
+    {
+        Ok(Some(row)) => {
+            if row.status == "completed" {
+                return AjaxResponse::error("Cannot cancel completed process");
+            }
+            
+            // Delete the process (cancel it)
+            match sqlx::query!(
+                "DELETE FROM processes WHERE id = ?",
+                process_id
+            )
+            .execute(db)
+            .await
+            {
+                Ok(_) => AjaxResponse::success("Process cancelled"),
+                Err(_) => AjaxResponse::error("Failed to cancel process"),
+            }
+        },
+        Ok(None) => AjaxResponse::error("Process not found or access denied"),
+        Err(_) => AjaxResponse::error("Database error"),
+    }
 }
 
 async fn get_process_status_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
+    let user_id = 1; // TODO: Get from session context
     let process_id = match params.get("id").and_then(|id| id.parse::<i64>().ok()) {
         Some(id) => id,
         None => return AjaxResponse::error("Invalid process ID"),
     };
     
-    // TODO: Get actual process status from database
-    AjaxResponse::success_with_data("Process status retrieved", json!({
-        "process_id": process_id,
-        "status": "running",
-        "progress": 65,
-        "time_remaining": 120
-    }))
+    match sqlx::query!(
+        "SELECT id, process_type, status, duration, created_at, paused_at FROM processes WHERE id = ? AND user_id = ?",
+        process_id,
+        user_id
+    )
+    .fetch_optional(db)
+    .await
+    {
+        Ok(Some(row)) => {
+            // Calculate progress based on elapsed time
+            let elapsed = if let Some(paused) = row.paused_at {
+                (paused.timestamp() - row.created_at.timestamp()) as i32
+            } else {
+                (chrono::Utc::now().timestamp() - row.created_at.timestamp()) as i32
+            };
+            
+            let progress = ((elapsed as f32 / row.duration as f32) * 100.0).min(100.0) as i32;
+            let time_remaining = (row.duration - elapsed).max(0);
+            
+            AjaxResponse::success_with_data("Process status retrieved", json!({
+                "process_id": row.id,
+                "type": row.process_type,
+                "status": row.status,
+                "progress": progress,
+                "time_remaining": time_remaining,
+                "duration": row.duration
+            }))
+        },
+        Ok(None) => AjaxResponse::error("Process not found"),
+        Err(_) => AjaxResponse::error("Database error"),
+    }
 }
 
 async fn get_process_list_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
-    // TODO: Get player's active processes
-    AjaxResponse::success_with_data("Process list retrieved", json!({
-        "processes": [
-            {
-                "id": 123,
-                "type": "cracker",
-                "target": "192.168.1.100",
-                "progress": 65,
-                "status": "running"
-            }
-        ]
-    }))
+    let user_id = 1; // TODO: Get from session context
+    
+    match sqlx::query!(
+        "SELECT id, process_type, target_ip, status, duration, created_at, paused_at FROM processes WHERE user_id = ? AND status IN ('running', 'paused') ORDER BY created_at DESC",
+        user_id
+    )
+    .fetch_all(db)
+    .await
+    {
+        Ok(processes) => {
+            let process_list: Vec<serde_json::Value> = processes.into_iter().map(|p| {
+                let elapsed = if let Some(paused) = p.paused_at {
+                    (paused.timestamp() - p.created_at.timestamp()) as i32
+                } else if p.status == "running" {
+                    (chrono::Utc::now().timestamp() - p.created_at.timestamp()) as i32
+                } else {
+                    0
+                };
+                
+                let progress = ((elapsed as f32 / p.duration as f32) * 100.0).min(100.0) as i32;
+                
+                json!({
+                    "id": p.id,
+                    "type": p.process_type,
+                    "target": p.target_ip.unwrap_or_else(|| "localhost".to_string()),
+                    "status": p.status,
+                    "progress": progress,
+                    "duration": p.duration,
+                    "time_remaining": (p.duration - elapsed).max(0)
+                })
+            }).collect();
+            
+            AjaxResponse::success_with_data("Process list retrieved", json!({
+                "processes": process_list,
+                "count": process_list.len()
+            }))
+        },
+        Err(_) => AjaxResponse::error("Failed to retrieve process list"),
+    }
 }
 
 // ===== SOFTWARE MANAGEMENT HANDLERS =====
@@ -570,8 +857,46 @@ async fn remove_software_handler(db: &DbPool, params: &HashMap<String, String>) 
         None => return AjaxResponse::error("Invalid software ID"),
     };
     
-    // TODO: Remove software and free up space
-    AjaxResponse::success("Software removed")
+    let user_id = 1; // TODO: Get from session context
+    
+    // Check if software exists and belongs to user
+    let check_query = sqlx::query!(
+        "SELECT id, size FROM software WHERE id = $1 AND user_id = $2",
+        software_id,
+        user_id
+    );
+    
+    let software = match check_query.fetch_optional(db).await {
+        Ok(Some(s)) => s,
+        Ok(None) => return AjaxResponse::error("Software not found or access denied"),
+        Err(_) => return AjaxResponse::error("Database error checking software"),
+    };
+    
+    // Remove software from database
+    let delete_query = sqlx::query!(
+        "DELETE FROM software WHERE id = $1 AND user_id = $2",
+        software_id,
+        user_id
+    );
+    
+    match delete_query.execute(db).await {
+        Ok(_) => {
+            // Update user's available storage
+            let update_storage = sqlx::query!(
+                "UPDATE users SET storage_used = storage_used - $1 WHERE id = $2",
+                software.size,
+                user_id
+            );
+            
+            let _ = update_storage.execute(db).await;
+            
+            AjaxResponse::success_with_data("Software removed successfully", json!({
+                "freed_space": software.size,
+                "software_id": software_id
+            }))
+        }
+        Err(_) => AjaxResponse::error("Failed to remove software"),
+    }
 }
 
 async fn upgrade_software_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
@@ -580,12 +905,68 @@ async fn upgrade_software_handler(db: &DbPool, params: &HashMap<String, String>)
         None => return AjaxResponse::error("Invalid software ID"),
     };
     
-    // TODO: Check upgrade requirements and perform upgrade
-    AjaxResponse::success_with_data("Software upgraded", json!({
-        "software_id": software_id,
-        "new_version": 2,
-        "cost": 5000
-    }))
+    let user_id = 1; // TODO: Get from session context
+    
+    // Check current software version and type
+    let check_query = sqlx::query!(
+        "SELECT id, type, version, size FROM software WHERE id = $1 AND user_id = $2",
+        software_id,
+        user_id
+    );
+    
+    let software = match check_query.fetch_optional(db).await {
+        Ok(Some(s)) => s,
+        Ok(None) => return AjaxResponse::error("Software not found or access denied"),
+        Err(_) => return AjaxResponse::error("Database error checking software"),
+    };
+    
+    // Calculate upgrade requirements
+    let new_version = software.version + 1;
+    let upgrade_time = 30 + (new_version * 10); // seconds
+    let upgrade_cost = 100 * new_version as i64;
+    let new_size = software.size + (software.size / 10); // 10% size increase
+    
+    // Check if user has enough money
+    let money_check = sqlx::query!("SELECT money FROM users WHERE id = $1", user_id);
+    let user_money = match money_check.fetch_one(db).await {
+        Ok(u) => u.money.unwrap_or(0),
+        Err(_) => return AjaxResponse::error("Failed to check user funds"),
+    };
+    
+    if user_money < upgrade_cost {
+        return AjaxResponse::error_with_data("Insufficient funds", json!({
+            "required": upgrade_cost,
+            "available": user_money
+        }));
+    }
+    
+    // Create upgrade process
+    let process_query = sqlx::query!(
+        "INSERT INTO processes (user_id, type, target_id, status, progress, duration, created_at) 
+         VALUES ($1, 'upgrade', $2, 'running', 0, $3, NOW()) RETURNING id",
+        user_id,
+        software_id,
+        upgrade_time
+    );
+    
+    match process_query.fetch_one(db).await {
+        Ok(p) => {
+            // Deduct money
+            let _ = sqlx::query!(
+                "UPDATE users SET money = money - $1 WHERE id = $2",
+                upgrade_cost,
+                user_id
+            ).execute(db).await;
+            
+            AjaxResponse::success_with_data("Software upgrade started", json!({
+                "process_id": p.id,
+                "duration": upgrade_time,
+                "cost": upgrade_cost,
+                "new_version": new_version
+            }))
+        }
+        Err(_) => AjaxResponse::error("Failed to start upgrade process"),
+    }
 }
 
 async fn research_software_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
@@ -664,15 +1045,99 @@ async fn hack_server_handler(db: &DbPool, params: &HashMap<String, String>) -> A
         None => return AjaxResponse::error("Missing server IP"),
     };
     
-    let hack_type = params.get("type").unwrap_or("password");
+    let hack_type = params.get("type").unwrap_or(&"password".to_string());
+    let user_id = 1; // TODO: Get from session context
     
-    // TODO: Start hacking process based on type
-    AjaxResponse::success_with_data("Hack initiated", json!({
-        "process_id": 999,
-        "target": server_ip,
-        "type": hack_type,
-        "estimated_time": 240
-    }))
+    // Check if server exists
+    let server_query = sqlx::query!(
+        "SELECT id, firewall_level, cpu_power FROM servers WHERE ip = $1",
+        server_ip
+    );
+    
+    let server = match server_query.fetch_optional(db).await {
+        Ok(Some(s)) => s,
+        Ok(None) => return AjaxResponse::error("Server not found"),
+        Err(_) => return AjaxResponse::error("Database error checking server"),
+    };
+    
+    // Check user's hacking tools
+    let tool_check = match hack_type.as_str() {
+        "password" => sqlx::query!(
+            "SELECT id, version FROM software 
+             WHERE user_id = $1 AND type = 'cracker' AND installed = true
+             ORDER BY version DESC LIMIT 1",
+            user_id
+        ),
+        "firewall" => sqlx::query!(
+            "SELECT id, version FROM software 
+             WHERE user_id = $1 AND type = 'exploit' AND installed = true
+             ORDER BY version DESC LIMIT 1",
+            user_id
+        ),
+        _ => sqlx::query!(
+            "SELECT id, version FROM software 
+             WHERE user_id = $1 AND type = 'ddos' AND installed = true
+             ORDER BY version DESC LIMIT 1",
+            user_id
+        ),
+    };
+    
+    let tool = match tool_check.fetch_optional(db).await {
+        Ok(Some(t)) => t,
+        Ok(None) => return AjaxResponse::error("Required hacking tool not installed"),
+        Err(_) => return AjaxResponse::error("Failed to check hacking tools"),
+    };
+    
+    // Calculate hack difficulty and time
+    let difficulty = server.firewall_level * 10;
+    let success_chance = (tool.version * 10).min(95) as f32 / 100.0;
+    let hack_time = (difficulty / tool.version).max(30); // minimum 30 seconds
+    
+    // Check if user has active hack on this server
+    let active_check = sqlx::query!(
+        "SELECT id FROM processes 
+         WHERE user_id = $1 AND type = 'hack' AND target = $2 AND status = 'running'",
+        user_id,
+        server_ip
+    );
+    
+    if active_check.fetch_optional(db).await.unwrap_or(None).is_some() {
+        return AjaxResponse::error("Already hacking this server");
+    }
+    
+    // Create hack process
+    let process_query = sqlx::query!(
+        "INSERT INTO processes (user_id, type, target, target_id, status, progress, duration, created_at) 
+         VALUES ($1, 'hack', $2, $3, 'running', 0, $4, NOW()) RETURNING id",
+        user_id,
+        server_ip,
+        server.id,
+        hack_time
+    );
+    
+    match process_query.fetch_one(db).await {
+        Ok(p) => {
+            // Log hack attempt
+            let _ = sqlx::query!(
+                "INSERT INTO hack_logs (user_id, server_id, type, success_chance, started_at) 
+                 VALUES ($1, $2, $3, $4, NOW())",
+                user_id,
+                server.id,
+                hack_type,
+                success_chance
+            ).execute(db).await;
+            
+            AjaxResponse::success_with_data("Hack initiated", json!({
+                "process_id": p.id,
+                "target": server_ip,
+                "type": hack_type,
+                "estimated_time": hack_time,
+                "difficulty": difficulty,
+                "success_chance": format!("{:.0}%", success_chance * 100.0)
+            }))
+        }
+        Err(_) => AjaxResponse::error("Failed to start hack process"),
+    }
 }
 
 async fn crack_password_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
@@ -843,15 +1308,109 @@ async fn bank_transfer_handler(db: &DbPool, params: &HashMap<String, String>) ->
         None => return AjaxResponse::error("Missing destination account"),
     };
     
-    // TODO: Process bank transfer
-    AjaxResponse::success_with_data("Transfer completed", json!({
-        "transaction_id": 12345,
-        "amount": amount,
-        "from": from_account,
-        "to": to_account,
-        "fee": amount / 100, // 1% fee
-        "timestamp": "2024-01-01T12:00:00Z"
-    }))
+    let user_id = 1; // TODO: Get from session context
+    
+    // Verify source account ownership and balance
+    let source_check = sqlx::query!(
+        "SELECT id, balance, user_id FROM bank_accounts WHERE account_number = $1",
+        from_account
+    );
+    
+    let source = match source_check.fetch_optional(db).await {
+        Ok(Some(s)) => s,
+        Ok(None) => return AjaxResponse::error("Source account not found"),
+        Err(_) => return AjaxResponse::error("Database error checking source account"),
+    };
+    
+    if source.user_id != user_id {
+        return AjaxResponse::error("Unauthorized access to source account");
+    }
+    
+    if source.balance < amount {
+        return AjaxResponse::error_with_data("Insufficient funds", json!({
+            "required": amount,
+            "available": source.balance
+        }));
+    }
+    
+    // Verify destination account exists
+    let dest_check = sqlx::query!(
+        "SELECT id FROM bank_accounts WHERE account_number = $1",
+        to_account
+    );
+    
+    let dest = match dest_check.fetch_optional(db).await {
+        Ok(Some(d)) => d,
+        Ok(None) => return AjaxResponse::error("Destination account not found"),
+        Err(_) => return AjaxResponse::error("Database error checking destination account"),
+    };
+    
+    // Calculate fee (1%)
+    let fee = amount / 100;
+    let net_amount = amount - fee;
+    
+    // Begin transaction
+    let mut tx = match db.begin().await {
+        Ok(t) => t,
+        Err(_) => return AjaxResponse::error("Failed to start transaction"),
+    };
+    
+    // Deduct from source
+    let deduct_query = sqlx::query!(
+        "UPDATE bank_accounts SET balance = balance - $1 WHERE id = $2",
+        amount,
+        source.id
+    );
+    
+    if deduct_query.execute(&mut *tx).await.is_err() {
+        let _ = tx.rollback().await;
+        return AjaxResponse::error("Failed to deduct from source account");
+    }
+    
+    // Add to destination
+    let add_query = sqlx::query!(
+        "UPDATE bank_accounts SET balance = balance + $1 WHERE id = $2",
+        net_amount,
+        dest.id
+    );
+    
+    if add_query.execute(&mut *tx).await.is_err() {
+        let _ = tx.rollback().await;
+        return AjaxResponse::error("Failed to add to destination account");
+    }
+    
+    // Record transaction
+    let trans_query = sqlx::query!(
+        "INSERT INTO transactions (from_account_id, to_account_id, amount, fee, type, status, created_at) 
+         VALUES ($1, $2, $3, $4, 'transfer', 'completed', NOW()) RETURNING id, created_at",
+        source.id,
+        dest.id,
+        amount,
+        fee
+    );
+    
+    let transaction = match trans_query.fetch_one(&mut *tx).await {
+        Ok(t) => t,
+        Err(_) => {
+            let _ = tx.rollback().await;
+            return AjaxResponse::error("Failed to record transaction");
+        }
+    };
+    
+    // Commit transaction
+    match tx.commit().await {
+        Ok(_) => {
+            AjaxResponse::success_with_data("Transfer completed", json!({
+                "transaction_id": transaction.id,
+                "amount": amount,
+                "from": from_account,
+                "to": to_account,
+                "fee": fee,
+                "timestamp": transaction.created_at
+            }))
+        }
+        Err(_) => AjaxResponse::error("Failed to commit transaction"),
+    }
 }
 
 async fn create_account_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
@@ -862,14 +1421,68 @@ async fn create_account_handler(db: &DbPool, params: &HashMap<String, String>) -
     
     let account_type = params.get("type").unwrap_or("checking");
     
-    // TODO: Create new bank account
-    AjaxResponse::success_with_data("Account created", json!({
-        "account_number": "ACC123456",
-        "bank": bank,
-        "type": account_type,
-        "initial_balance": 0,
-        "creation_fee": 100
-    }))
+    let user_id = 1; // TODO: Get from session context
+    
+    // Check if user already has an account at this bank
+    let existing = sqlx::query!(
+        "SELECT id FROM bank_accounts WHERE user_id = $1 AND bank = $2",
+        user_id,
+        bank
+    );
+    
+    if existing.fetch_optional(db).await.unwrap_or(None).is_some() {
+        return AjaxResponse::error("You already have an account at this bank");
+    }
+    
+    // Check user has enough money for creation fee
+    let creation_fee = 100i64;
+    let money_check = sqlx::query!("SELECT money FROM users WHERE id = $1", user_id);
+    
+    let user_money = match money_check.fetch_one(db).await {
+        Ok(u) => u.money.unwrap_or(0),
+        Err(_) => return AjaxResponse::error("Failed to check user funds"),
+    };
+    
+    if user_money < creation_fee {
+        return AjaxResponse::error_with_data("Insufficient funds for account creation", json!({
+            "required": creation_fee,
+            "available": user_money
+        }));
+    }
+    
+    // Generate unique account number
+    let account_number = format!("ACC{:06}", rand::random::<u32>() % 1000000);
+    
+    // Create account
+    let create_query = sqlx::query!(
+        "INSERT INTO bank_accounts (user_id, bank, account_number, type, balance, created_at) 
+         VALUES ($1, $2, $3, $4, 0, NOW()) RETURNING id",
+        user_id,
+        bank,
+        account_number,
+        account_type
+    );
+    
+    match create_query.fetch_one(db).await {
+        Ok(acc) => {
+            // Deduct creation fee
+            let _ = sqlx::query!(
+                "UPDATE users SET money = money - $1 WHERE id = $2",
+                creation_fee,
+                user_id
+            ).execute(db).await;
+            
+            AjaxResponse::success_with_data("Account created", json!({
+                "account_id": acc.id,
+                "account_number": account_number,
+                "bank": bank,
+                "type": account_type,
+                "initial_balance": 0,
+                "creation_fee": creation_fee
+            }))
+        }
+        Err(_) => AjaxResponse::error("Failed to create account"),
+    }
 }
 
 async fn close_account_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
@@ -951,20 +1564,109 @@ async fn pay_mission_handler(db: &DbPool, params: &HashMap<String, String>) -> A
 
 async fn create_clan_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
     let clan_name = match params.get("name") {
-        Some(n) => n,
-        None => return AjaxResponse::error("Missing clan name"),
+        Some(n) if !n.is_empty() => n,
+        _ => return AjaxResponse::error("Missing or invalid clan name"),
     };
     
-    let description = params.get("description").unwrap_or("");
+    let description = params.get("description").unwrap_or(&"".to_string());
+    let user_id = 1; // TODO: Get from session context
+    let creation_cost = 50000i64;
     
-    // TODO: Create new clan
-    AjaxResponse::success_with_data("Clan created", json!({
-        "clan_id": 123,
-        "name": clan_name,
-        "description": description,
-        "creation_cost": 50000,
-        "leader_id": 1 // Current player
-    }))
+    // Check if clan name already exists
+    let name_check = sqlx::query!(
+        "SELECT id FROM clans WHERE LOWER(name) = LOWER($1)",
+        clan_name
+    );
+    
+    if name_check.fetch_optional(db).await.unwrap_or(None).is_some() {
+        return AjaxResponse::error("Clan name already taken");
+    }
+    
+    // Check if user is already in a clan
+    let member_check = sqlx::query!(
+        "SELECT clan_id FROM clan_members WHERE user_id = $1 AND active = true",
+        user_id
+    );
+    
+    if member_check.fetch_optional(db).await.unwrap_or(None).is_some() {
+        return AjaxResponse::error("You are already in a clan");
+    }
+    
+    // Check if user has enough money
+    let money_check = sqlx::query!("SELECT money FROM users WHERE id = $1", user_id);
+    let user_money = match money_check.fetch_one(db).await {
+        Ok(u) => u.money.unwrap_or(0),
+        Err(_) => return AjaxResponse::error("Failed to check user funds"),
+    };
+    
+    if user_money < creation_cost {
+        return AjaxResponse::error_with_data("Insufficient funds", json!({
+            "required": creation_cost,
+            "available": user_money
+        }));
+    }
+    
+    // Begin transaction
+    let mut tx = match db.begin().await {
+        Ok(t) => t,
+        Err(_) => return AjaxResponse::error("Failed to start transaction"),
+    };
+    
+    // Create clan
+    let clan_query = sqlx::query!(
+        "INSERT INTO clans (name, description, leader_id, created_at) 
+         VALUES ($1, $2, $3, NOW()) RETURNING id",
+        clan_name,
+        description,
+        user_id
+    );
+    
+    let clan = match clan_query.fetch_one(&mut *tx).await {
+        Ok(c) => c,
+        Err(_) => {
+            let _ = tx.rollback().await;
+            return AjaxResponse::error("Failed to create clan");
+        }
+    };
+    
+    // Add leader as member
+    let member_query = sqlx::query!(
+        "INSERT INTO clan_members (clan_id, user_id, role, joined_at, active) 
+         VALUES ($1, $2, 'leader', NOW(), true)",
+        clan.id,
+        user_id
+    );
+    
+    if member_query.execute(&mut *tx).await.is_err() {
+        let _ = tx.rollback().await;
+        return AjaxResponse::error("Failed to add leader to clan");
+    }
+    
+    // Deduct money
+    let money_query = sqlx::query!(
+        "UPDATE users SET money = money - $1 WHERE id = $2",
+        creation_cost,
+        user_id
+    );
+    
+    if money_query.execute(&mut *tx).await.is_err() {
+        let _ = tx.rollback().await;
+        return AjaxResponse::error("Failed to deduct creation cost");
+    }
+    
+    // Commit transaction
+    match tx.commit().await {
+        Ok(_) => {
+            AjaxResponse::success_with_data("Clan created", json!({
+                "clan_id": clan.id,
+                "name": clan_name,
+                "description": description,
+                "creation_cost": creation_cost,
+                "leader_id": user_id
+            }))
+        }
+        Err(_) => AjaxResponse::error("Failed to commit clan creation"),
+    }
 }
 
 async fn join_clan_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
@@ -1085,31 +1787,95 @@ async fn get_missions_handler(db: &DbPool, params: &HashMap<String, String>) -> 
     let difficulty = params.get("difficulty").unwrap_or("all");
     let mission_type = params.get("type").unwrap_or("all");
     
-    // TODO: Get available missions based on filters
+    let user_id = 1; // TODO: Get from session context
+    
+    // Build query based on filters
+    let mut query = "SELECT id, title, description, difficulty, reward_money, reward_experience, time_limit, status 
+                     FROM missions WHERE status = 'available'";
+    
+    // Filter by difficulty if specified
+    let difficulty_filter = match difficulty {
+        "easy" => " AND difficulty <= 100",
+        "medium" => " AND difficulty > 100 AND difficulty <= 300",
+        "hard" => " AND difficulty > 300",
+        _ => "",
+    };
+    
+    // Filter by type if specified  
+    let type_filter = match mission_type {
+        "hack" => " AND type = 'hack'",
+        "steal" => " AND type = 'steal'",
+        "destroy" => " AND type = 'destroy'",
+        "protect" => " AND type = 'protect'",
+        _ => "",
+    };
+    
+    // For this placeholder, return sample missions
+    let missions = vec![
+        json!({
+            "mission_id": 1,
+            "title": "Corporate Data Theft",
+            "description": "Steal sensitive corporate data from MegaCorp servers",
+            "difficulty": 150,
+            "reward_money": 10000,
+            "reward_experience": 500,
+            "time_limit": 3600,
+            "status": "available",
+            "type": "steal"
+        }),
+        json!({
+            "mission_id": 2,
+            "title": "Bank System Infiltration",
+            "description": "Break into First National Bank's security system",
+            "difficulty": 300,
+            "reward_money": 50000,
+            "reward_experience": 2000,
+            "time_limit": 7200,
+            "status": "available",
+            "type": "hack",
+            "requirements": ["Level 20+", "Advanced Cracker v5+"]
+        }),
+        json!({
+            "mission_id": 3,
+            "title": "Virus Deployment",
+            "description": "Deploy a custom virus to target network",
+            "difficulty": 200,
+            "reward_money": 25000,
+            "reward_experience": 1000,
+            "time_limit": 5400,
+            "status": "available",
+            "type": "destroy"
+        })
+    ];
+    
+    // Filter missions based on criteria
+    let filtered_missions: Vec<_> = missions.into_iter()
+        .filter(|m| {
+            let diff = m["difficulty"].as_i64().unwrap_or(0);
+            let mtype = m["type"].as_str().unwrap_or("");
+            
+            let diff_match = match difficulty {
+                "easy" => diff <= 100,
+                "medium" => diff > 100 && diff <= 300,
+                "hard" => diff > 300,
+                _ => true,
+            };
+            
+            let type_match = match mission_type {
+                "all" => true,
+                t => mtype == t,
+            };
+            
+            diff_match && type_match
+        })
+        .collect();
+    
     AjaxResponse::success_with_data("Missions retrieved", json!({
-        "missions": [
-            {
-                "mission_id": 1,
-                "title": "Corporate Data Theft",
-                "description": "Steal sensitive corporate data",
-                "difficulty": 150,
-                "reward_money": 10000,
-                "reward_experience": 500,
-                "time_limit": 3600,
-                "status": "available"
-            },
-            {
-                "mission_id": 2,
-                "title": "Bank System Infiltration",
-                "description": "Break into banking system",
-                "difficulty": 300,
-                "reward_money": 50000,
-                "reward_experience": 2000,
-                "time_limit": 7200,
-                "status": "available",
-                "requirements": ["Level 20+", "Advanced Cracker v5+"]
-            }
-        ]
+        "missions": filtered_missions,
+        "filters": {
+            "difficulty": difficulty,
+            "type": mission_type
+        }
     }))
 }
 
@@ -1151,8 +1917,22 @@ async fn abandon_mission_handler(db: &DbPool, params: &HashMap<String, String>) 
         None => return AjaxResponse::error("Invalid mission ID"),
     };
     
-    // TODO: Abandon mission (may have penalties)
-    AjaxResponse::success("Mission abandoned")
+    let user_id = 1; // TODO: Get from session context
+    
+    // In a real implementation, this would:
+    // 1. Check if user has this mission active
+    // 2. Calculate reputation penalty
+    // 3. Update mission status to 'abandoned'
+    // 4. Remove from user's active missions
+    
+    // Calculate reputation penalty (10% of mission difficulty)
+    let reputation_penalty = 15; // Would be calculated from mission difficulty
+    
+    AjaxResponse::success_with_data("Mission abandoned", json!({
+        "mission_id": mission_id,
+        "reputation_penalty": reputation_penalty,
+        "message": "Mission abandoned. Your reputation has decreased."
+    }))
 }
 
 async fn get_mission_progress_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
@@ -1161,13 +1941,49 @@ async fn get_mission_progress_handler(db: &DbPool, params: &HashMap<String, Stri
         None => return AjaxResponse::error("Invalid mission ID"),
     };
     
-    // TODO: Get mission progress
+    let user_id = 1; // TODO: Get from session context
+    
+    // In a real implementation, this would:
+    // 1. Get mission from user_missions table
+    // 2. Check objective completion status
+    // 3. Calculate time remaining
+    
+    // Sample progress data
+    let objectives = vec![
+        json!({
+            "id": 1,
+            "description": "Hack into target server",
+            "completed": true
+        }),
+        json!({
+            "id": 2,
+            "description": "Download financial records",
+            "completed": true
+        }),
+        json!({
+            "id": 3,
+            "description": "Upload virus to backup server",
+            "completed": true
+        }),
+        json!({
+            "id": 4,
+            "description": "Clear all logs",
+            "completed": false
+        })
+    ];
+    
+    let completed = objectives.iter().filter(|o| o["completed"].as_bool().unwrap_or(false)).count();
+    let total = objectives.len();
+    let progress = (completed as f32 / total as f32 * 100.0) as i32;
+    
     AjaxResponse::success_with_data("Mission progress retrieved", json!({
         "mission_id": mission_id,
-        "progress": 75,
-        "objectives_completed": 3,
-        "objectives_total": 4,
-        "time_remaining": 900
+        "progress": progress,
+        "objectives": objectives,
+        "objectives_completed": completed,
+        "objectives_total": total,
+        "time_remaining": 900,
+        "deadline": chrono::Utc::now() + chrono::Duration::seconds(900)
     }))
 }
 
@@ -1181,12 +1997,33 @@ async fn buy_hardware_handler(db: &DbPool, params: &HashMap<String, String>) -> 
     
     let quantity = params.get("quantity").and_then(|q| q.parse::<i32>().ok()).unwrap_or(1);
     
-    // TODO: Purchase hardware component
+    let user_id = 1; // TODO: Get from session context
+    
+    // Define hardware prices
+    let (unit_cost, specs) = match hardware_type.as_str() {
+        "cpu" => (10000, json!({"power": 100, "cores": 4})),
+        "ram" => (5000, json!({"capacity": 1024, "speed": 3200})),
+        "hdd" => (2000, json!({"capacity": 10000, "speed": 7200})),
+        "net" => (8000, json!({"bandwidth": 1000, "latency": 10})),
+        "gpu" => (15000, json!({"power": 500, "memory": 8192})),
+        _ => return AjaxResponse::error("Invalid hardware type"),
+    };
+    
+    let total_cost = unit_cost * quantity as i64;
+    
+    // In real implementation:
+    // 1. Check user money
+    // 2. Check available slots
+    // 3. Create hardware purchase record
+    // 4. Deduct money
+    
     AjaxResponse::success_with_data("Hardware purchased", json!({
         "hardware_type": hardware_type,
         "quantity": quantity,
-        "unit_cost": 5000,
-        "total_cost": 5000 * quantity
+        "unit_cost": unit_cost,
+        "total_cost": total_cost,
+        "specs": specs,
+        "installation_time": 30 * quantity
     }))
 }
 
@@ -1196,8 +2033,22 @@ async fn install_hardware_handler(db: &DbPool, params: &HashMap<String, String>)
         None => return AjaxResponse::error("Invalid hardware ID"),
     };
     
-    // TODO: Install hardware component
-    AjaxResponse::success("Hardware installed")
+    let user_id = 1; // TODO: Get from session context
+    
+    // In real implementation:
+    // 1. Check hardware exists and is owned by user
+    // 2. Check compatible slots available
+    // 3. Create installation process
+    // 4. Update server specs
+    
+    let installation_time = 60; // seconds
+    
+    AjaxResponse::success_with_data("Hardware installation started", json!({
+        "hardware_id": hardware_id,
+        "process_id": rand::random::<u32>(),
+        "duration": installation_time,
+        "slots_used": 1
+    }))
 }
 
 async fn remove_hardware_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {
@@ -1206,8 +2057,20 @@ async fn remove_hardware_handler(db: &DbPool, params: &HashMap<String, String>) 
         None => return AjaxResponse::error("Invalid hardware ID"),
     };
     
-    // TODO: Remove hardware component
-    AjaxResponse::success("Hardware removed")
+    let user_id = 1; // TODO: Get from session context
+    
+    // In real implementation:
+    // 1. Check hardware is installed
+    // 2. Check no active processes using it
+    // 3. Update server specs
+    // 4. Mark hardware as uninstalled
+    
+    AjaxResponse::success_with_data("Hardware removed", json!({
+        "hardware_id": hardware_id,
+        "slots_freed": 1,
+        "can_resell": true,
+        "resell_value": 2500
+    }))
 }
 
 async fn upgrade_hardware_handler(db: &DbPool, params: &HashMap<String, String>) -> AjaxResponse {

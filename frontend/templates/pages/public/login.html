@@ -1,0 +1,318 @@
+<!-- Login Page -->
+<div class="login-page">
+    <div class="login-container">
+        <div class="login-background">
+            <canvas id="login-animation"></canvas>
+        </div>
+        
+        <div class="login-content">
+            <div class="login-form-container">
+                <!-- Login Header -->
+                <div class="login-header">
+                    <div class="login-logo">
+                        <img src="/assets/images/logo.svg" alt="HackerExperience" class="logo-img">
+                        <h1 class="login-title">Welcome Back</h1>
+                        <p class="login-subtitle">Enter your credentials to access your hacking empire</p>
+                    </div>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="login-form" method="POST" action="/api/auth/login">
+                    <input type="hidden" name="csrf_token" value="{{csrf_token}}">
+                    
+                    <!-- Username/Email Field -->
+                    <div class="form-group">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user"></i>
+                            Username or Email
+                        </label>
+                        <input type="text" 
+                               id="username" 
+                               name="username" 
+                               class="form-control" 
+                               placeholder="Enter your username or email"
+                               autocomplete="username"
+                               required 
+                               autofocus>
+                        <div class="form-feedback" id="username-feedback"></div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Password
+                        </label>
+                        <div class="password-input-container">
+                            <input type="password" 
+                                   id="password" 
+                                   name="password" 
+                                   class="form-control" 
+                                   placeholder="Enter your password"
+                                   autocomplete="current-password"
+                                   required>
+                            <button type="button" class="password-toggle" id="password-toggle">
+                                <i class="fas fa-eye" id="password-toggle-icon"></i>
+                            </button>
+                        </div>
+                        <div class="form-feedback" id="password-feedback"></div>
+                    </div>
+
+                    <!-- Remember Me & Forgot Password -->
+                    <div class="form-options">
+                        <div class="form-check">
+                            <input type="checkbox" id="remember_me" name="remember_me" class="form-check-input" value="1">
+                            <label for="remember_me" class="form-check-label">
+                                Remember me for 30 days
+                            </label>
+                        </div>
+                        <a href="/forgot-password" class="forgot-password-link">
+                            Forgot password?
+                        </a>
+                    </div>
+
+                    <!-- Login Button -->
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary btn-block login-btn" id="login-btn">
+                            <span class="btn-text">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Sign In
+                            </span>
+                            <span class="btn-loading" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                Authenticating...
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Social Login Options -->
+                    {% if social_login_enabled %}
+                    <div class="social-login">
+                        <div class="social-divider">
+                            <span>or continue with</span>
+                        </div>
+                        
+                        <div class="social-buttons">
+                            {% if google_login_enabled %}
+                            <button type="button" class="btn btn-social btn-google" id="google-login">
+                                <i class="fab fa-google"></i>
+                                Google
+                            </button>
+                            {% endif %}
+                            
+                            {% if github_login_enabled %}
+                            <button type="button" class="btn btn-social btn-github" id="github-login">
+                                <i class="fab fa-github"></i>
+                                GitHub
+                            </button>
+                            {% endif %}
+                            
+                            {% if discord_login_enabled %}
+                            <button type="button" class="btn btn-social btn-discord" id="discord-login">
+                                <i class="fab fa-discord"></i>
+                                Discord
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </form>
+
+                <!-- Register Link -->
+                <div class="login-footer">
+                    <p class="register-prompt">
+                        Don't have an account yet?
+                        <a href="/register" class="register-link">
+                            <i class="fas fa-user-plus"></i>
+                            Create Account
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Security Information -->
+            <div class="security-info">
+                <div class="security-badge">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Secured with end-to-end encryption</span>
+                </div>
+                
+                <div class="login-stats">
+                    <div class="stat">
+                        <i class="fas fa-users"></i>
+                        <span>{{online_players_count|default:0}} players online</span>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-clock"></i>
+                        <span>Last updated: {{last_update_time}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Side Panel (Optional) -->
+        <div class="login-side-panel">
+            <div class="panel-content">
+                <h3 class="panel-title">Game Status</h3>
+                
+                <div class="status-items">
+                    <div class="status-item">
+                        <div class="status-icon status-online">
+                            <i class="fas fa-circle"></i>
+                        </div>
+                        <div class="status-info">
+                            <div class="status-label">Game Servers</div>
+                            <div class="status-value">Online</div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-icon status-{{database_status|default:'online'}}">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="status-info">
+                            <div class="status-label">Database</div>
+                            <div class="status-value">{{database_status_text|default:'Operational'}}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-item">
+                        <div class="status-icon status-{{api_status|default:'online'}}">
+                            <i class="fas fa-plug"></i>
+                        </div>
+                        <div class="status-info">
+                            <div class="status-label">API Services</div>
+                            <div class="status-value">{{api_status_text|default:'Available'}}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent News/Updates -->
+                <div class="news-section">
+                    <h4 class="news-title">Latest Updates</h4>
+                    <div class="news-items">
+                        {% for news_item in recent_news|slice:":3" %}
+                        <div class="news-item">
+                            <div class="news-date">{{news_item.created_at|date:"M d"}}</div>
+                            <div class="news-content">
+                                <h6 class="news-headline">{{news_item.title}}</h6>
+                                <p class="news-summary">{{news_item.summary}}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <a href="/news" class="news-link">View all news</a>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <h4 class="stats-title">Live Statistics</h4>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">{{total_players|default:0}}</div>
+                            <div class="stat-label">Total Players</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{active_attacks_count|default:0}}</div>
+                            <div class="stat-label">Active Attacks</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{total_clans|default:0}}</div>
+                            <div class="stat-label">Active Clans</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${{money_in_circulation|default:0}}</div>
+                            <div class="stat-label">Money Circulating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Two-Factor Authentication Modal -->
+<div class="modal-overlay" id="2fa-modal" style="display: none;">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-shield-alt"></i>
+                Two-Factor Authentication
+            </h3>
+        </div>
+        <div class="modal-body">
+            <p class="text-center mb-3">
+                Enter the 6-digit code from your authenticator app
+            </p>
+            <form id="2fa-form">
+                <div class="form-group">
+                    <input type="text" 
+                           id="2fa-code" 
+                           name="2fa_code" 
+                           class="form-control text-center" 
+                           placeholder="000000"
+                           maxlength="6"
+                           autocomplete="one-time-code"
+                           required>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <i class="fas fa-check"></i>
+                        Verify Code
+                    </button>
+                </div>
+            </form>
+            <div class="text-center">
+                <small class="text-muted">
+                    Don't have access to your authenticator?
+                    <a href="/contact" class="text-primary">Contact support</a>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Locked Modal -->
+<div class="modal-overlay" id="account-locked-modal" style="display: none;">
+    <div class="modal modal-sm">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-lock"></i>
+                Account Locked
+            </h3>
+        </div>
+        <div class="modal-body text-center">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                Your account has been temporarily locked due to multiple failed login attempts.
+            </div>
+            <p>
+                <strong>Time remaining:</strong> 
+                <span id="lockout-timer">15:00</span>
+            </p>
+            <p class="text-muted">
+                You can try logging in again after the lockout period expires.
+                If you continue to have issues, please contact support.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <a href="/contact" class="btn btn-primary">Contact Support</a>
+        </div>
+    </div>
+</div>
+
+<!-- Maintenance Notice -->
+{% if maintenance_mode %}
+<div class="maintenance-notice">
+    <div class="notice-content">
+        <i class="fas fa-tools"></i>
+        <h4>Scheduled Maintenance</h4>
+        <p>
+            The game is currently under maintenance. 
+            Login functionality may be limited during this time.
+        </p>
+        <small>Expected completion: {{maintenance_end_time}}</small>
+    </div>
+</div>
+{% endif %}

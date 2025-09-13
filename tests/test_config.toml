@@ -1,0 +1,98 @@
+# HackerExperience Rust Test Configuration
+# This file contains configuration for all test environments and scenarios
+
+[database]
+host = "localhost"
+port = 5432
+username = "postgres"
+password = "postgres"
+database = "hetest"
+max_connections = 20
+timeout_seconds = 30
+
+[redis]
+host = "localhost"
+port = 6379
+password = ""
+database = 1  # Use database 1 for tests
+
+[websocket]
+host = "127.0.0.1"
+port = 0  # Auto-assign port for tests
+max_connections = 1000
+heartbeat_interval_seconds = 30
+
+[security]
+jwt_secret = "test_jwt_secret_key_change_in_production_do_not_use_in_prod"
+rate_limit_max = 100
+rate_limit_window_seconds = 60
+password_min_length = 8
+
+[performance]
+max_concurrent_users = 1000
+request_timeout_seconds = 30
+memory_limit_mb = 512
+
+[logging]
+level = "debug"
+file_path = "/tmp/hetest.log"
+max_file_size_mb = 100
+
+# Test-specific configurations
+[unit_tests]
+timeout_seconds = 30
+parallel_execution = true
+max_parallel_tests = 10
+
+[integration_tests]
+timeout_seconds = 120
+setup_timeout_seconds = 60
+teardown_timeout_seconds = 30
+database_cleanup = true
+
+[performance_tests]
+default_duration_seconds = 60
+warmup_duration_seconds = 10
+cooldown_duration_seconds = 5
+max_memory_usage_mb = 1024
+min_throughput_ops_per_sec = 100
+
+[security_tests]
+test_malicious_payloads = true
+test_rate_limiting = true
+test_authentication = true
+test_authorization = true
+log_security_events = true
+
+[load_testing]
+concurrent_users = [10, 50, 100, 200, 500]
+ramp_up_time_seconds = 30
+test_duration_seconds = 300
+think_time_ms = 100
+
+[chaos_testing]
+enabled = false  # Disabled by default
+failure_rate = 0.1
+network_latency_ms = [0, 50, 100, 500]
+memory_pressure = false
+cpu_pressure = false
+
+# CI/CD Configuration
+[ci]
+parallel_jobs = 4
+timeout_minutes = 45
+artifact_retention_days = 30
+coverage_threshold = 80.0
+performance_baseline_deviation = 10.0
+
+[docker]
+enabled = true
+postgres_image = "postgres:15"
+redis_image = "redis:7-alpine"
+test_network = "hetest_network"
+
+[mock_services]
+external_api_latency_ms = 100
+external_api_failure_rate = 0.05
+payment_gateway_latency_ms = 200
+email_service_latency_ms = 150

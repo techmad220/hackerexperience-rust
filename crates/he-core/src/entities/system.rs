@@ -1,62 +1,49 @@
-//! System entity - System utilities and validation functions
-//! 
-//! This module provides the System struct and methods for handling system operations,
-//! input validation, error handling, and GET parameter processing.
-
-use regex::Regex;
 use serde::{Deserialize, Serialize};
+use regex::Regex;
 use std::collections::HashMap;
 
-use crate::entities::session::Session;
-use crate::error::HeResult;
-
-/// System utilities and validation functions
-#[derive(Debug, Clone)]
+/// System entity responsible for system-level operations and validations
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct System {
-    /// Optional session for error handling
-    pub session: Option<Session>,
+    pub id: i64,
+    pub name: String,
+    pub version: String,
+    pub created_at: chrono::DateTime<chrono::Utc>,
+    pub updated_at: chrono::DateTime<chrono::Utc>,
 }
 
-/// GET parameter validation result
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct GetValidationResult {
-    pub isset_get: bool,
-    pub get_name: String,
-    pub get_value: String,
-}
-
-/// Numeric GET parameter validation result
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct NumericGetResult {
-    pub is_numeric: bool,
-    pub get_value: Option<i32>,
-}
-
-/// String GET parameter validation result
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct StringGetResult {
-    pub is_string: bool,
-    pub get_value: Option<String>,
-}
-
-/// System error types that map to user-friendly messages
+/// System error types
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SystemError {
+    // General errors
     InvalidGet,
     InvalidId,
     WrongPass,
     NoPermission,
+    Custom(String),
+    
+    // Login/Auth errors
+    LoginWrongUser,
+    LoginWrongPassword,
+    
+    // Process errors
+    CantCompleteProcess,
+    InvalidAction,
+    ProcNotFound,
+    ProcAlreadyPaused,
+    ProcNotPaused,
+    ProcAlreadyCompleted,
+    
+    // Network errors
+    InexistentServer,
+    InexistentIp,
+    InvalidIp,
+    
+    // Software errors
     NoInstaller,
     NoCollector,
     Downgrade,
     NotListed,
-    InexistentServer,
-    InexistentIp,
-    InvalidIp,
-    BadXhd,
-    BadMoney,
-    NoLicense,
-    NoCertification,
     NotInstalled,
     CantUninstall,
     InsufficientRam,
@@ -71,359 +58,193 @@ pub enum SystemError {
     CantDelete,
     AlreadyListed,
     NoSoft,
-    NoNmapVictim,
+    
+    // Bank/Money errors
+    BadMoney,
+    NoAmount,
     BadAcc,
     InexistentAcc,
     BadBank,
     AutoTransfer,
     BankNotLogged,
-    NoAmount,
-    BadCracker,
+    BankEmptyMoney,
+    BankAccNotExists,
+    BankInvalidAcc,
+    BankInsufficientMoney,
+    BankCantHack,
+    BankAccFromInvalid,
+    BankAccToInvalid,
+    
+    // Bitcoin errors
+    BtcCantHack,
+    BtcCantAdd,
+    BtcAccInexistent,
+    BtcAddressError,
+    BtcInvalidAcc,
+    BtcNoFunds,
+    BtcAccFromInvalid,
+    BtcAccToInvalid,
+    BtcInvalidValue,
+    
+    // Virus/Doom errors
+    VirusInvalidNew,
+    DoomNotFound,
+    DoomAlreadyInfected,
+    DoomLogExist,
+    DoomMoneyTransferFail,
+    DoomClanOnly,
+    
+    // VPC errors
+    VpcInexistentUser,
+    VpcInvalidIp,
+    VpcNoPower,
+    VpcSpecInvalid,
+    VpcLowFunds,
+    VpcInvalidValue,
+    VpcInvalidInfo,
+    
+    // Spy errors
+    SpyInvalidPw,
+    SpyInvalidUser,
+    SpyNotInfected,
+    SpyInvalidId,
+    SpyNoUpdate,
+    SpyCantFind,
+    
+    // VC (Verification) errors
+    VcInvalidGame,
+    VcCantJoin,
+    VcBadPassword,
+    VcIpLogged,
+    VcInvalidVictim,
+    VcBankAccNotFound,
+    VcCharNotFound,
+    VcMissionInvalidId,
+    VcMissionNotFound,
+    VcInvalidDdos,
+    VcIpNotDdosd,
+    VcInvalidResearch,
+    
+    // Password change errors
+    PwdchangeWrongPassword,
+    PwdchangePasswordTooWeak,
+    PwdresetNoTime,
+    
+    // DDOS errors
+    DdosInexistent,
+    DdosAlredyDdosd,
+    DdosCantBypass,
+    
+    // Edit virus errors
+    EditVirusInvalidId,
+    EditVirusInexistent,
+    EditVirusInvalidVersion,
+    EditVirusInvalidTime,
+    EditVirusInvalidRunning,
+    
+    // Chat errors
+    ChatNoMessage,
+    
+    // Certificate errors
+    CertDuplicate,
+    
+    // Hardware errors
+    BadXhd,
     DownloadInsufficientHd,
     UploadInsufficientHd,
+    
+    // License/Certification
+    NoLicense,
+    NoCertification,
+    
+    // Upload errors
     UploadSoftAlreadyHave,
+    
+    // Hide errors
     HideInstalledSoftware,
+    
+    // Cracker errors
+    BadCracker,
     BahBadCracker,
     BahAlreadyCracked,
+    
+    // Experience errors
     HxpBadExp,
     HxpNoExp,
     NoFtpExp,
     NoSshExp,
     HxpNoScan,
+    
+    // Nmap errors
+    NoNmapVictim,
+    
+    // IP reset errors
     IpresetNoTime,
-    PwdresetNoTime,
-    DoomClanOnly,
+    
+    // Folder errors
     FolderInexistentSoftware,
     FolderAlreadyHave,
     FolderInexistent,
-    ProcNotFound,
-    ProcAlreadyPaused,
-    ProcNotPaused,
-    ProcAlreadyCompleted,
-    Custom(String),
 }
 
 impl System {
     /// Creates a new System instance
     pub fn new() -> Self {
         Self {
-            session: None,
+            id: 0,
+            name: String::from("HackerExperience"),
+            version: String::from("1.0.0"),
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
         }
     }
 
-    /// Creates a new System instance with a session
-    pub fn new_with_session(session: Session) -> Self {
-        Self {
-            session: Some(session),
+    /// Get system configuration
+    pub fn get_config(&self) -> HashMap<String, String> {
+        let mut config = HashMap::new();
+        config.insert("version".to_string(), self.version.clone());
+        config.insert("name".to_string(), self.name.clone());
+        config
+    }
+
+    /// Validate a value based on its type
+    pub fn validate(&self, value_type: &str, value: &str) -> bool {
+        match value_type {
+            "username" => self.validate_username(value),
+            "email" => self.validate_email(value),
+            "ip" => self.validate_ip(value),
+            _ => true,
         }
     }
 
-    /// Generates JavaScript to change HTML content (equivalent to changeHTML)
-    /// 
-    /// # Arguments
-    /// * `id` - Element ID to change
-    /// * `content` - New content for the element
-    /// 
-    /// # Returns
-    /// JavaScript code as string
-    pub fn change_html(&self, id: &str, content: &str) -> String {
-        format!(
-            r#"<script>
-document.getElementById("{}").innerHTML="{}";
-</script>"#,
-            id, content
-        )
+    /// Validates username format
+    fn validate_username(&self, username: &str) -> bool {
+        if username.is_empty() || username.len() > 30 {
+            return false;
+        }
+        
+        let re = Regex::new(r"^[a-zA-Z0-9_]+$").unwrap();
+        re.is_match(username)
     }
 
-    /// Checks if a GET parameter is set and not empty
-    /// 
-    /// # Arguments
-    /// * `params` - HashMap of GET parameters
-    /// * `key` - Parameter key to check
-    /// 
-    /// # Returns
-    /// True if parameter exists and is not empty
-    pub fn isset_get(&self, params: &HashMap<String, String>, key: &str) -> bool {
-        params.get(key).map_or(false, |value| !value.is_empty())
-    }
-
-    /// Validates GET parameters against allowed values
-    /// 
-    /// # Arguments
-    /// * `params` - HashMap of GET parameters
-    /// * `key` - Parameter key to check
-    /// * `allowed_values` - Vector of allowed values
-    /// 
-    /// # Returns
-    /// GetValidationResult with validation status
-    pub fn switch_get(&self, params: &HashMap<String, String>, key: &str, allowed_values: Vec<&str>) -> GetValidationResult {
-        if let Some(value) = params.get(key) {
-            for allowed in &allowed_values {
-                if value == allowed {
-                    return GetValidationResult {
-                        isset_get: true,
-                        get_name: key.to_string(),
-                        get_value: value.clone(),
-                    };
-                }
-            }
-        }
-
-        GetValidationResult {
-            isset_get: false,
-            get_name: String::new(),
-            get_value: String::new(),
-        }
-    }
-
-    /// Validates that a GET parameter is numeric
-    /// 
-    /// # Arguments
-    /// * `params` - HashMap of GET parameters
-    /// * `key` - Parameter key to validate
-    /// 
-    /// # Returns
-    /// NumericGetResult with validation status
-    pub fn verify_numeric_get(&self, params: &HashMap<String, String>, key: &str) -> Option<NumericGetResult> {
-        if self.isset_get(params, key) {
-            if let Some(value_str) = params.get(key) {
-                if let Ok(value) = value_str.parse::<i32>() {
-                    return Some(NumericGetResult {
-                        is_numeric: true,
-                        get_value: Some(value),
-                    });
-                } else {
-                    return Some(NumericGetResult {
-                        is_numeric: false,
-                        get_value: None,
-                    });
-                }
-            }
-        }
-        None
-    }
-
-    /// Validates that a GET parameter is a string
-    /// 
-    /// # Arguments
-    /// * `params` - HashMap of GET parameters
-    /// * `key` - Parameter key to validate
-    /// 
-    /// # Returns
-    /// StringGetResult with validation status
-    pub fn verify_string_get(&self, params: &HashMap<String, String>, key: &str) -> StringGetResult {
-        if self.isset_get(params, key) && params.get(key).unwrap().len() > 0 {
-            StringGetResult {
-                is_string: true,
-                get_value: params.get(key).cloned(),
-            }
-        } else {
-            StringGetResult {
-                is_string: false,
-                get_value: None,
-            }
-        }
-    }
-
-    /// Handles system errors by setting appropriate flash messages
-    /// 
-    /// # Arguments
-    /// * `error` - Error type or custom message
-    /// * `redirect` - Optional redirect URL
-    /// 
-    /// # Returns
-    /// Error message string
-    pub fn handle_error(&mut self, error: SystemError, redirect: Option<&str>) -> HeResult<String> {
-        let msg = self.get_error_message(&error);
-
-        if !msg.is_empty() {
-            if let Some(ref mut session) = self.session {
-                session.add_msg(&msg, "error");
-            }
-        }
-
-        if let Some(redirect_url) = redirect {
-            // In a web framework, this would trigger a redirect
-            // For now, we just return the redirect URL
-            return Ok(redirect_url.to_string());
-        }
-
-        Ok(msg)
-    }
-
-    /// Gets the user-friendly error message for a system error
-    /// 
-    /// # Arguments
-    /// * `error` - System error type
-    /// 
-    /// # Returns
-    /// User-friendly error message
-    fn get_error_message(&self, error: &SystemError) -> String {
-        match error {
-            SystemError::InvalidGet => "Invalid page".to_string(),
-            SystemError::InvalidId => "Invalid ID".to_string(),
-            SystemError::WrongPass => "Ops! Wrong password.".to_string(),
-            SystemError::NoPermission => "You do not have permission to perform this.".to_string(),
-            SystemError::NoInstaller => "Cant find doom installer.".to_string(),
-            SystemError::NoCollector => "You do not have a virus collector.".to_string(),
-            SystemError::Downgrade => "Downgrade hardware is not possible.".to_string(),
-            SystemError::NotListed => "This IP is not listed on your hacked database.".to_string(),
-            SystemError::InexistentServer => "This server does not exists.".to_string(),
-            SystemError::InexistentIp => "This IP does not exists.".to_string(),
-            SystemError::InvalidIp => "This IP is invalid.".to_string(),
-            SystemError::BadXhd => "Your external hd does not support this software.".to_string(),
-            SystemError::BadMoney => "You do not have enough money to complete this action.".to_string(),
-            SystemError::NoLicense => "You do not have the license to research this software.".to_string(),
-            SystemError::NoCertification => "You do not have the needed certification in order to perform this action.".to_string(),
-            SystemError::NotInstalled => "This software is not installed.".to_string(),
-            SystemError::CantUninstall => "You can not uninstall this software.".to_string(),
-            SystemError::InsufficientRam => "There isnt enough RAM to complete this action.".to_string(),
-            SystemError::AlreadyInstalled => "This software is already installed.".to_string(),
-            SystemError::NotExecutable => "This software is not executable.".to_string(),
-            SystemError::VirusAlreadyInstalled => "You already have installed a virus of this type on this computer.".to_string(),
-            SystemError::NoSeeker => "You have no seeker.".to_string(),
-            SystemError::NoHaveSoft => "You do not have this software.".to_string(),
-            SystemError::SoftHidden => "This software is hidden.".to_string(),
-            SystemError::SoftAlreadyHave => "You already have this software.".to_string(),
-            SystemError::InexistentSoftware => "This software does not exists.".to_string(),
-            SystemError::CantDelete => "You can not delete this software.".to_string(),
-            SystemError::AlreadyListed => "You already have this IP on your hacked database.".to_string(),
-            SystemError::NoSoft => "You do not have the needed software to perform this action.".to_string(),
-            SystemError::NoNmapVictim => "Remote client does not have NMAP software.".to_string(),
-            SystemError::BadAcc => "Invalid bank account.".to_string(),
-            SystemError::InexistentAcc => "This bank account does not exists.".to_string(),
-            SystemError::BadBank => "This IP is not a bank.".to_string(),
-            SystemError::AutoTransfer => "Well, you can not transfer money to yourself.".to_string(),
-            SystemError::BankNotLogged => "You are not logged into a bank account.".to_string(),
-            SystemError::NoAmount => "Amount of money is zero.".to_string(),
-            SystemError::BadCracker => "Access denied: your cracker is not good enough.".to_string(),
-            SystemError::DownloadInsufficientHd => "You need more disk space in order to download this software.".to_string(),
-            SystemError::UploadInsufficientHd => "There is not enough disk space to upload this software.".to_string(),
-            SystemError::UploadSoftAlreadyHave => "The remote client already have this software.".to_string(),
-            SystemError::HideInstalledSoftware => "Cant hide an installed software.".to_string(),
-            SystemError::BahBadCracker => "Access denied: your software can not crack this account.".to_string(),
-            SystemError::BahAlreadyCracked => "You already have this account listed.".to_string(),
-            SystemError::HxpBadExp => "Access denied: your exploit is not good enough.".to_string(),
-            SystemError::HxpNoExp => "You do not have any running exploits.".to_string(),
-            SystemError::NoFtpExp => "You do not have a running FTP exploit.".to_string(),
-            SystemError::NoSshExp => "You do not have a running SSH exploit.".to_string(),
-            SystemError::HxpNoScan => "You do not have any running scanner.".to_string(),
-            SystemError::IpresetNoTime => "You can not reset your IP now.".to_string(),
-            SystemError::PwdresetNoTime => "You can not change your password now.".to_string(),
-            SystemError::DoomClanOnly => "Can only install doom on your clan server.".to_string(),
-            SystemError::FolderInexistentSoftware => "This software is not on this folder.".to_string(),
-            SystemError::FolderAlreadyHave => "This software is already in a folder.".to_string(),
-            SystemError::FolderInexistent => "This folder does not exists.".to_string(),
-            SystemError::ProcNotFound => "Process not found.".to_string(),
-            SystemError::ProcAlreadyPaused => "This process is already paused.".to_string(),
-            SystemError::ProcNotPaused => "This process is not paused.".to_string(),
-            SystemError::ProcAlreadyCompleted => "This process is already completed.".to_string(),
-            SystemError::Custom(msg) => msg.clone(),
-        }
-    }
-
-    /// Validates input based on type
-    /// 
-    /// # Arguments
-    /// * `var` - Variable to validate
-    /// * `validation_type` - Type of validation to perform
-    /// 
-    /// # Returns
-    /// True if validation passes, false otherwise
-    pub fn validate(&self, var: &str, validation_type: &str) -> bool {
-        match validation_type {
-            "ip" | "IP" => {
-                // IPv4 validation
-                self.validate_ipv4(var)
-            },
-            "hintip" => {
-                // XXX.XXX.XXX.XXX pattern
-                let re = Regex::new(r"^[0-9.xX]{7,15}$").unwrap();
-                re.is_match(var)
-            },
-            "user" | "username" => {
-                // Username: alphanumeric, underscore, dot, hyphen (1-15 chars)
-                let re = Regex::new(r"^[a-zA-Z0-9_.-]{1,15}$").unwrap();
-                re.is_match(var)
-            },
-            "soft" | "software" => {
-                // Software name: alphanumeric + underscore, hyphen, space (but not starting with special chars)
-                let re = Regex::new(r"^[a-zA-Z0-9][a-zA-Z0-9_ -]{1,}$").unwrap();
-                re.is_match(var)
-            },
-            "subject" => {
-                // Subject: extended character set including accented characters
-                let re = Regex::new(r"^[a-zA-Z0-9áÁÀàóÓêÊõíÍúÚçÇñã][a-zA-Z0-9çÇáÁÀàóÓêÊõíÍúÚñã.,_$!?():'\" -]{1,}$").unwrap();
-                re.is_match(var)
-            },
-            "text" => {
-                // Text: extended character set with more special characters
-                let re = Regex::new(r"^[a-zA-Z0-9áÁÀàóÓêÊõíÍúÚñãçÇ][a-zA-Z0-9çÇáÁÀàóÓêÊõíÍúÚñã.,_$!()'\"@#%*+={}<> -?!]{1,}$").unwrap();
-                re.is_match(var)
-            },
-            "email" => {
-                // Basic email validation
-                self.validate_email(var)
-            },
-            "clan_name" => {
-                // Clan name: similar to subject but with specific requirements
-                let re = Regex::new(r"^[a-zA-Z0-9áÁÀàóÓêÊõíçÇÍúÚñã][a-zA-Z0-9áÁÀàóÓêÊçÇõíÍúÚñã_.! -]{1,}$").unwrap();
-                re.is_match(var)
-            },
-            "clan_tag" => {
-                // Clan tag: alphanumeric, underscore, dot, hyphen (1-3 chars)
-                let re = Regex::new(r"^[a-zA-Z0-9_.-]{1,3}$").unwrap();
-                re.is_match(var)
-            },
-            "qa-answer" => {
-                // Q&A answer: alphanumeric with some special characters
-                let re = Regex::new(r"^[a-zA-Z0-9öéáóíõçáÁÀàóÓêÊõíÍúÚñãÇ ,.=+\-\/*]{1,}$").unwrap();
-                re.is_match(var)
-            },
-            "pricing_plan" => {
-                // Pricing plan: alphanumeric only
-                let re = Regex::new(r"^[a-zA-Z0-9]{1,}$").unwrap();
-                re.is_match(var)
-            },
-            _ => {
-                // Undefined type
-                false
-            }
-        }
-    }
-
-    /// Validates IPv4 address format
-    /// 
-    /// # Arguments
-    /// * `ip` - IP address string to validate
-    /// 
-    /// # Returns
-    /// True if valid IPv4 format
-    fn validate_ipv4(&self, ip: &str) -> bool {
+    /// Validates IP address format
+    fn validate_ip(&self, ip: &str) -> bool {
         let parts: Vec<&str> = ip.split('.').collect();
         if parts.len() != 4 {
             return false;
         }
-
+        
         for part in parts {
-            if let Ok(num) = part.parse::<u8>() {
-                // Valid octet (0-255)
-                continue;
-            } else {
-                return false;
+            match part.parse::<u8>() {
+                Ok(_) => continue,
+                Err(_) => return false,
             }
         }
-
+        
         true
     }
 
     /// Validates email address format
-    /// 
-    /// # Arguments
-    /// * `email` - Email address string to validate
-    /// 
-    /// # Returns
-    /// True if valid email format
     fn validate_email(&self, email: &str) -> bool {
         let re = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap();
         re.is_match(email)
@@ -436,69 +257,8 @@ impl Default for System {
     }
 }
 
-/// Convenience function to create a SystemError from a string
 impl From<&str> for SystemError {
-    fn from(error_str: &str) -> Self {
-        match error_str {
-            "INVALID_GET" => SystemError::InvalidGet,
-            "INVALID_ID" => SystemError::InvalidId,
-            "WRONG_PASS" => SystemError::WrongPass,
-            "NO_PERMISSION" => SystemError::NoPermission,
-            "NO_INSTALLER" => SystemError::NoInstaller,
-            "NO_COLLECTOR" => SystemError::NoCollector,
-            "DOWNGRADE" => SystemError::Downgrade,
-            "NOT_LISTED" => SystemError::NotListed,
-            "INEXISTENT_SERVER" => SystemError::InexistentServer,
-            "INEXISTENT_IP" => SystemError::InexistentIp,
-            "INVALID_IP" => SystemError::InvalidIp,
-            "BAD_XHD" => SystemError::BadXhd,
-            "BAD_MONEY" => SystemError::BadMoney,
-            "NO_LICENSE" => SystemError::NoLicense,
-            "NO_CERTIFICATION" => SystemError::NoCertification,
-            "NOT_INSTALLED" => SystemError::NotInstalled,
-            "CANT_UINSTALL" => SystemError::CantUninstall,
-            "INSUFFICIENT_RAM" => SystemError::InsufficientRam,
-            "ALREADY_INSTALLED" => SystemError::AlreadyInstalled,
-            "NOT_EXECUTABLE" => SystemError::NotExecutable,
-            "VIRUS_ALREADY_INSTALLED" => SystemError::VirusAlreadyInstalled,
-            "NO_SEEKER" => SystemError::NoSeeker,
-            "NO_HAVE_SOFT" => SystemError::NoHaveSoft,
-            "SOFT_HIDDEN" => SystemError::SoftHidden,
-            "SOFT_ALREADY_HAVE" => SystemError::SoftAlreadyHave,
-            "INEXISTENT_SOFTWARE" => SystemError::InexistentSoftware,
-            "CANT_DELETE" => SystemError::CantDelete,
-            "ALREADY_LISTED" => SystemError::AlreadyListed,
-            "NO_SOFT" => SystemError::NoSoft,
-            "NO_NMAP_VICTIM" => SystemError::NoNmapVictim,
-            "BAD_ACC" => SystemError::BadAcc,
-            "INEXISTENT_ACC" => SystemError::InexistentAcc,
-            "BAD_BANK" => SystemError::BadBank,
-            "AUTO_TRANSFER" => SystemError::AutoTransfer,
-            "BANK_NOT_LOGGED" => SystemError::BankNotLogged,
-            "NO_AMOUNT" => SystemError::NoAmount,
-            "BAD_CRACKER" => SystemError::BadCracker,
-            "DOWNLOAD_INSUFFICIENT_HD" => SystemError::DownloadInsufficientHd,
-            "UPLOAD_INSUFFICIENT_HD" => SystemError::UploadInsufficientHd,
-            "UPLOAD_SOFT_ALREADY_HAVE" => SystemError::UploadSoftAlreadyHave,
-            "HIDE_INSTALLED_SOFTWARE" => SystemError::HideInstalledSoftware,
-            "BAH_BAD_CRACKER" => SystemError::BahBadCracker,
-            "BAH_ALREADY_CRACKED" => SystemError::BahAlreadyCracked,
-            "HXP_BAD_EXP" => SystemError::HxpBadExp,
-            "HXP_NO_EXP" => SystemError::HxpNoExp,
-            "NO_FTP_EXP" => SystemError::NoFtpExp,
-            "NO_SSH_EXP" => SystemError::NoSshExp,
-            "HXP_NO_SCAN" => SystemError::HxpNoScan,
-            "IPRESET_NO_TIME" => SystemError::IpresetNoTime,
-            "PẂDRESET_NO_TIME" => SystemError::PwdresetNoTime,
-            "DOOM_CLAN_ONLY" => SystemError::DoomClanOnly,
-            "FOLDER_INEXISTENT_SOFTWARE" => SystemError::FolderInexistentSoftware,
-            "FOLDER_ALREADY_HAVE" => SystemError::FolderAlreadyHave,
-            "FOLDER_INEXISTENT" => SystemError::FolderInexistent,
-            "PROC_NOT_FOUND" => SystemError::ProcNotFound,
-            "PROC_ALREADY_PAUSED" => SystemError::ProcAlreadyPaused,
-            "PROC_NOT_PAUSED" => SystemError::ProcNotPaused,
-            "PROC_ALREADY_COMPLETED" => SystemError::ProcAlreadyCompleted,
-            _ => SystemError::Custom(error_str.to_string()),
-        }
+    fn from(s: &str) -> Self {
+        SystemError::Custom(s.to_string())
     }
 }

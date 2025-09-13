@@ -4,7 +4,7 @@ use sqlx::FromRow;
 use validator::Validate;
 
 use he_core::id::{AccountId, EntityId};
-use he_entity::{Entity, EntitySpecialization, EntityType};
+use he_core::{EntitySpecialization, EntityType};
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow, Validate)]
 pub struct Account {
@@ -30,13 +30,13 @@ impl Account {
 
     /// Converts an EntityId to AccountId
     pub fn cast_from_entity(entity_id: EntityId) -> AccountId {
-        entity_id
+        AccountId::from(entity_id)
     }
 }
 
 impl EntitySpecialization for Account {
     fn get_entity_id(&self) -> EntityId {
-        self.account_id
+        EntityId::from(self.account_id)
     }
 
     fn get_entity_type(&self) -> EntityType {

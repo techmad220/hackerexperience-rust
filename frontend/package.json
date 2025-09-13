@@ -1,0 +1,169 @@
+{
+  "name": "hackerexperience-frontend",
+  "version": "2.0.0",
+  "description": "Complete 1:1 frontend implementation for HackerExperience game with modern enhancements",
+  "main": "assets/js/app.js",
+  "scripts": {
+    "build": "npm run build:css && npm run build:js && npm run optimize:images",
+    "build:css": "npm run build:css:main && npm run build:css:themes",
+    "build:css:main": "postcss assets/css/game-core.css assets/css/game-components.css -d dist/css --use autoprefixer cssnano",
+    "build:css:themes": "postcss assets/css/themes/*.css -d dist/css/themes --use autoprefixer cssnano",
+    "build:js": "npm run build:js:core && npm run build:js:game && npm run build:js:components",
+    "build:js:core": "rollup -c rollup.core.config.js",
+    "build:js:game": "rollup -c rollup.game.config.js", 
+    "build:js:components": "rollup -c rollup.components.config.js",
+    "optimize:images": "imagemin assets/images/**/* --out-dir=dist/images --plugin=imagemin-mozjpeg --plugin=imagemin-pngquant --plugin=imagemin-svgo",
+    "watch": "npm-run-all --parallel watch:*",
+    "watch:css": "postcss assets/css/game-core.css assets/css/game-components.css -d dist/css --use autoprefixer --watch",
+    "watch:js": "rollup -c rollup.core.config.js --watch",
+    "serve": "live-server dist --port=3000 --entry-file=index.html",
+    "dev": "npm-run-all --parallel watch serve",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint assets/js/**/*.js",
+    "lint:fix": "eslint assets/js/**/*.js --fix",
+    "format": "prettier --write assets/js/**/*.js assets/css/**/*.css",
+    "validate": "npm run lint && npm run test",
+    "clean": "rimraf dist",
+    "precommit": "npm run validate",
+    "analyze": "npm run build && bundlesize",
+    "audit": "npm audit --audit-level moderate",
+    "security": "npm run audit && snyk test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hackerexperience/hackerexperience-rust"
+  },
+  "keywords": [
+    "hacking",
+    "simulation",
+    "game",
+    "cybersecurity",
+    "rust",
+    "frontend",
+    "javascript",
+    "websocket",
+    "real-time"
+  ],
+  "author": "HackerExperience Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "autoprefixer": "^10.4.16",
+    "bundlesize": "^0.18.1",
+    "cssnano": "^6.0.1",
+    "eslint": "^8.52.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-security": "^1.7.1",
+    "imagemin": "^8.0.1",
+    "imagemin-cli": "^7.0.0",
+    "imagemin-mozjpeg": "^10.0.0",
+    "imagemin-pngquant": "^9.0.2",
+    "imagemin-svgo": "^10.0.1",
+    "jest": "^29.7.0",
+    "live-server": "^1.2.2",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.4.31",
+    "postcss-cli": "^10.1.0",
+    "postcss-import": "^15.1.0",
+    "postcss-nested": "^6.0.1",
+    "prettier": "^3.0.3",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.1.4",
+    "snyk": "^1.1246.0"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie <= 11"
+  ],
+  "bundlesize": [
+    {
+      "path": "./dist/js/core.min.js",
+      "maxSize": "150 kB"
+    },
+    {
+      "path": "./dist/js/game.min.js",
+      "maxSize": "100 kB"
+    },
+    {
+      "path": "./dist/css/main.min.css",
+      "maxSize": "80 kB"
+    }
+  ],
+  "jest": {
+    "testEnvironment": "jsdom",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": ["text", "lcov", "html"],
+    "testMatch": [
+      "**/tests/**/*.test.js",
+      "**/tests/**/*.spec.js"
+    ],
+    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"]
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true,
+      "jest": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:security/recommended",
+      "prettier"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2021,
+      "sourceType": "module"
+    },
+    "plugins": ["security"],
+    "rules": {
+      "no-console": ["warn", { "allow": ["warn", "error"] }],
+      "no-debugger": "error",
+      "no-var": "error",
+      "prefer-const": "error",
+      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+      "security/detect-object-injection": "warn"
+    },
+    "globals": {
+      "window": "readonly",
+      "document": "readonly",
+      "console": "readonly",
+      "WebSocket": "readonly",
+      "Notification": "readonly",
+      "localStorage": "readonly",
+      "sessionStorage": "readonly",
+      "fetch": "readonly",
+      "AbortSignal": "readonly",
+      "HackerExperience": "readonly",
+      "HackerExperienceAPI": "readonly",
+      "HackerExperienceWebSocket": "readonly",
+      "HackerExperienceTerminal": "readonly"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "printWidth": 100,
+    "bracketSpacing": true,
+    "arrowParens": "avoid"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  }
+}

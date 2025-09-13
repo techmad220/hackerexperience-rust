@@ -1,0 +1,366 @@
+<!-- Desktop Page - Main Game Interface -->
+<div class="page desktop-page" id="desktop-page">
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-desktop"></i>
+            Desktop Environment
+        </h2>
+        <div class="page-actions">
+            <button class="btn btn-sm btn-outline-primary" id="refresh-desktop">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" id="customize-desktop">
+                <i class="fas fa-cog"></i>
+                Customize
+            </button>
+        </div>
+    </div>
+
+    <div class="desktop-environment">
+        <!-- Terminal Window -->
+        <div class="terminal-window" id="terminal-window">
+            <div class="window-header">
+                <div class="window-title">
+                    <i class="fas fa-terminal"></i>
+                    Terminal - root@{{current_server.name|default:'localhost'}}
+                </div>
+                <div class="window-controls">
+                    <button class="window-control minimize" title="Minimize">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="window-control maximize" title="Maximize">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                    <button class="window-control close" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="terminal-content" id="terminal-content">
+                <div class="terminal-output" id="terminal-output">
+                    <div class="terminal-line welcome-line">
+                        <span class="system-info">HackerExperience Terminal v{{game_version|default:'2.0.0'}}</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="server-info">Connected to {{current_server.name|default:'localhost'}} ({{current_server.ip|default:'127.0.0.1'}})</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="user-info">Logged in as: {{user.username}} (UID: {{user.id}})</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="system-stats">System load: {{system_load|default:'0.15'}} | Memory: {{memory_usage|default:'45'}}% | CPU: {{cpu_usage|default:'12'}}%</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="help-text">Type 'help' for available commands or 'tutorial' for beginner guide.</span>
+                    </div>
+                    <div class="terminal-line">─────────────────────────────────────────────────────────</div>
+                </div>
+                
+                <div class="terminal-input-container">
+                    <div class="terminal-prompt">
+                        <span class="prompt-user">root</span><span class="prompt-separator">@</span><span class="prompt-host">{{current_server.name|default:'localhost'}}</span><span class="prompt-path">:~</span><span class="prompt-symbol">#</span>
+                    </div>
+                    <input type="text" class="terminal-input" id="terminal-input" 
+                           placeholder="Enter command..." 
+                           autocomplete="off" 
+                           spellcheck="false"
+                           autofocus>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Icons Grid -->
+        <div class="desktop-icons" id="desktop-icons">
+            <!-- System Applications -->
+            <div class="icon-section">
+                <h4 class="section-title">System Applications</h4>
+                <div class="icons-grid">
+                    <div class="desktop-icon" data-app="file-manager">
+                        <div class="icon-image">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="icon-label">File Manager</div>
+                    </div>
+                    
+                    <div class="desktop-icon" data-app="process-manager">
+                        <div class="icon-image">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="icon-label">Process Manager</div>
+                        {% if active_processes_count > 0 %}
+                        <div class="icon-badge">{{active_processes_count}}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="desktop-icon" data-app="software-center">
+                        <div class="icon-image">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <div class="icon-label">Software Center</div>
+                    </div>
+                    
+                    <div class="desktop-icon" data-app="hardware-monitor">
+                        <div class="icon-image">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                        <div class="icon-label">Hardware Monitor</div>
+                    </div>
+                    
+                    <div class="desktop-icon" data-app="system-logs">
+                        <div class="icon-image">
+                            <i class="fas fa-list-alt"></i>
+                        </div>
+                        <div class="icon-label">System Logs</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Network Tools -->
+            <div class="icon-section">
+                <h4 class="section-title">Network Tools</h4>
+                <div class="icons-grid">
+                    <div class="desktop-icon" data-app="network-scanner">
+                        <div class="icon-image">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="icon-label">Network Scanner</div>
+                    </div>
+                    
+                    <div class="desktop-icon" data-app="connection-manager">
+                        <div class="icon-image">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                        <div class="icon-label">Connection Manager</div>
+                    </div>
+                    
+                    <div class="desktop-icon" data-app="internet-browser">
+                        <div class="icon-image">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="icon-label">Internet Browser</div>
+                    </div>
+                    
+                    <div class="desktop-icon" data-app="tunnel-manager">
+                        <div class="icon-image">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <div class="icon-label">Tunnel Manager</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Tools -->
+            <div class="icon-section">
+                <h4 class="section-title">Financial Tools</h4>
+                <div class="icons-grid">
+                    <div class="desktop-icon" data-app="banking-client">
+                        <div class="icon-image">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="icon-label">Banking Client</div>
+                    </div>
+                    
+                    <div class="desktop-icon" data-app="crypto-wallet">
+                        <div class="icon-image">
+                            <i class="fab fa-bitcoin"></i>
+                        </div>
+                        <div class="icon-label">Crypto Wallet</div>
+                    </div>
+                    
+                    <div class="desktop-icon" data-app="market-browser">
+                        <div class="icon-image">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="icon-label">Market Browser</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Installed Software -->
+            <div class="icon-section">
+                <h4 class="section-title">Installed Software</h4>
+                <div class="icons-grid" id="installed-software-icons">
+                    <!-- Dynamically populated with user's installed software -->
+                    {% for software in user_software %}
+                    <div class="desktop-icon software-icon" data-software-id="{{software.id}}" data-app="run-software">
+                        <div class="icon-image">
+                            <i class="{{software.icon|default:'fas fa-code'}}"></i>
+                        </div>
+                        <div class="icon-label">{{software.name}}</div>
+                        {% if software.version %}
+                        <div class="icon-version">v{{software.version}}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Add Software Icon -->
+                    <div class="desktop-icon add-software" data-app="software-center">
+                        <div class="icon-image">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="icon-label">Install Software</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Bar -->
+        <div class="quick-actions-bar" id="quick-actions-bar">
+            <div class="quick-action" id="quick-scan" title="Quick Network Scan">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="quick-action" id="quick-hack" title="Quick Hack">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="quick-action" id="quick-transfer" title="Quick Transfer">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="quick-action" id="quick-process" title="View Processes">
+                <i class="fas fa-tasks"></i>
+                {% if active_processes_count > 0 %}
+                <span class="quick-action-badge">{{active_processes_count}}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- System Tray -->
+        <div class="system-tray" id="system-tray">
+            <div class="tray-item" id="network-status" title="Network Status">
+                <i class="fas fa-wifi"></i>
+                <span class="connection-strength">{{connection_strength|default:4}}</span>
+            </div>
+            
+            <div class="tray-item" id="security-status" title="Security Status">
+                <i class="fas fa-shield-alt"></i>
+                <span class="security-level">{{security_level|default:'Medium'}}</span>
+            </div>
+            
+            <div class="tray-item" id="notifications" title="Notifications">
+                <i class="fas fa-bell"></i>
+                {% if notification_count > 0 %}
+                <span class="notification-count">{{notification_count}}</span>
+                {% endif %}
+            </div>
+            
+            <div class="tray-item" id="system-time" title="System Time">
+                <span class="time-display">{{current_time}}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu desktop-context-menu" id="desktop-context-menu" style="display: none;">
+        <ul class="context-menu-list">
+            <li class="context-menu-item" data-action="refresh">
+                <i class="fas fa-sync-alt"></i>
+                Refresh Desktop
+            </li>
+            <li class="context-menu-separator"></li>
+            <li class="context-menu-item" data-action="new-folder">
+                <i class="fas fa-folder-plus"></i>
+                Create Folder
+            </li>
+            <li class="context-menu-item" data-action="new-file">
+                <i class="fas fa-file-plus"></i>
+                Create File
+            </li>
+            <li class="context-menu-separator"></li>
+            <li class="context-menu-item" data-action="terminal">
+                <i class="fas fa-terminal"></i>
+                Open Terminal
+            </li>
+            <li class="context-menu-item" data-action="file-manager">
+                <i class="fas fa-folder-open"></i>
+                Open File Manager
+            </li>
+            <li class="context-menu-separator"></li>
+            <li class="context-menu-item" data-action="properties">
+                <i class="fas fa-info-circle"></i>
+                Desktop Properties
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Desktop Customization Modal -->
+<div class="modal-overlay" id="desktop-customization-modal" style="display: none;">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3 class="modal-title">Desktop Customization</h3>
+            <button class="modal-close" data-modal="desktop-customization-modal">
+                <span>&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="customization-tabs">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#wallpaper-tab">
+                            <i class="fas fa-image"></i> Wallpaper
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#layout-tab">
+                            <i class="fas fa-th"></i> Layout
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#terminal-tab">
+                            <i class="fas fa-terminal"></i> Terminal
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="wallpaper-tab">
+                        <div class="wallpaper-options">
+                            <h5>Background Options</h5>
+                            <div class="wallpaper-grid">
+                                <!-- Wallpaper options will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="layout-tab">
+                        <div class="layout-options">
+                            <h5>Icon Layout</h5>
+                            <div class="form-group">
+                                <label>Icon Size:</label>
+                                <input type="range" class="form-range" id="icon-size" min="32" max="128" value="64">
+                            </div>
+                            <div class="form-group">
+                                <label>Grid Spacing:</label>
+                                <input type="range" class="form-range" id="grid-spacing" min="10" max="50" value="20">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="terminal-tab">
+                        <div class="terminal-options">
+                            <h5>Terminal Settings</h5>
+                            <div class="form-group">
+                                <label for="terminal-theme">Theme:</label>
+                                <select class="form-select" id="terminal-theme">
+                                    <option value="dark">Dark</option>
+                                    <option value="light">Light</option>
+                                    <option value="retro">Retro</option>
+                                    <option value="hacker">Hacker Green</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="terminal-font-size">Font Size:</label>
+                                <input type="range" class="form-range" id="terminal-font-size" min="12" max="24" value="14">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-modal="desktop-customization-modal">Cancel</button>
+            <button class="btn btn-primary" id="save-desktop-settings">Save Changes</button>
+        </div>
+    </div>
+</div>

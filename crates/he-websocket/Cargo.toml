@@ -17,7 +17,7 @@ dashmap = "5.5"
 async-trait = "0.1"
 anyhow = "1.0"
 he-core = { path = "../he-core" }
-he-database = { path = "../he-database" }
+he-database = { path = "../../he-database" }
 
 [dev-dependencies]
 tokio-test = "0.4"

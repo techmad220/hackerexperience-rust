@@ -64,6 +64,12 @@ impl EntityId {
     }
 }
 
+impl From<AccountId> for EntityId {
+    fn from(account_id: AccountId) -> Self {
+        Self(account_id.0)
+    }
+}
+
 /// Server identifier
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ServerId(pub Uuid);
@@ -81,6 +87,12 @@ pub struct AccountId(pub Uuid);
 impl AccountId {
     pub fn new() -> Self {
         Self(Uuid::new_v4())
+    }
+}
+
+impl From<EntityId> for AccountId {
+    fn from(entity_id: EntityId) -> Self {
+        Self(entity_id.0)
     }
 }
 

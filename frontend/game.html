@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackerExperience - The Ultimate Hacking Simulation</title>
+    <link rel="stylesheet" href="css/terminal.css">
+    <link rel="stylesheet" href="css/game.css">
+    <style>
+        /* Terminal-inspired game styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #000;
+            color: #00ff00;
+            line-height: 1.4;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            display: flex;
+            height: 100vh;
+            background: radial-gradient(circle at center, #001100 0%, #000000 100%);
+        }
+
+        /* Left sidebar - Desktop/Navigation */
+        .desktop-sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            border-right: 2px solid #00ff00;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .desktop-icon {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .desktop-icon:hover {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        .desktop-icon.active {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #00ff00;
+        }
+
+        .desktop-icon i {
+            width: 24px;
+            margin-right: 10px;
+            text-align: center;
+        }
+
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top status bar */
+        .status-bar {
+            height: 60px;
+            background: linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 100%);
+            border-bottom: 2px solid #00ff00;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .user-info {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .stat-value {
+            color: #ffff00;
+            font-weight: bold;
+        }
+
+        /* Content screens */
+        .content-screen {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .content-screen.active {
+            display: block;
+        }
+
+        /* Terminal window styling */
+        .terminal-window {
+            background: #000;
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .terminal-header {
+            background: #00ff00;
+            color: #000;
+            padding: 8px 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-content {
+            padding: 15px;
+            min-height: 200px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        /* Server grid for Internet screen */
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .server-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .server-card:hover {
+            border-color: #ffff00;
+            background: rgba(0, 255, 0, 0.05);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+        }
+
+        .server-name {
+            color: #00ffff;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .server-ip {
+            color: #ffff00;
+            font-size: 0.9em;
+        }
+
+        .server-type {
+            color: #ff6600;
+            font-size: 0.8em;
+            text-transform: uppercase;
+        }
+
+        /* Software list styling */
+        .software-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .software-item {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #00ff00;
+            padding: 12px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .software-info {
+            flex: 1;
+        }
+
+        .software-name {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .software-version {
+            color: #ffff00;
+            font-size: 0.9em;
+        }
+
+        .software-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #004400 0%, #006600 100%);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #006600 0%, #008800 100%);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #440000 0%, #660000 100%);
+            color: #ff6666;
+            border-color: #ff6666;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #660000 0%, #880000 100%);
+            box-shadow: 0 0 10px rgba(255, 102, 102, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #444400 0%, #666600 100%);
+            color: #ffff00;
+            border-color: #ffff00;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #004444 0%, #006666 100%);
+            color: #00ffff;
+            border-color: #00ffff;
+        }
+
+        /* Process queue styling */
+        .process-queue {
+            margin: 20px 0;
+        }
+
+        .process-item {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #ffff00;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .process-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .process-action {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .process-target {
+            color: #ffff00;
+        }
+
+        .process-progress {
+            background: #333;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .process-progress-bar {
+            background: linear-gradient(90deg, #00ff00 0%, #ffff00 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .process-time {
+            color: #ff6600;
+            font-size: 0.9em;
+        }
+
+        /* Hardware specs */
+        .hardware-specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .spec-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid #00ff00;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .spec-type {
+            color: #00ffff;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+
+        .spec-value {
+            color: #ffff00;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .spec-unit {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        /* File browser */
+        .file-browser {
+            background: #000;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .file-item {
+            padding: 8px;
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .file-item:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .file-name {
+            color: #00ff00;
+        }
+
+        .file-size {
+            color: #888;
+        }
+
+        /* Log viewer */
+        .log-viewer {
+            background: #000;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #00ff00;
+            padding-left: 10px;
+        }
+
+        .log-timestamp {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .log-action {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .log-details {
+            color: #ffff00;
+        }
+
+        /* Internet browser styling */
+        .internet-browser {
+            height: 500px;
+            border: 2px solid #00ff00;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .browser-address-bar {
+            background: #1a1a1a;
+            padding: 10px;
+            border-bottom: 1px solid #00ff00;
+            display: flex;
+            gap: 10px;
+        }
+
+        .address-input {
+            flex: 1;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            font-family: inherit;
+        }
+
+        .browser-content {
+            height: calc(100% - 50px);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        /* Modal dialogs */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            color: #00ffff;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-body {
+            margin: 20px 0;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        /* Form elements */
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-label {
+            display: block;
+            color: #00ffff;
+            margin-bottom: 5px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #ffff00;
+            box-shadow: 0 0 5px rgba(255, 255, 0, 0.3);
+        }
+
+        /* Notification system */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 15px;
+            max-width: 300px;
+            z-index: 2000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification-success {
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .notification-error {
+            border-color: #ff6666;
+            color: #ff6666;
+        }
+
+        .notification-warning {
+            border-color: #ffff00;
+            color: #ffff00;
+        }
+
+        .notification-info {
+            border-color: #00ffff;
+            color: #00ffff;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            border-top-color: #00ff00;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Chat/Messages */
+        .chat-container {
+            height: 400px;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .chat-input-container {
+            padding: 10px;
+            border-top: 1px solid #00ff00;
+            background: #1a1a1a;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            font-family: inherit;
+            border-radius: 4px;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 8px;
+            border-radius: 4px;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .message-sender {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .message-text {
+            color: #00ff00;
+            margin-top: 5px;
+        }
+
+        .message-time {
+            color: #888;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+            }
+            
+            .desktop-sidebar {
+                width: 100%;
+                height: auto;
+                display: flex;
+                overflow-x: auto;
+                padding: 10px;
+            }
+            
+            .desktop-icon {
+                min-width: 120px;
+                margin: 0 5px;
+            }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00ff00;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00cc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- Desktop Sidebar -->
+        <div class="desktop-sidebar">
+            <div class="desktop-icon active" data-screen="desktop">
+                <i>🖥️</i>
+                <span>Desktop</span>
+            </div>
+            <div class="desktop-icon" data-screen="internet">
+                <i>🌐</i>
+                <span>Internet</span>
+            </div>
+            <div class="desktop-icon" data-screen="software">
+                <i>💿</i>
+                <span>Software</span>
+            </div>
+            <div class="desktop-icon" data-screen="hardware">
+                <i>⚙️</i>
+                <span>Hardware</span>
+            </div>
+            <div class="desktop-icon" data-screen="processes">
+                <i>⚡</i>
+                <span>Processes</span>
+            </div>
+            <div class="desktop-icon" data-screen="files">
+                <i>📁</i>
+                <span>Files</span>
+            </div>
+            <div class="desktop-icon" data-screen="logs">
+                <i>📋</i>
+                <span>Logs</span>
+            </div>
+            <div class="desktop-icon" data-screen="missions">
+                <i>🎯</i>
+                <span>Missions</span>
+            </div>
+            <div class="desktop-icon" data-screen="clan">
+                <i>👥</i>
+                <span>Clan</span>
+            </div>
+            <div class="desktop-icon" data-screen="ranking">
+                <i>🏆</i>
+                <span>Ranking</span>
+            </div>
+            <div class="desktop-icon" data-screen="settings">
+                <i>⚙️</i>
+                <span>Settings</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="user-info">
+                    <div class="stat-item">
+                        <span>User:</span>
+                        <span class="stat-value" id="username">Loading...</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Money:</span>
+                        <span class="stat-value" id="money">$0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Bitcoin:</span>
+                        <span class="stat-value" id="bitcoin">₿0.00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Experience:</span>
+                        <span class="stat-value" id="experience">0 XP</span>
+                    </div>
+                </div>
+                <div class="system-info">
+                    <div class="stat-item">
+                        <span>CPU:</span>
+                        <span class="stat-value" id="total-cpu">0 MHz</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>RAM:</span>
+                        <span class="stat-value" id="total-ram">0 MB</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>HDD:</span>
+                        <span class="stat-value" id="total-hdd">0 MB</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>NET:</span>
+                        <span class="stat-value" id="total-net">0 Mbps</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop Screen -->
+            <div class="content-screen active" id="desktop-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>Desktop - System Overview</span>
+                        <span id="current-time"></span>
+                    </div>
+                    <div class="terminal-content">
+                        <h3>Welcome to HackerExperience</h3>
+                        <p>Your journey into the world of hacking begins here.</p>
+                        
+                        <div class="hardware-specs">
+                            <div class="spec-card">
+                                <div class="spec-type">CPU</div>
+                                <div class="spec-value" id="desktop-cpu">0</div>
+                                <div class="spec-unit">MHz</div>
+                            </div>
+                            <div class="spec-card">
+                                <div class="spec-type">RAM</div>
+                                <div class="spec-value" id="desktop-ram">0</div>
+                                <div class="spec-unit">MB</div>
+                            </div>
+                            <div class="spec-card">
+                                <div class="spec-type">HDD</div>
+                                <div class="spec-value" id="desktop-hdd">0</div>
+                                <div class="spec-unit">MB</div>
+                            </div>
+                            <div class="spec-card">
+                                <div class="spec-type">NET</div>
+                                <div class="spec-value" id="desktop-net">0</div>
+                                <div class="spec-unit">Mbps</div>
+                            </div>
+                        </div>
+
+                        <div class="process-queue" id="desktop-processes">
+                            <h4>Active Processes</h4>
+                            <div id="active-processes-list">
+                                <p style="color: #888;">No active processes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Internet Screen -->
+            <div class="content-screen" id="internet-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>Internet Browser</span>
+                        <button class="btn" onclick="refreshServers()">Refresh</button>
+                    </div>
+                    <div class="terminal-content">
+                        <div class="internet-browser">
+                            <div class="browser-address-bar">
+                                <input type="text" class="address-input" id="target-ip" placeholder="Enter IP address..." />
+                                <button class="btn" onclick="connectToServer()">Connect</button>
+                                <button class="btn btn-info" onclick="scanNetwork()">Scan</button>
+                            </div>
+                            <div class="browser-content" id="browser-content">
+                                <h3>Available Servers</h3>
+                                <div class="server-grid" id="server-list">
+                                    <!-- Servers will be loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Software Screen -->
+            <div class="content-screen" id="software-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>Software Manager</span>
+                        <div>
+                            <button class="btn" onclick="refreshSoftware()">Refresh</button>
+                            <button class="btn btn-info" onclick="showSoftwareStore()">Store</button>
+                        </div>
+                    </div>
+                    <div class="terminal-content">
+                        <h3>Installed Software</h3>
+                        <div class="software-list" id="installed-software-list">
+                            <!-- Installed software will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hardware Screen -->
+            <div class="content-screen" id="hardware-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>Hardware Manager</span>
+                        <button class="btn btn-info" onclick="showHardwareStore()">Buy Hardware</button>
+                    </div>
+                    <div class="terminal-content">
+                        <h3>Current Hardware Configuration</h3>
+                        <div class="hardware-specs" id="hardware-list">
+                            <!-- Hardware will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processes Screen -->
+            <div class="content-screen" id="processes-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>Process Manager</span>
+                        <button class="btn btn-danger" onclick="killAllProcesses()">Kill All</button>
+                    </div>
+                    <div class="terminal-content">
+                        <h3>Running Processes</h3>
+                        <div class="process-queue" id="processes-list">
+                            <!-- Processes will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files Screen -->
+            <div class="content-screen" id="files-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>File Manager</span>
+                        <div>
+                            <button class="btn" onclick="refreshFiles()">Refresh</button>
+                            <button class="btn btn-info" onclick="createFile()">New File</button>
+                        </div>
+                    </div>
+                    <div class="terminal-content">
+                        <h3>File System</h3>
+                        <div class="file-browser" id="file-browser">
+                            <!-- Files will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs Screen -->
+            <div class="content-screen" id="logs-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>System Logs</span>
+                        <div>
+                            <button class="btn" onclick="refreshLogs()">Refresh</button>
+                            <button class="btn btn-danger" onclick="clearLogs()">Clear</button>
+                        </div>
+                    </div>
+                    <div class="terminal-content">
+                        <h3>Access Logs</h3>
+                        <div class="log-viewer" id="log-viewer">
+                            <!-- Logs will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Missions Screen -->
+            <div class="content-screen" id="missions-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>Mission Control</span>
+                        <button class="btn btn-info" onclick="refreshMissions()">Refresh</button>
+                    </div>
+                    <div class="terminal-content">
+                        <h3>Active Missions</h3>
+                        <div id="missions-list">
+                            <!-- Missions will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clan Screen -->
+            <div class="content-screen" id="clan-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>Clan Management</span>
+                        <div>
+                            <button class="btn btn-info" onclick="createClan()">Create Clan</button>
+                            <button class="btn" onclick="refreshClan()">Refresh</button>
+                        </div>
+                    </div>
+                    <div class="terminal-content">
+                        <div id="clan-info">
+                            <!-- Clan information will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ranking Screen -->
+            <div class="content-screen" id="ranking-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>Global Rankings</span>
+                        <button class="btn" onclick="refreshRankings()">Refresh</button>
+                    </div>
+                    <div class="terminal-content">
+                        <h3>Top Players</h3>
+                        <div id="rankings-list">
+                            <!-- Rankings will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Screen -->
+            <div class="content-screen" id="settings-screen">
+                <div class="terminal-window">
+                    <div class="terminal-header">
+                        <span>Game Settings</span>
+                    </div>
+                    <div class="terminal-content">
+                        <h3>Account Settings</h3>
+                        <div class="form-group">
+                            <label class="form-label">Username:</label>
+                            <input type="text" class="form-input" id="settings-username" readonly />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email:</label>
+                            <input type="email" class="form-input" id="settings-email" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Change Password:</label>
+                            <input type="password" class="form-input" id="settings-password" placeholder="New password..." />
+                        </div>
+                        <button class="btn" onclick="saveSettings()">Save Settings</button>
+                        <button class="btn btn-danger" onclick="logout()" style="margin-left: 10px;">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    
+    <!-- Server Connection Modal -->
+    <div class="modal" id="server-modal">
+        <div class="modal-content">
+            <div class="modal-header">Server Connection</div>
+            <div class="modal-body">
+                <div id="server-info">
+                    <!-- Server details will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="hackServer()">Hack</button>
+                <button class="btn btn-info" onclick="downloadFile()">Download</button>
+                <button class="btn btn-danger" onclick="closeModal('server-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Software Store Modal -->
+    <div class="modal" id="software-store-modal">
+        <div class="modal-content">
+            <div class="modal-header">Software Store</div>
+            <div class="modal-body">
+                <div id="software-store-list">
+                    <!-- Available software will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('software-store-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hardware Store Modal -->
+    <div class="modal" id="hardware-store-modal">
+        <div class="modal-content">
+            <div class="modal-header">Hardware Store</div>
+            <div class="modal-body">
+                <div id="hardware-store-list">
+                    <!-- Available hardware will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('hardware-store-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hack Modal -->
+    <div class="modal" id="hack-modal">
+        <div class="modal-content">
+            <div class="modal-header">Initiate Hack</div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Target IP:</label>
+                    <input type="text" class="form-input" id="hack-target-ip" readonly />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Select Software:</label>
+                    <select class="form-input" id="hack-software-select">
+                        <!-- Software options will be loaded here -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Estimated Time:</label>
+                    <span id="hack-estimated-time">Calculating...</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="startHack()">Start Hack</button>
+                <button class="btn btn-danger" onclick="closeModal('hack-modal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div class="modal" id="chat-modal">
+        <div class="modal-content">
+            <div class="modal-header">Global Chat</div>
+            <div class="modal-body">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Chat messages will appear here -->
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="chat-input" placeholder="Type your message..." />
+                        <button class="btn" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="closeModal('chat-modal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <script src="js/game-client.js"></script>
+    <script>
+        // Initialize the game when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            GameClient.init();
+        });
+
+        // Screen navigation
+        document.querySelectorAll('.desktop-icon').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const screenName = this.dataset.screen;
+                switchScreen(screenName);
+                
+                // Update active icon
+                document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function switchScreen(screenName) {
+            // Hide all screens
+            document.querySelectorAll('.content-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show target screen
+            const targetScreen = document.getElementById(screenName + '-screen');
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+                
+                // Load screen-specific content
+                switch(screenName) {
+                    case 'internet':
+                        refreshServers();
+                        break;
+                    case 'software':
+                        refreshSoftware();
+                        break;
+                    case 'hardware':
+                        refreshHardware();
+                        break;
+                    case 'processes':
+                        refreshProcesses();
+                        break;
+                    case 'files':
+                        refreshFiles();
+                        break;
+                    case 'logs':
+                        refreshLogs();
+                        break;
+                    case 'missions':
+                        refreshMissions();
+                        break;
+                    case 'clan':
+                        refreshClan();
+                        break;
+                    case 'ranking':
+                        refreshRankings();
+                        break;
+                    case 'settings':
+                        loadSettings();
+                        break;
+                }
+            }
+        }
+
+        // Modal functions
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleString();
+            document.getElementById('current-time').textContent = timeStr;
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Placeholder functions for screen operations
+        function refreshServers() {
+            GameClient.loadServers();
+        }
+
+        function refreshSoftware() {
+            GameClient.loadSoftware();
+        }
+
+        function refreshHardware() {
+            GameClient.loadHardware();
+        }
+
+        function refreshProcesses() {
+            GameClient.loadProcesses();
+        }
+
+        function refreshFiles() {
+            GameClient.loadFiles();
+        }
+
+        function refreshLogs() {
+            GameClient.loadLogs();
+        }
+
+        function refreshMissions() {
+            GameClient.loadMissions();
+        }
+
+        function refreshClan() {
+            GameClient.loadClan();
+        }
+
+        function refreshRankings() {
+            GameClient.loadRankings();
+        }
+
+        function loadSettings() {
+            GameClient.loadSettings();
+        }
+
+        function connectToServer() {
+            const ip = document.getElementById('target-ip').value;
+            if (ip) {
+                GameClient.connectToServer(ip);
+            }
+        }
+
+        function scanNetwork() {
+            GameClient.scanNetwork();
+        }
+
+        function hackServer() {
+            const ip = document.getElementById('hack-target-ip').value;
+            showModal('hack-modal');
+        }
+
+        function startHack() {
+            GameClient.startHack();
+            closeModal('hack-modal');
+        }
+
+        function showSoftwareStore() {
+            GameClient.loadSoftwareStore();
+            showModal('software-store-modal');
+        }
+
+        function showHardwareStore() {
+            GameClient.loadHardwareStore();
+            showModal('hardware-store-modal');
+        }
+
+        function downloadFile() {
+            GameClient.downloadFile();
+        }
+
+        function killAllProcesses() {
+            if (confirm('Are you sure you want to kill all processes?')) {
+                GameClient.killAllProcesses();
+            }
+        }
+
+        function createFile() {
+            const fileName = prompt('Enter file name:');
+            if (fileName) {
+                GameClient.createFile(fileName);
+            }
+        }
+
+        function clearLogs() {
+            if (confirm('Are you sure you want to clear all logs?')) {
+                GameClient.clearLogs();
+            }
+        }
+
+        function createClan() {
+            const clanName = prompt('Enter clan name:');
+            if (clanName) {
+                const clanTag = prompt('Enter clan tag (3-5 characters):');
+                if (clanTag) {
+                    GameClient.createClan(clanName, clanTag);
+                }
+            }
+        }
+
+        function saveSettings() {
+            GameClient.saveSettings();
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                GameClient.logout();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (message) {
+                GameClient.sendChatMessage(message);
+                input.value = '';
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.textContent = message;
+            
+            container.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Hide and remove notification after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    container.removeChild(notification);
+                }, 300);
+            }, 5000);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl + Enter in chat to send message
+            if (e.ctrlKey && e.key === 'Enter' && document.getElementById('chat-modal').classList.contains('active')) {
+                sendMessage();
+            }
+            
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+            }
+        });
+
+        // Chat input enter key
+        document.getElementById('chat-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
