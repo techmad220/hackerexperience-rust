@@ -1,0 +1,39 @@
+[workspace]
+members = [
+    "crates/he-core",
+    "crates/he-db", 
+    "crates/he-api",
+    "crates/he-realtime",
+    "crates/he-processes",
+    "crates/he-cli",
+    "crates/he-legacy-compat",
+    "crates/he-helix-compat", 
+    "crates/he-auth",
+    "crates/he-admin"
+]
+
+[package]
+name = "hackerexperience"
+version = "0.8.0"
+edition = "2021"
+description = "HackerExperience Legacy - Rust Port"
+license = "MIT"
+
+[dependencies]
+# Main binary will coordinate all crates
+he-core = { path = "crates/he-core" }
+he-db = { path = "crates/he-db" }
+he-api = { path = "crates/he-api" }
+he-realtime = { path = "crates/he-realtime" }
+he-processes = { path = "crates/he-processes" }
+he-cli = { path = "crates/he-cli" }
+he-legacy-compat = { path = "crates/he-legacy-compat" }
+he-helix-compat = { path = "crates/he-helix-compat" }
+he-auth = { path = "crates/he-auth" }
+he-admin = { path = "crates/he-admin" }
+
+# Core dependencies
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
