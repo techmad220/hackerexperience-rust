@@ -155,11 +155,85 @@ async fn btc_transfer_handler(
             return BitcoinResponse::error("LOL, you cant transfer to yourself.");
         }
         
-        // TODO: Implement actual bitcoin transfer logic
-        // - Check if destination wallet exists
-        // - Check if user has sufficient balance
-        // - Perform transfer
-        // - Add logs
+        // Implement actual bitcoin transfer logic
+        // Check if destination wallet exists
+        let destination_exists = sqlx::query!(
+            "SELECT COUNT(*) as count FROM bitcoin_wallets WHERE address = $1",
+            destination
+        )
+        .fetch_one(db)
+        .await
+        .map(|row| row.count.unwrap_or(0) > 0)
+        .unwrap_or(false);
+        
+        if !destination_exists {
+            return BitcoinResponse::error("Destination wallet does not exist.");
+        }
+        
+        // Check if user has sufficient balance
+        let wallet_balance = sqlx::query!(
+            "SELECT balance FROM bitcoin_wallets WHERE address = $1",
+            &wallet_addr
+        )
+        .fetch_one(db)
+        .await
+        .map(|row| row.balance.unwrap_or(0.0))
+        .unwrap_or(0.0);
+        
+        if wallet_balance < amount_to_transfer {
+            return BitcoinResponse::error("Insufficient balance.");
+        }
+        
+        // Perform transfer
+        let mut tx = match db.begin().await {
+            Ok(tx) => tx,
+            Err(_) => return BitcoinResponse::error("Database error."),
+        };
+        
+        // Subtract from source wallet
+        if sqlx::query!(
+            "UPDATE bitcoin_wallets SET balance = balance - $1 WHERE address = $2",
+            amount_to_transfer,
+            &wallet_addr
+        )
+        .execute(&mut *tx)
+        .await
+        .is_err() {
+            let _ = tx.rollback().await;
+            return BitcoinResponse::error("Transfer failed.");
+        }
+        
+        // Add to destination wallet
+        if sqlx::query!(
+            "UPDATE bitcoin_wallets SET balance = balance + $1 WHERE address = $2",
+            amount_to_transfer,
+            destination
+        )
+        .execute(&mut *tx)
+        .await
+        .is_err() {
+            let _ = tx.rollback().await;
+            return BitcoinResponse::error("Transfer failed.");
+        }
+        
+        // Add transaction log
+        if sqlx::query!(
+            "INSERT INTO bitcoin_transactions (from_address, to_address, amount, transaction_type, created_at) VALUES ($1, $2, $3, $4, NOW())",
+            &wallet_addr,
+            destination,
+            amount_to_transfer,
+            "transfer"
+        )
+        .execute(&mut *tx)
+        .await
+        .is_err() {
+            let _ = tx.rollback().await;
+            return BitcoinResponse::error("Transfer failed.");
+        }
+        
+        if tx.commit().await.is_err() {
+            return BitcoinResponse::error("Transfer failed.");
+        }
         
         BitcoinResponse::success(&format!(
             "{} BTC transfered from {} to {}.",
@@ -170,9 +244,18 @@ async fn btc_transfer_handler(
         // Show transfer form
         let wallet_addr = session.get_wallet_address().unwrap_or_default();
         
-        // TODO: Get actual wallet balance
-        let wallet_amount = "0.0000000"; // Placeholder
-        let btc_value = "50000"; // TODO: Get actual BTC value
+        // Get actual wallet balance
+        let wallet_balance = sqlx::query!(
+            "SELECT balance FROM bitcoin_wallets WHERE address = $1",
+            &wallet_addr
+        )
+        .fetch_one(db)
+        .await
+        .map(|row| row.balance.unwrap_or(0.0))
+        .unwrap_or(0.0);
+        
+        let wallet_amount = format!("{:.7}", wallet_balance);
+        let btc_value = get_btc_value().await.unwrap_or("50000".to_string());
         
         let title = "Transfer bitcoins";
         let text = format!(
@@ -405,7 +488,67 @@ async fn btc_register_handler(
     // - Create new bitcoin wallet
     // - Generate wallet address and private key
     
+    // Check if user already has a wallet
+    let existing_wallet = sqlx::query!(
+        "SELECT COUNT(*) as count FROM bitcoin_wallets WHERE player_id = $1",
+        user_id
+    )
+    .fetch_one(db)
+    .await
+    .map(|row| row.count.unwrap_or(0) > 0)
+    .unwrap_or(false);
+    
+    if existing_wallet {
+        return BitcoinResponse::error("You already have a bitcoin wallet.");
+    }
+    
+    // Generate wallet address and private key
+    let (wallet_address, private_key) = generate_bitcoin_wallet();
+    
+    // Create new bitcoin wallet
+    if sqlx::query!(
+        "INSERT INTO bitcoin_wallets (player_id, address, private_key, balance, created_at) VALUES ($1, $2, $3, $4, NOW())",
+        user_id,
+        &wallet_address,
+        &private_key,
+        0.0
+    )
+    .execute(db)
+    .await
+    .is_err() {
+        return BitcoinResponse::error("Failed to create wallet.");
+    }
+    
     BitcoinResponse::success("Your wallet was created! You can find it's information on the Finances page.")
+}
+
+/// Get current BTC value from external API or cache
+async fn get_btc_value() -> Option<String> {
+    // TODO: Implement actual BTC value fetching
+    // This would typically fetch from a cryptocurrency API
+    Some("50000".to_string())
+}
+
+/// Generate a new bitcoin wallet address and private key
+fn generate_bitcoin_wallet() -> (String, String) {
+    use rand::{thread_rng, Rng};
+    use rand::distributions::Alphanumeric;
+    
+    // Generate a 34-character bitcoin address (simplified)
+    let address: String = "1".to_string() + &thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(33)
+        .map(char::from)
+        .collect::<String>();
+    
+    // Generate a 64-character private key (simplified)
+    let private_key: String = thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(64)
+        .map(char::from)
+        .collect();
+    
+    (address, private_key)
 }
 
 #[cfg(test)]

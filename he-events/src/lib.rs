@@ -12,6 +12,13 @@ pub mod subscriber;
 pub mod publisher;
 pub mod replay;
 
+// Event behavior modules
+pub mod loggable;
+pub mod notificable;
+pub mod listenable;
+pub mod publishable;
+pub mod state;
+
 // Re-export commonly used types
 pub use dispatcher::{EventDispatcher, DispatchConfig};
 pub use event::{Event, EventData, EventMetadata, EventType};

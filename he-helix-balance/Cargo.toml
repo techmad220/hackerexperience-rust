@@ -1,0 +1,13 @@
+[package]
+name = "he-helix-balance"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+he-helix-core = { path = "../he-helix-core" }
+he-helix-factor = { path = "../he-helix-factor" }
+serde = { workspace = true }
+serde_json = { workspace = true }

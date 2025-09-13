@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker Experience - Rust Edition</title>
+    <link rel="stylesheet" href="css/game.css">
+    <link rel="icon" type="image/png" href="images/favicon.png">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="loading-screen">
+            <div class="loading-content">
+                <div class="logo">
+                    <h1>HACKER EXPERIENCE</h1>
+                    <p class="subtitle">Rust Edition</p>
+                </div>
+                <div class="loading-spinner"></div>
+                <p class="loading-text">Initializing systems...</p>
+            </div>
+        </div>
+
+        <!-- Game Interface -->
+        <div id="game-interface" class="game-interface" style="display: none;">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="server-info">
+                    <span class="server-name">LocalHost</span>
+                    <span class="server-ip">127.0.0.1</span>
+                </div>
+                <div class="player-info">
+                    <span class="username" id="username">Player</span>
+                    <span class="level">Level <span id="player-level">1</span></span>
+                    <span class="money">$<span id="player-money">1000</span></span>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-container">
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <nav class="main-nav">
+                        <div class="nav-section">
+                            <h3>System</h3>
+                            <ul>
+                                <li><a href="#" data-page="desktop" class="nav-link active">Desktop</a></li>
+                                <li><a href="#" data-page="processes" class="nav-link">Processes</a></li>
+                                <li><a href="#" data-page="software" class="nav-link">Software</a></li>
+                                <li><a href="#" data-page="hardware" class="nav-link">Hardware</a></li>
+                                <li><a href="#" data-page="logs" class="nav-link">Logs</a></li>
+                            </ul>
+                        </div>
+                        <div class="nav-section">
+                            <h3>Network</h3>
+                            <ul>
+                                <li><a href="#" data-page="internet" class="nav-link">Internet</a></li>
+                                <li><a href="#" data-page="servers" class="nav-link">My Servers</a></li>
+                                <li><a href="#" data-page="connections" class="nav-link">Connections</a></li>
+                            </ul>
+                        </div>
+                        <div class="nav-section">
+                            <h3>Social</h3>
+                            <ul>
+                                <li><a href="#" data-page="clan" class="nav-link">Clan</a></li>
+                                <li><a href="#" data-page="missions" class="nav-link">Missions</a></li>
+                                <li><a href="#" data-page="ranking" class="nav-link">Ranking</a></li>
+                                <li><a href="#" data-page="mail" class="nav-link">Mail <span class="badge" id="mail-count">0</span></a></li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+
+                <!-- Content Area -->
+                <div class="content-area">
+                    <div class="page" id="desktop-page">
+                        <div class="desktop">
+                            <div class="terminal-window">
+                                <div class="terminal-header">
+                                    <span class="terminal-title">Terminal</span>
+                                    <div class="terminal-controls">
+                                        <span class="control minimize">-</span>
+                                        <span class="control maximize">□</span>
+                                        <span class="control close">×</span>
+                                    </div>
+                                </div>
+                                <div class="terminal-content" id="terminal">
+                                    <div class="terminal-line">
+                                        <span class="prompt">root@localhost:~#</span>
+                                        <span class="command">Welcome to Hacker Experience</span>
+                                    </div>
+                                    <div class="terminal-line">System initialized successfully.</div>
+                                    <div class="terminal-line">Type 'help' for available commands.</div>
+                                    <div class="terminal-input-line">
+                                        <span class="prompt">root@localhost:~#</span>
+                                        <input type="text" id="terminal-input" class="terminal-input" autofocus>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Desktop Icons -->
+                            <div class="desktop-icons">
+                                <div class="desktop-icon" data-action="software">
+                                    <div class="icon">💾</div>
+                                    <div class="label">Software</div>
+                                </div>
+                                <div class="desktop-icon" data-action="processes">
+                                    <div class="icon">⚙️</div>
+                                    <div class="label">Processes</div>
+                                </div>
+                                <div class="desktop-icon" data-action="internet">
+                                    <div class="icon">🌐</div>
+                                    <div class="label">Internet</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page" id="processes-page" style="display: none;">
+                        <h2>Running Processes</h2>
+                        <div class="process-list" id="process-list">
+                            <!-- Processes will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="page" id="software-page" style="display: none;">
+                        <h2>Installed Software</h2>
+                        <div class="software-grid" id="software-grid">
+                            <!-- Software will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="page" id="hardware-page" style="display: none;">
+                        <h2>Hardware Specifications</h2>
+                        <div class="hardware-info" id="hardware-info">
+                            <!-- Hardware info will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="page" id="internet-page" style="display: none;">
+                        <h2>Internet Browser</h2>
+                        <div class="browser-window">
+                            <div class="address-bar">
+                                <input type="text" id="address-input" placeholder="Enter IP address..." class="address-input">
+                                <button id="connect-btn" class="connect-btn">Connect</button>
+                            </div>
+                            <div class="browser-content" id="browser-content">
+                                <div class="welcome-message">
+                                    <h3>Welcome to the Internet</h3>
+                                    <p>Enter an IP address to connect to a server.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-left">
+                    <span class="connection-status" id="connection-status">Connected</span>
+                    <span class="active-processes">Processes: <span id="active-process-count">0</span></span>
+                </div>
+                <div class="status-right">
+                    <span class="time" id="current-time">00:00:00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Overlay -->
+        <div id="modal-overlay" class="modal-overlay" style="display: none;">
+            <div class="modal" id="modal">
+                <div class="modal-header">
+                    <h3 id="modal-title">Modal Title</h3>
+                    <button class="modal-close" id="modal-close">×</button>
+                </div>
+                <div class="modal-body" id="modal-body">
+                    <!-- Modal content goes here -->
+                </div>
+                <div class="modal-footer" id="modal-footer">
+                    <!-- Modal buttons go here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/game.js"></script>
+    <script src="js/websocket.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Initialize the game when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            Game.init();
+        });
+    </script>
+</body>
+</html>

@@ -26,6 +26,16 @@ members = [
     "he-helix-account",
     "he-helix-story",
     "he-helix-universe",
+    # Final batch of Helix modules
+    "he-helix-henforcer",
+    "he-helix-client",
+    "he-helix-notification",
+    "he-helix-http",
+    "he-helix-websocket-handlers",
+    "he-helix-factor",
+    "he-helix-id",
+    "he-helix-hell",
+    "he-helix-balance",
 ]
 
 [workspace.package]
@@ -78,6 +88,10 @@ envy = "0.4"
 once_cell = "1.19"
 lazy_static = "1.5"
 dashmap = "6.0"
+enum_dispatch = "0.3"
+
+# WebSocket and HTTP
+reqwest = { version = "0.12", features = ["json"] }
 
 # Development dependencies
 [workspace.dev-dependencies]
