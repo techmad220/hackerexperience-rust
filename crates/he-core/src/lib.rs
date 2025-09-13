@@ -4,10 +4,30 @@ pub mod entities;
 pub mod error;
 pub mod types;
 
+// Infrastructure modules (Priority 1)
+pub mod database;
+pub mod security;
+
+// Utility modules (Priority 3)
+pub mod utils;
+
+// External integration modules (Priority 4)
+pub mod external;
+
 // Re-export main types for convenience
 pub use entities::*;
 pub use error::*;
 pub use types::*;
+
+// Re-export infrastructure modules
+pub use database::*;
+pub use security::*;
+
+// Re-export utility modules
+pub use utils::*;
+
+// Re-export external modules
+pub use external::*;
 
 // Version constants matching the original
 pub const VERSION: &str = "0.8";
