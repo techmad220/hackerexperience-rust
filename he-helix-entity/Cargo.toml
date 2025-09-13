@@ -1,0 +1,22 @@
+[package]
+name = "he-helix-entity"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono"] }
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+async-trait = "0.1"
+
+# Internal dependencies
+he-core = { path = "../he-core" }
+he-account = { path = "../he-account" }
+he-server = { path = "../he-server" }
+he-universe = { path = "../he-universe" }

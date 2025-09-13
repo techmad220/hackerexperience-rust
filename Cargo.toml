@@ -19,6 +19,13 @@ members = [
     "he-helix-core",
     "he-database",
     "he-events",
+    # New Helix modules
+    "he-helix-log",
+    "he-helix-cache",
+    "he-helix-entity",
+    "he-helix-account",
+    "he-helix-story",
+    "he-helix-universe",
 ]
 
 [workspace.package]
