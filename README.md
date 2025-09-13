@@ -2,9 +2,35 @@
 
 A 1:1 Rust port of the legendary HackerExperience game, preserving all original mechanics while modernizing the technology stack.
 
-## Project Status: 1:1 Parity Achieved ✅
+## Project Status: Advanced Legacy Port 🚧
 
-We have successfully created a Rust port that maintains perfect functional parity with the original PHP codebase while providing significant improvements in performance, safety, and maintainability.
+We have successfully ported 13 core Legacy PHP pages to Rust with complete 1:1 functional parity. The port maintains all original mechanics while providing significant improvements in performance, safety, and maintainability.
+
+### Recently Completed ✅
+- **Batch 1**: createsoft.php → create_software.rs (admin software creation)
+- **Batch 2**: hardwareItens.php → hardware_items.rs (hardware configuration)  
+- **Batch 3**: log.php → log.rs (log viewer)
+- **Batch 4**: DDoS.php → ddos.rs (DDoS attack system)
+- **Batch 5**: war.php → war.rs (war system with TODO status preserved)
+- **Batch 6**: logEdit.php → log_edit.rs (log editing with process creation)
+- **Batch 7**: researchTable.php → research_table.rs (game design tool)
+- **Batch 8**: webserver.php → webserver.rs (web server installation)
+- **Batch 9**: list.php → list.rs (hacked database management)
+- **Batch 10**: TOS.php → tos.rs (Terms of Service page)
+- **Batch 11**: about.php → about.rs (About page with changelog)
+- **Batch 12**: badge_config.php → badge_config.rs (Badge configuration system)
+
+### Current Progress 📊
+- **Legacy PHP Pages**: 14/27 ported (52% complete) ✅
+- **Legacy PHP Classes**: 0/16 ported (0% complete) ⏳  
+- **Legacy Cron Jobs**: 0/26 ported (0% complete) ⏳
+- **Helix Elixir Modules**: 0/912 ported (0% complete) ⏳
+
+### Next Priority 🎯
+- Port remaining 18 Legacy PHP root files
+- Implement core PHP classes (Player, Process, Software, etc.)
+- Convert cron jobs to Rust async tasks
+- Begin massive Helix Elixir module conversion
 
 ## Side-by-Side Comparison
 

@@ -33,6 +33,8 @@ pub mod war;
 pub mod doom;
 pub mod ddos;
 pub mod list;
+pub mod certs;
+pub mod connect;
 
 // User management
 pub mod profile;
@@ -45,6 +47,8 @@ pub mod fame;
 pub mod premium;
 pub mod bitcoin;
 pub mod pagarme;
+pub mod config;
+pub mod welcome;
 
 // Clan & social
 pub mod clan;
@@ -58,8 +62,18 @@ pub mod changelog;
 pub mod game_info;
 pub mod riddle;
 
+// Certificates and connections
+pub mod certs;
+pub mod connect;
+
+// Configuration modules
+pub mod badge_config;
+pub mod config;
+pub mod welcome;
+
 // Utilities
 pub mod upload_image;
+pub mod reset_ip;
 
 // Re-exports for easy access
 pub use index::index_handler;
@@ -89,3 +103,23 @@ pub use log_edit::log_edit_handler;
 pub use research_table::research_table_handler;
 pub use webserver::webserver_handler;
 pub use list::list_handler;
+pub use tos::tos_handler;
+pub use about::about_handler;
+pub use bitcoin::bitcoin_handler;
+pub use certs::certs_handler;
+pub use changelog::changelog_handler;
+pub use connect::connect_handler;
+pub use doom::doom_handler;
+pub use fame::fame_handler;
+pub use game_info::game_info_handler;
+pub use legal::legal_handler;
+pub use options::options_handler;
+pub use pagarme::pagarme_handler;
+pub use premium::premium_handler;
+pub use privacy::privacy_handler;
+pub use reset_ip::reset_ip_handler;
+pub use riddle::riddle_handler;
+pub use stats_detailed::stats_detailed_handler;
+pub use upload_image::upload_image_handler;
+pub use welcome::welcome_handler;
+pub use config::config_handler;
