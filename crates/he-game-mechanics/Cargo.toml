@@ -26,5 +26,5 @@ tokio-test = "0.4"
 criterion = "0.5"
 
 [[bench]]
-name = "game_mechanics"
+name = "game_mechanics_benchmarks"
 harness = false

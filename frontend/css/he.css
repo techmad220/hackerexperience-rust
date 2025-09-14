@@ -1,0 +1,408 @@
+* {
+    outline:none !important;
+    -moz-outline: none !important;
+}
+
+html {
+    height: 100%;
+}
+
+/* Main */
+body {
+    overflow-x: hidden;
+    margin-top: -9px;
+    background-color: #444444;
+    height: 90%;
+    
+}
+a:hover {
+	text-decoration: none;
+}
+
+/* Header */
+#header {
+    height: 77px;
+    position: relative;
+    width: 100%;
+    z-index: -9;
+    margin: 0;
+    padding: 0;
+}
+
+#header h1 {
+    background: url("../img/logo.png") no-repeat scroll 0 0 transparent;
+    height: 31px;
+    left: 15px;
+    line-height: 600px;
+    overflow: hidden;
+    position: relative;
+    top: 24px;
+    width: 191px;
+}
+
+#header h1 a {
+    display: block;
+}
+
+/* Search input */
+#header-name {
+	position: absolute;
+	z-index: 25;
+	top: 0px;
+	left: 230px;
+}
+
+#header-name p {
+        color: #AAAAAA;
+	border: 0;
+	padding: 5px 10px 4px;
+	border-radius: 0 4px 4px 0;
+}
+
+/* Top user navigation */
+#user-nav {
+    position: absolute;
+    right: 30px;
+    top: 5px;
+    z-index: 20;
+    margin: 0;
+}
+#user-nav > ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#user-nav > ul > li {
+    float: left;
+    list-style-type: none;
+    margin: 0;
+    position: relative;
+    padding: 0;
+}
+
+#user-nav > ul > li.nav-active > a {
+    opacity: 1;
+    font-weight: bold;
+}
+
+#user-nav > ul > li > a {
+	padding: 5px 10px;
+	display: block;
+	font-size: 10px;
+}
+
+#user-nav > ul > li > a:hover, #user-nav > ul > li.open > a {
+	color: #ffffff;
+}
+#user-nav > ul > li > a > i, #sidebar li a i  {
+	vertical-align: top;
+	opacity: .7;
+}
+
+/* Main content */
+#container {
+    margin: 0;
+    padding-left: 220px;
+    position: relative;
+    z-index: 2;
+}
+
+.content-header {
+    background: -webkit-gradient(linear, left top, left bottom, from(#555555), to(#444444));
+    background: -moz-linear-gradient(top, #555555, #444444);
+    background: linear-gradient(top, #555555, #444444);
+    height: 25px;
+    border-bottom: 1px solid #2E2E2E;
+    padding: 5px 0;
+    position: relative;
+}
+
+.content-header h1 {
+    color: #ffffff;
+    font-size: 16px;
+    text-shadow: 0 1px 0 #2e2e2e;
+    margin: 0;
+    padding: 0 15px;
+    line-height: 25px;
+}
+
+/* Sidebar */
+#sidebar {
+    background: -webkit-gradient(linear, left top, left bottom, from(#555555), to(#444444));
+    background: -moz-linear-gradient(top, #555555, #444444);
+    background: linear-gradient(top, #555555, #444444);
+    box-shadow: inset -1px 0 0 #2e2e2e;
+    position: fixed;
+    top: 77px;
+    left: 0;
+    width: 220px;
+    height: 100%;
+    z-index: 999;
+    overflow: auto;
+}
+
+#sidebar > ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#sidebar li {
+    border-bottom: 1px solid rgba(0,0,0,.1);
+    border-top: 1px solid rgba(255,255,255,.05);
+}
+
+#sidebar li:first-child {
+    border-top: none;
+}
+
+#sidebar li a {
+    color: #ffffff;
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+}
+
+#sidebar li a:hover,
+#sidebar li.active a {
+    background: -webkit-gradient(linear, left top, left bottom, from(#4a4a4a), to(#3a3a3a));
+    background: -moz-linear-gradient(top, #4a4a4a, #3a3a3a);
+    background: linear-gradient(top, #4a4a4a, #3a3a3a);
+    color: #ffffff;
+    text-shadow: 0 1px 0 #1e1e1e;
+}
+
+/* Tables */
+table {
+    background: #ffffff;
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+table th {
+    background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#e6e6e6));
+    background: -moz-linear-gradient(top, #f8f8f8, #e6e6e6);
+    background: linear-gradient(top, #f8f8f8, #e6e6e6);
+    border: 1px solid #cccccc;
+    padding: 8px;
+    text-align: left;
+}
+
+table td {
+    border: 1px solid #e6e6e6;
+    padding: 8px;
+    vertical-align: top;
+}
+
+table tr:nth-child(even) {
+    background: #f9f9f9;
+}
+
+table tr:hover {
+    background: #f0f0f0;
+}
+
+/* Content area */
+#content {
+    background: #ffffff;
+    min-height: 500px;
+    padding: 20px;
+}
+
+/* Widget boxes */
+.widget-box {
+    background: #ffffff;
+    border: 1px solid #cccccc;
+    margin-bottom: 20px;
+}
+
+.widget-title {
+    background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#e6e6e6));
+    background: -moz-linear-gradient(top, #f8f8f8, #e6e6e6);
+    background: linear-gradient(top, #f8f8f8, #e6e6e6);
+    border-bottom: 1px solid #cccccc;
+    padding: 10px 15px;
+}
+
+.widget-title h5 {
+    color: #333333;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.widget-content {
+    padding: 15px;
+}
+
+/* Forms */
+.form-horizontal .control-group {
+    border-bottom: 1px solid #e6e6e6;
+    margin-bottom: 0;
+    padding: 15px 0;
+}
+
+.form-horizontal .control-group:last-child {
+    border-bottom: none;
+}
+
+.form-horizontal .control-label {
+    color: #666666;
+    font-weight: bold;
+    padding-top: 5px;
+    text-align: right;
+    width: 120px;
+}
+
+.form-horizontal .controls {
+    margin-left: 140px;
+}
+
+/* Buttons */
+.btn {
+    background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#e6e6e6));
+    background: -moz-linear-gradient(top, #f8f8f8, #e6e6e6);
+    background: linear-gradient(top, #f8f8f8, #e6e6e6);
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    color: #333333;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 12px;
+    padding: 6px 12px;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background: -webkit-gradient(linear, left top, left bottom, from(#e6e6e6), to(#d4d4d4));
+    background: -moz-linear-gradient(top, #e6e6e6, #d4d4d4);
+    background: linear-gradient(top, #e6e6e6, #d4d4d4);
+    color: #333333;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: -webkit-gradient(linear, left top, left bottom, from(#4a90e2), to(#357abd));
+    background: -moz-linear-gradient(top, #4a90e2, #357abd);
+    background: linear-gradient(top, #4a90e2, #357abd);
+    border-color: #2e6da4;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: -webkit-gradient(linear, left top, left bottom, from(#357abd), to(#2e6da4));
+    background: -moz-linear-gradient(top, #357abd, #2e6da4);
+    background: linear-gradient(top, #357abd, #2e6da4);
+    color: #ffffff;
+}
+
+/* Progress bars */
+.progress {
+    background: #f7f7f7;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    height: 18px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: -webkit-gradient(linear, left top, left bottom, from(#4a90e2), to(#357abd));
+    background: -moz-linear-gradient(top, #4a90e2, #357abd);
+    background: linear-gradient(top, #4a90e2, #357abd);
+    color: #ffffff;
+    font-size: 11px;
+    height: 100%;
+    line-height: 18px;
+    text-align: center;
+    text-shadow: 0 1px 0 #2e6da4;
+}
+
+/* Terminal-style text */
+.terminal {
+    background: #000000;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    padding: 10px;
+}
+
+/* Mobile responsive */
+@media (max-width: 767px) {
+    #container {
+        padding-left: 0;
+    }
+    
+    #sidebar {
+        display: none;
+    }
+    
+    .widget-title {
+        text-align: center;
+    }
+}
+
+/* Game-specific styles */
+.process-running {
+    color: #00aa00;
+}
+
+.process-paused {
+    color: #ffaa00;
+}
+
+.process-error {
+    color: #aa0000;
+}
+
+.software-installed {
+    color: #333333;
+}
+
+.software-available {
+    color: #666666;
+}
+
+.hardware-component {
+    padding: 5px;
+    margin: 2px;
+    border: 1px solid #cccccc;
+    background: #f9f9f9;
+}
+
+/* Icons */
+.icon-16 {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.icon-32 {
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+/* Mail and Log Styling */
+.unread {
+    background-color: #f0f8ff;
+    font-weight: bold;
+}
+
+.highlight {
+    background-color: #ffffcc;
+}
+
+.log-container div {
+    margin: 2px 0;
+    font-size: 12px;
+}
+
+/* Process Status Colors */
+.process-running { color: #28a745; font-weight: bold; }
+.process-stopped { color: #dc3545; font-weight: bold; }
+.process-paused { color: #ff9900; font-weight: bold; }
+

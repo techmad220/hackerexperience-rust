@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<!--
+    Hello, is it me you're looking for?
+    HackerExperience Rust Edition - Authentic Original Interface
+-->
+<html lang="en">
+    <head>
+        <title>Hacker Experience</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Hacker Experience - The Internet Under Attack is an online hacking simulation game. Play as a hacker seeking for fame and money. Join now for free.">
+        <meta name="keywords" content="Hacker, hacker game, hacking simulation, online hacker game, browser game, pbbg, hacker experience, computer science game, programming game" />
+        
+        <meta property="og:locale" content="en_US">
+        <meta property="og:title" content="Hacker Experience"/>
+        <meta property="og:image" content="/images/og.png"/>
+        <meta property="og:url" content="http://localhost:3000/"/>
+        <meta property="og:description" content="Hacker Experience is a browser-based hacking simulation game, where you play the role of a hacker seeking for money and power. Join now!"/>
+        
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/css/he_index.css" rel="stylesheet">
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
+    </head>
+
+    <body>
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header page-scroll">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="#message">Hacker Experience</a>
+                </div>
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="page-scroll"><a href="#message">Home</a></li>
+                        <li class="page-scroll"><a href="#login">Login</a></li>
+                        <li class="page-scroll"><a href="#about">About</a></li>
+                        <li class="page-scroll"><a href="#register">Register</a></li>
+                        <li class="page-scroll"><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Intro Header -->
+        <header class="intro-header" id="message">
+            <div class="container">
+                <div class="intro-message">
+                    <h1>HACKER EXPERIENCE</h1>
+                    <h3>The Internet Under Attack</h3>
+                    <hr class="intro-divider">
+                    
+                    <div id="terminal">
+                        <div id="typing">
+                            <span>root@localhost:~# </span>
+                            <span id="typed-text"></span>
+                            <span class="blinking">_</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Login Section -->
+        <section id="login" class="content-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h2 style="text-align: center; margin-bottom: 30px;">Login</h2>
+                        
+                        <div style="text-align: center; margin-bottom: 30px;">
+                            <a href="#" class="btn btn-facebook btn-lg" style="margin: 10px;">
+                                <i class="fa fa-facebook"></i> Login with Facebook
+                            </a>
+                            <a href="#" class="btn btn-twitter btn-lg" style="margin: 10px;">
+                                <i class="fa fa-twitter"></i> Login with Twitter
+                            </a>
+                        </div>
+                        
+                        <div id="loginbox">
+                            <form id="loginForm" action="/api/auth/login" method="post">
+                                <div style="padding: 20px;">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="username" placeholder="Username or Email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" class="form-control" name="password" placeholder="Password" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="checkbox">
+                                            <input type="checkbox" name="remember"> Remember me
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn btn-default btn-block">Login</button>
+                                    <div style="text-align: center; margin-top: 15px;">
+                                        <a href="#register">Don't have an account? Register here</a><br>
+                                        <a href="#" style="font-size: 12px;">Forgot password?</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h2 style="text-align: center; margin-bottom: 30px;">About Hacker Experience</h2>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>What is Hacker Experience?</h4>
+                                <p class="lead">
+                                    Hacker Experience is a web-based hacking simulation game. You play the role of a hacker, 
+                                    where your objective is to complete the mysterious storyline by completing missions, 
+                                    stealing money, buying new hardware and software.
+                                </p>
+                                
+                                <h4>Game Features</h4>
+                                <ul>
+                                    <li>Real-time multiplayer hacking simulation</li>
+                                    <li>Complete mission storylines</li>
+                                    <li>Buy and upgrade hardware components</li>
+                                    <li>Install various software and viruses</li>
+                                    <li>Bank system with Bitcoin integration</li>
+                                    <li>Clan warfare and cooperation</li>
+                                    <li>Realistic terminal and file system</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>How to Play</h4>
+                                <ol>
+                                    <li><strong>Register</strong> - Create your hacker identity</li>
+                                    <li><strong>Tutorial</strong> - Learn the basics of hacking</li>
+                                    <li><strong>Missions</strong> - Complete storyline missions</li>
+                                    <li><strong>Hardware</strong> - Upgrade your computer</li>
+                                    <li><strong>Software</strong> - Install hacking tools</li>
+                                    <li><strong>Network</strong> - Explore the internet</li>
+                                    <li><strong>Attack</strong> - Hack other players</li>
+                                    <li><strong>Defend</strong> - Protect your system</li>
+                                </ol>
+                                
+                                <div style="margin-top: 30px;">
+                                    <a href="#register" class="btn btn-default btn-lg">Start Playing Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Register Section -->
+        <section id="register" class="register-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h2 style="text-align: center; margin-bottom: 30px;">Register</h2>
+                        
+                        <div class="row">
+                            <div class="col-md-8 col-md-offset-2">
+                                <form id="registerForm" action="/api/auth/register" method="post">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Username *</label>
+                                                <input type="text" class="form-control" name="username" required 
+                                                       placeholder="Choose a username" maxlength="20">
+                                                <small class="help-block">3-20 characters, letters and numbers only</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Email *</label>
+                                                <input type="email" class="form-control" name="email" required 
+                                                       placeholder="your@email.com">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Password *</label>
+                                                <input type="password" class="form-control" name="password" required 
+                                                       placeholder="Choose a strong password" minlength="6">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Confirm Password *</label>
+                                                <input type="password" class="form-control" name="password_confirm" required 
+                                                       placeholder="Confirm your password">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="checkbox">
+                                            <input type="checkbox" name="terms" required> 
+                                            I agree to the <a href="#" target="_blank">Terms of Service</a> and 
+                                            <a href="#" target="_blank">Privacy Policy</a>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="checkbox">
+                                            <input type="checkbox" name="newsletter"> 
+                                            Subscribe to newsletter for updates
+                                        </label>
+                                    </div>
+                                    
+                                    <div style="text-align: center;">
+                                        <button type="submit" class="btn btn-default btn-lg">Create Account</button>
+                                        <div style="margin-top: 15px;">
+                                            <a href="#login">Already have an account? Login here</a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="faq-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h2 style="text-align: center; margin-bottom: 30px;">Frequently Asked Questions</h2>
+                        
+                        <div class="panel-group" id="faqAccordion">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#faqAccordion" href="#faq1">
+                                            What is Hacker Experience?
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="faq1" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        Hacker Experience is a browser-based hacking simulation game where you play as a hacker. 
+                                        You complete missions, hack other players, upgrade your hardware, install software, 
+                                        and progress through an engaging storyline.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#faqAccordion" href="#faq2">
+                                            Is it free to play?
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="faq2" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        Yes! Hacker Experience is completely free to play. You can enjoy all game features 
+                                        without spending any money. Optional premium features may be available for enhanced gameplay.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#faqAccordion" href="#faq3">
+                                            Do I need to download anything?
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="faq3" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        No downloads required! Hacker Experience runs entirely in your web browser. 
+                                        Simply register an account and start playing immediately.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#faqAccordion" href="#faq4">
+                                            Is this real hacking?
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="faq4" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        No, this is a simulation game for entertainment purposes only. All "hacking" happens 
+                                        within the game environment and does not involve real computers or networks. 
+                                        It's designed to be educational and fun while being completely safe and legal.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="#faqAccordion" href="#faq5">
+                                            What are the system requirements?
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="faq5" class="panel-collapse collapse">
+                                    <div class="panel-body">
+                                        Any modern web browser with JavaScript enabled. Hacker Experience works on 
+                                        desktop computers, laptops, tablets, and mobile devices. No special hardware required.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p>&copy; 2024 Hacker Experience - Rust Edition. All rights reserved.</p>
+                        <p>
+                            <a href="#">Terms of Service</a> | 
+                            <a href="#">Privacy Policy</a> | 
+                            <a href="#">Contact</a> | 
+                            <a href="https://github.com/techmad220/hackerexperience-rust" target="_blank">GitHub</a>
+                        </p>
+                        <p style="font-size: 12px; margin-top: 15px;">
+                            This is a modern Rust implementation of the original HackerExperience game.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+        // Typing animation for terminal
+        $(document).ready(function() {
+            var commands = [
+                'scan 192.168.1.1',
+                'exploit -t ssh -p 22',
+                'download bank_passwords.txt',
+                'transfer 1000000 bitcoins',
+                'hack_the_planet.exe',
+                'mission_complete'
+            ];
+            
+            var currentCommand = 0;
+            var currentChar = 0;
+            var isDeleting = false;
+            
+            function typeCommand() {
+                var command = commands[currentCommand];
+                var typedElement = document.getElementById('typed-text');
+                
+                if (!isDeleting && currentChar < command.length) {
+                    typedElement.textContent = command.slice(0, currentChar + 1);
+                    currentChar++;
+                    setTimeout(typeCommand, 100);
+                } else if (isDeleting && currentChar > 0) {
+                    typedElement.textContent = command.slice(0, currentChar - 1);
+                    currentChar--;
+                    setTimeout(typeCommand, 50);
+                } else if (!isDeleting && currentChar === command.length) {
+                    isDeleting = true;
+                    setTimeout(typeCommand, 2000);
+                } else if (isDeleting && currentChar === 0) {
+                    isDeleting = false;
+                    currentCommand = (currentCommand + 1) % commands.length;
+                    setTimeout(typeCommand, 500);
+                }
+            }
+            
+            setTimeout(typeCommand, 1000);
+            
+            // Smooth scrolling
+            $('a[href*="#"]:not([href="#"])').click(function() {
+                if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+                    var target = $(this.hash);
+                    target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
+                    if (target.length) {
+                        $('html, body').animate({
+                            scrollTop: target.offset().top - 50
+                        }, 1000);
+                        return false;
+                    }
+                }
+            });
+            
+            // Form handlers
+            $('#loginForm').submit(function(e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                
+                // Demo mode - simulate successful login and redirect to game
+                alert('Demo Mode: Login simulation successful! Redirecting to game...');
+                setTimeout(function() {
+                    window.location.href = '/game.html';
+                }, 1000);
+            });
+            
+            $('#registerForm').submit(function(e) {
+                e.preventDefault();
+                var password = $('#registerForm input[name="password"]').val();
+                var confirmPassword = $('#registerForm input[name="password_confirm"]').val();
+                
+                console.log('Password:', password, 'Confirm:', confirmPassword); // Debug log
+                
+                if (!password || !confirmPassword) {
+                    alert('Please fill in both password fields!');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    alert('Passwords do not match!');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    alert('Password must be at least 6 characters long!');
+                    return;
+                }
+                
+                var formData = $(this).serialize();
+                
+                // Demo mode - simulate successful registration
+                alert('Demo Mode: Registration simulation successful! You can now login.');
+                $('#register').hide();
+                $('html, body').animate({
+                    scrollTop: $('#login').offset().top - 50
+                }, 1000);
+            });
+        });
+        </script>
+    </body>
+</html>

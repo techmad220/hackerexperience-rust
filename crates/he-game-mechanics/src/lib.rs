@@ -25,6 +25,7 @@ pub mod hardware;
 pub mod software;
 pub mod network;
 pub mod missions;
+pub mod missions_safe;  // Safe, original mission system - no AGPL content
 pub mod clans;
 pub mod config;
 pub mod utils;

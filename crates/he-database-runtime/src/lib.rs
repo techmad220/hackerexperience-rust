@@ -1,6 +1,6 @@
 use anyhow::{Result, Context};
 use serde::{Deserialize, Serialize};
-use sqlx::{Pool, Postgres, PgPool, Row};
+use sqlx::{Postgres, PgPool, Row, Column, TypeInfo};
 use std::collections::HashMap;
 use std::env;
 use tracing::{info, warn, error};
@@ -184,7 +184,7 @@ impl DatabaseManager {
         &self,
         db_name: &str,
         query: &str,
-        params: &[&(dyn sqlx::Encode<Postgres> + Sync)],
+        params: &[String],
     ) -> Result<sqlx::postgres::PgQueryResult> {
         let pool = self.get_pool(db_name)
             .ok_or_else(|| anyhow::anyhow!("Database {} not found", db_name))?;
@@ -203,7 +203,7 @@ impl DatabaseManager {
         &self,
         db_name: &str,
         query: &str,
-        params: &[&(dyn sqlx::Encode<Postgres> + Sync)],
+        params: &[String],
     ) -> Result<Vec<sqlx::postgres::PgRow>> {
         let pool = self.get_pool(db_name)
             .ok_or_else(|| anyhow::anyhow!("Database {} not found", db_name))?;
@@ -223,7 +223,7 @@ async fn create_pool(url: &str, config: &DatabaseConfig) -> Result<PgPool> {
     let pool = sqlx::postgres::PgPoolOptions::new()
         .max_connections(config.max_connections)
         .min_connections(config.min_connections)
-        .connect_timeout(std::time::Duration::from_secs(config.connect_timeout))
+        .acquire_timeout(std::time::Duration::from_secs(config.connect_timeout))
         .idle_timeout(std::time::Duration::from_secs(config.idle_timeout))
         .connect(url)
         .await

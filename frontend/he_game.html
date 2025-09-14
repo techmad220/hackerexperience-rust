@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<!--
+    Hacker Experience Game Interface - Exact Original Replica
+    Rust Implementation 
+-->
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker Experience - Game</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/he.css" rel="stylesheet">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <div id="header">
+        <h1><a href="/">Hacker Experience</a></h1>
+        
+        <div id="header-name">
+            <p>Welcome, <strong id="player-name">Player</strong></p>
+        </div>
+        
+        <div id="user-nav">
+            <ul>
+                <li><a href="#" id="player-money">$1,000</a></li>
+                <li><a href="#" id="player-bitcoins">฿0.00</a></li>
+                <li><a href="#" id="player-level">Level 1</a></li>
+                <li><a href="/" title="Logout">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Container -->
+    <div id="container">
+        <!-- Content Header -->
+        <div class="content-header">
+            <h1 id="page-title">Desktop</h1>
+        </div>
+
+        <!-- Main Content -->
+        <div id="content">
+            <!-- Desktop Page -->
+            <div class="page" id="desktop-page">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <h5>Terminal</h5>
+                            </div>
+                            <div class="widget-content">
+                                <div class="terminal">
+                                    <div id="terminal-output">
+                                        <div>root@localhost:~# Welcome to Hacker Experience</div>
+                                        <div>System initialized successfully.</div>
+                                        <div>Type 'help' for available commands.</div>
+                                        <div class="terminal-prompt">
+                                            <span>root@localhost:~# </span>
+                                            <input type="text" id="terminal-input" style="background: transparent; border: none; color: #00ff00; outline: none; width: 300px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <h5>Quick Actions</h5>
+                            </div>
+                            <div class="widget-content">
+                                <p><a href="#" onclick="loadPage('processes')" class="btn btn-primary btn-block">View Processes</a></p>
+                                <p><a href="#" onclick="loadPage('software')" class="btn btn-primary btn-block">Software Manager</a></p>
+                                <p><a href="#" onclick="loadPage('internet')" class="btn btn-primary btn-block">Internet Browser</a></p>
+                                <p><a href="#" onclick="loadPage('missions')" class="btn btn-primary btn-block">Mission Center</a></p>
+                            </div>
+                        </div>
+
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <h5>System Status</h5>
+                            </div>
+                            <div class="widget-content">
+                                <table class="table">
+                                    <tr>
+                                        <td>CPU Usage:</td>
+                                        <td><div class="progress"><div class="progress-bar" style="width: 25%">25%</div></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Memory:</td>
+                                        <td><div class="progress"><div class="progress-bar" style="width: 45%">45%</div></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Disk:</td>
+                                        <td><div class="progress"><div class="progress-bar" style="width: 12%">12%</div></div></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Network:</td>
+                                        <td><span class="process-running">Connected</span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processes Page -->
+            <div class="page" id="processes-page" style="display: none;">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Running Processes</h5>
+                    </div>
+                    <div class="widget-content">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>PID</th>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>CPU %</th>
+                                    <th>Memory</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1001</td>
+                                    <td>SSH Server</td>
+                                    <td><span class="process-running">Running</span></td>
+                                    <td>2.1%</td>
+                                    <td>45MB</td>
+                                    <td><button class="btn btn-xs btn-warning" onclick="stopProcess(1001)">Stop</button></td>
+                                </tr>
+                                <tr>
+                                    <td>1002</td>
+                                    <td>Firewall</td>
+                                    <td><span class="process-running">Running</span></td>
+                                    <td>5.8%</td>
+                                    <td>128MB</td>
+                                    <td><button class="btn btn-xs btn-warning" onclick="stopProcess(1002)">Stop</button></td>
+                                </tr>
+                                <tr>
+                                    <td>1003</td>
+                                    <td>Cracker</td>
+                                    <td><span class="process-paused">Paused</span></td>
+                                    <td>0.0%</td>
+                                    <td>256MB</td>
+                                    <td><button class="btn btn-xs btn-primary" onclick="resumeProcess(1003)">Resume</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Software Page -->
+            <div class="page" id="software-page" style="display: none;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <h5>Installed Software</h5>
+                            </div>
+                            <div class="widget-content">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Version</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dynamic content will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="widget-box">
+                            <div class="widget-title">
+                                <h5>Software Store</h5>
+                            </div>
+                            <div class="widget-content">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="software-available">🛡️ Advanced Firewall</td>
+                                            <td>$5,000</td>
+                                            <td><button class="btn btn-xs btn-primary" onclick="buySoftware('Advanced Firewall', 5000)">Buy</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="software-available">⚡ DDoS Tool</td>
+                                            <td>$15,000</td>
+                                            <td><button class="btn btn-xs btn-primary" onclick="buySoftware('DDoS Tool', 15000)">Buy</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="software-available">🔓 Exploit Kit</td>
+                                            <td>$25,000</td>
+                                            <td><button class="btn btn-xs btn-primary" onclick="buySoftware('Exploit Kit', 25000)">Buy</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Log Editor Modal -->
+            <div id="log-editor-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: 80%; background: #000; border: 2px solid #333; padding: 0;">
+                    <div style="background: #222; padding: 10px; border-bottom: 1px solid #333; color: #fff; font-family: monospace;">
+                        <strong>System Log Editor - /var/log/system.log</strong>
+                        <div style="float: right;">
+                            <button class="btn btn-xs btn-success" onclick="saveLogFile()" style="margin-right: 5px;">Save & Exit (:wq)</button>
+                            <button class="btn btn-xs btn-danger" onclick="closeLogEditor()">Exit without saving (:q!)</button>
+                        </div>
+                        <div style="clear: both; margin-top: 5px; font-size: 11px; color: #888;">
+                            <em>~ Edit the log file manually. Find entries to delete/modify. Each line: [timestamp] [TYPE] message</em><br>
+                            <em>~ Shortcuts: Ctrl+S = Save & Exit | Escape = Exit without saving</em>
+                        </div>
+                    </div>
+                    <textarea id="log-editor-content" style="width: 100%; height: calc(100% - 80px); background: #000; color: #0f0; border: none; padding: 15px; font-family: 'Courier New', monospace; font-size: 12px; resize: none; outline: none;" placeholder="Loading log file..." onkeydown="handleEditorKeyboard(event)"></textarea>
+                </div>
+            </div>
+
+            <!-- Target Information Modal -->
+            <div id="target-info-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 650px;">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <h5>Target Information</h5>
+                            <button onclick="closeTargetInfo()" style="float: right; background: transparent; border: none; color: #fff; font-size: 16px; cursor: pointer; margin-top: -2px;">×</button>
+                        </div>
+                        <div class="widget-content" id="target-info-content" style="font-family: 'Courier New', monospace; font-size: 12px;">
+                            <!-- Content will be populated dynamically -->
+                        </div>
+                        <div style="background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#e6e6e6)); border-top: 1px solid #cccccc; padding: 15px; text-align: right;">
+                            <button onclick="scanVulnerabilities(window.currentTargetIp)" class="btn btn-primary" style="margin-right: 5px;">Scan Vulnerabilities</button>
+                            <button onclick="beginHackAttempt(window.currentTargetIp)" class="btn btn-primary" style="margin-right: 5px;">Begin Hack Attempt</button>
+                            <button onclick="addToBounceRoute(window.currentTargetIp)" class="btn btn-primary" style="margin-right: 5px;">Add to Bounce Route</button>
+                            <button onclick="closeTargetInfo()" class="btn">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vulnerability Scan Modal -->
+            <div id="vuln-scan-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 700px;">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <h5>Vulnerability Scanner</h5>
+                            <button onclick="closeVulnScan()" style="float: right; background: transparent; border: none; color: #fff; font-size: 16px; cursor: pointer; margin-top: -2px;">×</button>
+                        </div>
+                        <div class="widget-content">
+                            <div class="terminal" id="vuln-scan-content" style="max-height: 400px; overflow-y: auto; min-height: 200px;">
+                                <div id="scan-progress">Initializing vulnerability scanner...</div>
+                            </div>
+                        </div>
+                        <div style="background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#e6e6e6)); border-top: 1px solid #cccccc; padding: 15px; text-align: right;">
+                            <button onclick="beginHackAttempt(window.currentTargetIp)" class="btn btn-primary" style="margin-right: 5px;">Proceed with Hack</button>
+                            <button onclick="closeVulnScan()" class="btn">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hack Progress Modal -->
+            <div id="hack-progress-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 650px;">
+                    <div class="widget-box">
+                        <div class="widget-title" style="background: -webkit-gradient(linear, left top, left bottom, from(#ff6666), to(#cc4444));">
+                            <h5 style="color: #fff;">Intrusion in Progress</h5>
+                            <div style="float: right; color: #fff; font-size: 12px; margin-top: 2px;" id="hack-timer">00:00</div>
+                        </div>
+                        <div class="widget-content" style="padding: 20px;">
+                            <div class="terminal" id="hack-console" style="height: 200px; overflow-y: auto; font-size: 11px; margin-bottom: 15px;">
+                                <div>Initializing hack sequence...</div>
+                            </div>
+                            <div style="margin-bottom: 10px;">
+                                <div class="progress" style="height: 20px;">
+                                    <div id="hack-progress-bar" class="progress-bar" style="width: 0%; background: -webkit-gradient(linear, left top, left bottom, from(#ff3333), to(#cc0000)); transition: width 0.5s ease;"></div>
+                                </div>
+                                <div style="text-align: center; font-size: 12px; margin-top: 5px;" id="hack-progress-text">Progress: 0%</div>
+                            </div>
+                        </div>
+                        <div id="hack-result-actions" style="background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#e6e6e6)); border-top: 1px solid #cccccc; padding: 15px; text-align: center; display: none;">
+                            <button onclick="closeHackProgress()" class="btn btn-primary">Continue</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bounce Route Modal -->
+            <div id="bounce-route-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000;">
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 550px;">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <h5>Bounce Route Manager</h5>
+                            <button onclick="closeBounceRoute()" style="float: right; background: transparent; border: none; color: #fff; font-size: 16px; cursor: pointer; margin-top: -2px;">×</button>
+                        </div>
+                        <div class="widget-content" id="bounce-route-content" style="font-family: 'Courier New', monospace; font-size: 12px;">
+                            <!-- Content will be populated dynamically -->
+                        </div>
+                        <div style="background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#e6e6e6)); border-top: 1px solid #cccccc; padding: 15px; text-align: right;">
+                            <button onclick="clearBounceRoute()" class="btn btn-primary" style="margin-right: 5px;">Clear Route</button>
+                            <button onclick="closeBounceRoute()" class="btn">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Internet Page -->
+            <div class="page" id="internet-page" style="display: none;">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Internet Browser</h5>
+                    </div>
+                    <div class="widget-content">
+                        <div class="form-horizontal">
+                            <div class="control-group">
+                                <label class="control-label">Target IP:</label>
+                                <div class="controls">
+                                    <input type="text" id="target-ip" placeholder="192.168.1.1" class="form-control" style="width: 200px; display: inline-block;">
+                                    <button onclick="connectToServer()" class="btn btn-primary">Connect</button>
+                                    <button onclick="scanNetwork()" class="btn btn-primary">Scan Network</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="connection-result" style="margin-top: 20px;">
+                            <p>Enter an IP address to connect to a server or scan the network to find available targets.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Available Servers</h5>
+                    </div>
+                    <div class="widget-content">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>IP Address</th>
+                                    <th>Type</th>
+                                    <th>Difficulty</th>
+                                    <th>Reward</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>192.168.1.100</td>
+                                    <td>Personal Computer</td>
+                                    <td><span style="color: green;">Easy</span></td>
+                                    <td>$500</td>
+                                    <td><button class="btn btn-xs btn-primary">Hack</button></td>
+                                </tr>
+                                <tr>
+                                    <td>10.0.0.50</td>
+                                    <td>Small Business</td>
+                                    <td><span style="color: orange;">Medium</span></td>
+                                    <td>$5,000</td>
+                                    <td><button class="btn btn-xs btn-primary">Hack</button></td>
+                                </tr>
+                                <tr>
+                                    <td>172.16.0.1</td>
+                                    <td>Bank Server</td>
+                                    <td><span style="color: red;">Hard</span></td>
+                                    <td>$50,000</td>
+                                    <td><button class="btn btn-xs btn-primary">Hack</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Missions Page -->
+            <div class="page" id="missions-page" style="display: none;">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Available Missions</h5>
+                    </div>
+                    <div class="widget-content">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Basic Tutorial: System Access</h4>
+                                <p>Learn fundamental hacking concepts by practicing on a test system. Safe environment for beginners.</p>
+                                <p><strong>Reward:</strong> $500 + Basic Tools</p>
+                                <p><strong>Difficulty:</strong> <span style="color: green;">Beginner</span></p>
+                                <button class="btn btn-primary">Start Tutorial</button>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Network Challenge: Port Scanning</h4>
+                                <p>Practice network reconnaissance techniques on designated practice targets.</p>
+                                <p><strong>Reward:</strong> $2,500 + Scanner Tools</p>
+                                <p><strong>Difficulty:</strong> <span style="color: orange;">Intermediate</span></p>
+                                <button class="btn btn-primary">Start Challenge</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Active Missions</h5>
+                    </div>
+                    <div class="widget-content">
+                        <p>No active tutorials. Begin with the Basic Tutorial to learn the fundamentals!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hardware Page -->
+            <div class="page" id="hardware-page" style="display: none;">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Hardware Specifications</h5>
+                    </div>
+                    <div class="widget-content">
+                        <table class="table">
+                            <tr>
+                                <td><strong>Processor:</strong></td>
+                                <td>Intel Core i7-9700K @ 3.6GHz</td>
+                                <td><button class="btn btn-xs btn-primary" onclick="upgradeHardware('cpu')">Upgrade</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Memory:</strong></td>
+                                <td>16GB DDR4 RAM</td>
+                                <td><button class="btn btn-xs btn-primary" onclick="upgradeHardware('ram')">Upgrade</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Storage:</strong></td>
+                                <td>500GB SSD</td>
+                                <td><button class="btn btn-xs btn-primary" onclick="upgradeHardware('hdd')">Upgrade</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Network:</strong></td>
+                                <td>Gigabit Ethernet</td>
+                                <td><button class="btn btn-xs btn-primary" onclick="upgradeHardware('net')">Upgrade</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Hardware Store</h5>
+                    </div>
+                    <div class="widget-content">
+                        <p>Browse and purchase hardware upgrades to improve your system performance.</p>
+                        <button class="btn btn-primary">Browse Hardware</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs Page -->
+            <div class="page" id="logs-page" style="display: none;">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>System Logs</h5>
+                        <div class="pull-right">
+                            <button class="btn btn-xs btn-success" onclick="addCustomLog()">Add Log</button>
+                            <button class="btn btn-xs btn-primary" onclick="openLogEditor()">Edit Logs</button>
+                            <button class="btn btn-xs btn-warning" onclick="clearLogs()">Clear Logs</button>
+                            <button class="btn btn-xs btn-info" onclick="exportLogs()">Export</button>
+                        </div>
+                    </div>
+                    <div class="widget-content">
+                        <!-- Dynamic log content populated by JavaScript -->
+                        <div class="log-stats" style="margin-bottom: 10px; padding: 5px; background: #f5f5f5; border-radius: 3px;">
+                            <small class="text-muted">Log entries: <span id="log-count">0</span> | Filter by type: 
+                                <select id="log-filter" onchange="filterLogs(this.value)" style="font-size: 11px;">
+                                    <option value="all">All</option>
+                                    <option value="system">System</option>
+                                    <option value="transaction">Transactions</option>
+                                    <option value="security">Security</option>
+                                    <option value="info">Info</option>
+                                    <option value="error">Errors</option>
+                                </select>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Log Filters</h5>
+                    </div>
+                    <div class="widget-content">
+                        <button class="btn btn-xs btn-primary">Security</button>
+                        <button class="btn btn-xs btn-primary">Network</button>
+                        <button class="btn btn-xs btn-primary">System</button>
+                        <button class="btn btn-xs btn-primary">Clear Logs</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Servers Page -->
+            <div class="page" id="servers-page" style="display: none;">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>My Servers</h5>
+                    </div>
+                    <div class="widget-content">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Server Name</th>
+                                    <th>IP Address</th>
+                                    <th>Status</th>
+                                    <th>Uptime</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic server content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Server Management</h5>
+                    </div>
+                    <div class="widget-content">
+                        <button class="btn btn-primary" onclick="rentNewServer()">🖥️ Rent New Server</button>
+                        <button class="btn btn-secondary" onclick="openServerMarketplace()" style="margin-left: 10px;">🏪 Server Marketplace</button>
+                        <button class="btn btn-info" onclick="connectToRemoteServer()" style="margin-left: 10px;">🔗 Connect to Server</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connections Page -->
+            <div class="page" id="connections-page" style="display: none;">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Active Connections</h5>
+                    </div>
+                    <div class="widget-content">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Target IP</th>
+                                    <th>Connection Type</th>
+                                    <th>Status</th>
+                                    <th>Duration</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Dynamic connections content -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Connection History</h5>
+                    </div>
+                    <div class="widget-content">
+                        <p>Recent successful connections and attack attempts.</p>
+                        <button class="btn btn-primary">View Full History</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clan Page -->
+            <div class="page" id="clan-page" style="display: none;">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Clan Information</h5>
+                    </div>
+                    <div class="widget-content">
+                        <p>You are not currently a member of any clan.</p>
+                        <button class="btn btn-primary">Browse Clans</button>
+                        <button class="btn btn-secondary">Create Clan</button>
+                    </div>
+                </div>
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Clan Wars</h5>
+                    </div>
+                    <div class="widget-content">
+                        <p>Join a clan to participate in clan warfare and group missions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ranking Page -->
+            <div class="page" id="ranking-page" style="display: none;">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Player Rankings</h5>
+                    </div>
+                    <div class="widget-content">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Player</th>
+                                    <th>Level</th>
+                                    <th>Reputation</th>
+                                    <th>Clan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>EliteHacker</td>
+                                    <td>87</td>
+                                    <td>15,420</td>
+                                    <td>CyberWarriors</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>SecMaster</td>
+                                    <td>82</td>
+                                    <td>14,890</td>
+                                    <td>BlackHats</td>
+                                </tr>
+                                <tr class="highlight">
+                                    <td>25</td>
+                                    <td>You</td>
+                                    <td>25</td>
+                                    <td>2,450</td>
+                                    <td>None</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mail Page -->
+            <div class="page" id="mail-page" style="display: none;">
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Inbox (3 unread)</h5>
+                    </div>
+                    <div class="widget-content">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>From</th>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="unread">
+                                    <td>System Admin</td>
+                                    <td>Welcome to HackerExperience</td>
+                                    <td>Today</td>
+                                    <td><strong>New</strong></td>
+                                </tr>
+                                <tr class="unread">
+                                    <td>Tutorial Bot</td>
+                                    <td>Complete your first mission</td>
+                                    <td>Today</td>
+                                    <td><strong>New</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Security Analyst Maya</td>
+                                    <td>Advanced training available</td>
+                                    <td>Yesterday</td>
+                                    <td>Read</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="widget-box">
+                    <div class="widget-title">
+                        <h5>Compose Message</h5>
+                    </div>
+                    <div class="widget-content">
+                        <button class="btn btn-primary">New Message</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <ul>
+            <li class="active"><a href="#" onclick="loadPage('desktop')">Desktop</a></li>
+            <li><a href="#" onclick="loadPage('processes')">Processes</a></li>
+            <li><a href="#" onclick="loadPage('software')">Software</a></li>
+            <li><a href="#" onclick="loadPage('hardware')">Hardware</a></li>
+            <li><a href="#" onclick="loadPage('logs')">Logs</a></li>
+            <li><a href="#" onclick="loadPage('internet')">Internet</a></li>
+            <li><a href="#" onclick="loadPage('servers')">My Servers</a></li>
+            <li><a href="#" onclick="loadPage('connections')">Connections</a></li>
+            <li><a href="#" onclick="loadPage('clan')">Clan</a></li>
+            <li><a href="#" onclick="loadPage('missions')">Missions</a></li>
+            <li><a href="#" onclick="loadPage('ranking')">Ranking</a></li>
+            <li><a href="#" onclick="loadPage('mail')">Mail</a></li>
+        </ul>
+    </div>
+
+    <script>
+        // Game functionality
+        var currentPage = 'desktop';
+
+        function loadPage(pageName) {
+            // Hide all pages
+            $('.page').hide();
+            
+            // Show selected page
+            $('#' + pageName + '-page').show();
+            
+            // Update sidebar active state
+            $('#sidebar li').removeClass('active');
+            $('#sidebar li a[onclick="loadPage(\'' + pageName + '\')"]').parent().addClass('active');
+            
+            // Update page title
+            $('#page-title').text(pageName.charAt(0).toUpperCase() + pageName.slice(1));
+            
+            currentPage = pageName;
+        }
+
+        function connectToServer() {
+            var ip = $('#target-ip').val();
+            if (!ip) {
+                alert('Please enter an IP address');
+                return;
+            }
+            
+            $('#connection-result').html(
+                '<div class="terminal">' +
+                '<div>Connecting to ' + ip + '...</div>' +
+                '<div>Scanning ports...</div>' +
+                '<div>Port 22 (SSH): Open</div>' +
+                '<div>Port 80 (HTTP): Open</div>' +
+                '<div>Connection established!</div>' +
+                '<div>Available actions: Download files, Install virus, Transfer money</div>' +
+                '</div>'
+            );
+        }
+
+        function scanNetwork() {
+            $('#connection-result').html(
+                '<div class="terminal">' +
+                '<div>Scanning local network...</div>' +
+                '<div>Found 3 servers:</div>' +
+                '<div>192.168.1.100 - Personal Computer (Easy)</div>' +
+                '<div>10.0.0.50 - Small Business (Medium)</div>' +
+                '<div>172.16.0.1 - Bank Server (Hard)</div>' +
+                '<div>Scan complete.</div>' +
+                '</div>'
+            );
+        }
+
+        // Terminal functionality
+        $('#terminal-input').keypress(function(e) {
+            if (e.which == 13) { // Enter key
+                var command = $(this).val();
+                var output = $('#terminal-output');
+                
+                // Add command to output
+                output.append('<div>root@localhost:~# ' + command + '</div>');
+                
+                // Process command
+                var response = processCommand(command);
+                output.append('<div>' + response + '</div>');
+                
+                // Clear input
+                $(this).val('');
+                
+                // Scroll to bottom
+                output.scrollTop(output[0].scrollHeight);
+            }
+        });
+
+        function processCommand(command) {
+            command = command.toLowerCase().trim();
+            
+            switch(command) {
+                case 'help':
+                    return 'Available commands: help, ls, scan, connect, processes, clear';
+                case 'ls':
+                    return 'documents/  downloads/  desktop/  system/';
+                case 'scan':
+                    return 'Scanning network... Found 3 targets.';
+                case 'connect':
+                    return 'Usage: connect [ip_address]';
+                case 'processes':
+                    return 'PID  NAME       STATUS\n1001 SSH Server Running\n1002 Firewall   Running';
+                case 'clear':
+                    $('#terminal-output').html('<div class="terminal-prompt"><span>root@localhost:~# </span><input type="text" id="terminal-input" style="background: transparent; border: none; color: #00ff00; outline: none; width: 300px;"></div>');
+                    return '';
+                default:
+                    return 'Command not found: ' + command;
+            }
+        }
+
+        // Initialize the game
+        $(document).ready(function() {
+            // Load initial data
+            loadPlayerData();
+            
+            // Focus terminal input
+            $('#terminal-input').focus();
+        });
+
+        function loadPlayerData() {
+            // Simulate loading player data
+            $('#player-name').text('HackerPro');
+            $('#player-money').text('$15,750');
+            $('#player-bitcoins').text('฿2.35');
+            $('#player-level').text('Level 5');
+        }
+
+        // Update system status periodically
+        setInterval(function() {
+            // Simulate changing system stats
+            var cpuUsage = Math.floor(Math.random() * 50) + 10;
+            var memUsage = Math.floor(Math.random() * 30) + 30;
+            var diskUsage = Math.floor(Math.random() * 20) + 5;
+            
+            $('.progress-bar').eq(0).css('width', cpuUsage + '%').text(cpuUsage + '%');
+            $('.progress-bar').eq(1).css('width', memUsage + '%').text(memUsage + '%');
+            $('.progress-bar').eq(2).css('width', diskUsage + '%').text(diskUsage + '%');
+        }, 5000);
+
+        // Game State Management
+        var gameState = {
+            money: 150000,
+            level: 25,
+            experience: 45600,
+            processes: {
+                1001: { name: 'SSH Server', status: 'running', cpu: 2.1, memory: 45 },
+                1002: { name: 'Firewall', status: 'running', cpu: 5.8, memory: 128 },
+                1003: { name: 'Cracker', status: 'paused', cpu: 0.0, memory: 256 }
+            },
+            hardware: {
+                cpu: { name: 'Intel Core i7-9700K @ 3.6GHz', price: 25000 },
+                ram: { name: '16GB DDR4 RAM', price: 8000 },
+                hdd: { name: '500GB SSD', price: 12000 },
+                net: { name: 'Gigabit Ethernet', price: 5000 }
+            },
+            software: [
+                { name: 'Basic Terminal', version: '1.0', price: 0 },
+                { name: 'Text Editor', version: '2.1', price: 500 },
+                { name: 'Password Cracker', version: '3.0', price: 15000 }
+            ],
+            logs: [
+                { timestamp: new Date().toLocaleString(), message: 'System initialized', type: 'system' },
+                { timestamp: new Date().toLocaleString(), message: 'All processes started successfully', type: 'info' },
+                { timestamp: new Date().toLocaleString(), message: 'Firewall protection active', type: 'security' }
+            ],
+            servers: {
+                1: { name: 'Main Server', ip: '127.0.0.1', status: 'online', uptime: '24h 15m', type: 'personal' },
+                2: { name: 'VPS-Alpha', ip: '192.168.1.100', status: 'online', uptime: '12h 03m', type: 'rented' },
+                3: { name: 'Test Server', ip: '10.0.0.50', status: 'offline', uptime: '0h 00m', type: 'personal' }
+            },
+            connections: {
+                1: { target_ip: '192.168.100.10', type: 'SSH', status: 'connected', duration: '00:15:23', established: new Date(Date.now() - 923000) },
+                2: { target_ip: '203.0.113.45', type: 'FTP', status: 'connecting', duration: '00:00:12', established: new Date(Date.now() - 12000) }
+            },
+            targetPCs: {
+                '192.168.100.10': { 
+                    owner: 'John_Doe', 
+                    type: 'Personal PC', 
+                    security: 2, 
+                    money: 5000, 
+                    difficulty: 'Easy',
+                    services: ['SSH-22', 'FTP-21', 'HTTP-80'],
+                    vulnerabilities: ['SSH-BruteForce', 'FTP-Anonymous'],
+                    location: 'New York, USA',
+                    lastSeen: '2025-09-13 23:30:15'
+                },
+                '203.0.113.45': { 
+                    owner: 'TechCorp_Server', 
+                    type: 'Corporate Server', 
+                    security: 5, 
+                    money: 25000, 
+                    difficulty: 'Medium',
+                    services: ['SSH-22', 'HTTP-80', 'HTTPS-443', 'FTP-21'],
+                    vulnerabilities: ['HTTP-Directory', 'SSH-Outdated'],
+                    location: 'San Francisco, USA',
+                    lastSeen: '2025-09-13 23:45:32'
+                },
+                '172.16.250.100': { 
+                    owner: 'GovNet_Terminal', 
+                    type: 'Government System', 
+                    security: 8, 
+                    money: 75000, 
+                    difficulty: 'Hard',
+                    services: ['SSH-22', 'HTTPS-443', 'VPN-1723'],
+                    vulnerabilities: ['SSL-Heartbleed'],
+                    location: 'Washington D.C., USA',
+                    lastSeen: '2025-09-13 23:15:45'
+                },
+                '10.0.0.25': { 
+                    owner: 'HomeLab_Router', 
+                    type: 'Network Device', 
+                    security: 3, 
+                    money: 1200, 
+                    difficulty: 'Easy',
+                    services: ['HTTP-80', 'Telnet-23', 'SNMP-161'],
+                    vulnerabilities: ['Default-Password', 'SNMP-Public'],
+                    location: 'Chicago, USA',
+                    lastSeen: '2025-09-13 23:52:10'
+                }
+            },
+            activeScans: {},
+            activeHacks: {},
+            bounceRoute: []
+        };
+
+        // Process Management Functions
+        function stopProcess(pid) {
+            if (gameState.processes[pid]) {
+                gameState.processes[pid].status = 'stopped';
+                gameState.processes[pid].cpu = 0.0;
+                // Memory is freed when process stops, but we keep the original value for resuming
+                var originalMemory = gameState.processes[pid].memory;
+                updateProcessDisplay(pid);
+                addToLogs('Process ' + gameState.processes[pid].name + ' (PID ' + pid + ') stopped by user - Memory freed: ' + originalMemory + 'MB', 'info');
+                showNotification('Process ' + pid + ' stopped successfully');
+            }
+        }
+
+        function resumeProcess(pid) {
+            if (gameState.processes[pid]) {
+                gameState.processes[pid].status = 'running';
+                gameState.processes[pid].cpu = Math.random() * 10 + 1; // Random CPU usage between 1-11%
+                
+                // Restore memory usage when resuming based on process type
+                var memoryMap = {
+                    1001: 45,   // SSH Server
+                    1002: 128,  // Firewall
+                    1003: 256   // Cracker
+                };
+                
+                if (memoryMap[pid]) {
+                    gameState.processes[pid].memory = memoryMap[pid];
+                }
+                
+                updateProcessDisplay(pid);
+                addToLogs('Process ' + gameState.processes[pid].name + ' (PID ' + pid + ') resumed - Memory: ' + gameState.processes[pid].memory + 'MB, CPU: ' + gameState.processes[pid].cpu.toFixed(1) + '%', 'info');
+                showNotification('Process ' + pid + ' resumed successfully');
+            }
+        }
+
+        function updateProcessDisplay(pid) {
+            var process = gameState.processes[pid];
+            var row = $('#processes-page tbody tr').filter(function() {
+                return $(this).find('td:first').text() == pid;
+            });
+            
+            if (row.length > 0) {
+                var statusCell = row.find('td:nth-child(3)');
+                var cpuCell = row.find('td:nth-child(4)');
+                var memoryCell = row.find('td:nth-child(5)');
+                var actionCell = row.find('td:last');
+                
+                // Update status
+                var statusClass = process.status === 'running' ? 'process-running' : 
+                                 process.status === 'paused' ? 'process-paused' : 'process-stopped';
+                statusCell.html('<span class="' + statusClass + '">' + 
+                               process.status.charAt(0).toUpperCase() + process.status.slice(1) + '</span>');
+                
+                // Update CPU
+                cpuCell.text(process.cpu.toFixed(1) + '%');
+                
+                // Update Memory
+                if (process.status === 'stopped') {
+                    memoryCell.text('0 MB');
+                } else {
+                    memoryCell.text(process.memory + ' MB');
+                }
+                
+                // Update action button
+                if (process.status === 'running') {
+                    actionCell.html('<button class="btn btn-xs btn-warning" onclick="stopProcess(' + pid + ')">Stop</button>');
+                } else {
+                    actionCell.html('<button class="btn btn-xs btn-primary" onclick="resumeProcess(' + pid + ')">Resume</button>');
+                }
+            }
+        }
+
+        // Logging System Functions
+        function addToLogs(message, type = 'info') {
+            var logEntry = {
+                timestamp: new Date().toLocaleString(),
+                message: message,
+                type: type
+            };
+            gameState.logs.push(logEntry);
+            
+            // Keep only last 50 log entries to prevent memory issues
+            if (gameState.logs.length > 50) {
+                gameState.logs = gameState.logs.slice(-50);
+            }
+            
+            updateLogsDisplay();
+        }
+
+        function updateLogsDisplay(filterType = 'all') {
+            var logsContainer = $('#logs-page .widget-content');
+            if (logsContainer.length === 0) return;
+            
+            var filteredLogs = gameState.logs;
+            if (filterType !== 'all') {
+                filteredLogs = gameState.logs.filter(function(log) { return log.type === filterType; });
+            }
+            
+            // Update log count
+            $('#log-count').text(filteredLogs.length);
+            
+            // Build log display HTML
+            var statsHtml = '<div class="log-stats" style="margin-bottom: 10px; padding: 5px; background: #f5f5f5; border-radius: 3px;">' +
+                           '<small class="text-muted">Log entries: <span id="log-count">' + filteredLogs.length + '</span> | Filter by type: ' +
+                           '<select id="log-filter" onchange="filterLogs(this.value)" style="font-size: 11px;">' +
+                           '<option value="all"' + (filterType === 'all' ? ' selected' : '') + '>All</option>' +
+                           '<option value="system"' + (filterType === 'system' ? ' selected' : '') + '>System</option>' +
+                           '<option value="transaction"' + (filterType === 'transaction' ? ' selected' : '') + '>Transactions</option>' +
+                           '<option value="security"' + (filterType === 'security' ? ' selected' : '') + '>Security</option>' +
+                           '<option value="info"' + (filterType === 'info' ? ' selected' : '') + '>Info</option>' +
+                           '<option value="error"' + (filterType === 'error' ? ' selected' : '') + '>Errors</option>' +
+                           '</select></small></div>';
+            
+            var html = statsHtml + '<div class="log-container" style="max-height: 350px; overflow-y: auto; background: #000; color: #0f0; padding: 10px; font-family: monospace;">';
+            
+            for (var i = filteredLogs.length - 1; i >= 0; i--) {
+                var log = filteredLogs[i];
+                var typeColor = '';
+                switch(log.type) {
+                    case 'system': typeColor = '#0088ff'; break;
+                    case 'security': typeColor = '#00ff00'; break;
+                    case 'transaction': typeColor = '#ffaa00'; break;
+                    case 'error': typeColor = '#ff0000'; break;
+                    default: typeColor = '#888888';
+                }
+                html += '<div style="color: ' + typeColor + '">[' + log.timestamp + '] [' + log.type.toUpperCase() + '] ' + log.message + '</div>';
+            }
+            html += '</div>';
+            
+            logsContainer.html(html);
+        }
+
+        // Log Management Functions
+        function clearLogs() {
+            if (confirm('Are you sure you want to clear all logs? This action cannot be undone.')) {
+                gameState.logs = [];
+                updateLogsDisplay();
+                showNotification('All logs cleared successfully', 'info');
+            }
+        }
+
+        function exportLogs() {
+            var logData = 'HackerExperience System Logs Export\n';
+            logData += 'Generated: ' + new Date().toLocaleString() + '\n';
+            logData += '=' + '='.repeat(50) + '\n\n';
+            
+            gameState.logs.forEach(function(log) {
+                logData += '[' + log.timestamp + '] [' + log.type.toUpperCase() + '] ' + log.message + '\n';
+            });
+            
+            var blob = new Blob([logData], { type: 'text/plain' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'hackerexperience_logs_' + new Date().toISOString().slice(0, 10) + '.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('Logs exported successfully', 'info');
+            addToLogs('System logs exported to file', 'system');
+        }
+
+        function filterLogs(filterType) {
+            updateLogsDisplay(filterType);
+        }
+
+        function openLogEditor() {
+            showNotification('Opening system log editor...', 'info');
+            
+            // Build the log file content as text
+            var logContent = '';
+            gameState.logs.forEach(function(log, index) {
+                logContent += '[' + log.timestamp + '] [' + log.type.toUpperCase() + '] ' + log.message + '\n';
+            });
+            
+            // Show the modal
+            $('#log-editor-modal').show();
+            $('#log-editor-content').val(logContent);
+            $('#log-editor-content').focus();
+            
+            addToLogs('Log editor opened by user', 'system');
+        }
+
+        function closeLogEditor() {
+            $('#log-editor-modal').hide();
+            addToLogs('Log editor closed without saving', 'system');
+        }
+
+        function saveLogFile() {
+            var content = $('#log-editor-content').val();
+            var lines = content.split('\n');
+            var newLogs = [];
+            var errors = 0;
+            
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (line === '') continue;
+                
+                // Parse log line: [timestamp] [TYPE] message
+                var match = line.match(/^\[([^\]]+)\]\s*\[([^\]]+)\]\s*(.+)$/);
+                if (match) {
+                    var timestamp = match[1];
+                    var type = match[2].toLowerCase();
+                    var message = match[3];
+                    
+                    // Validate log type
+                    var validTypes = ['system', 'transaction', 'security', 'info', 'error'];
+                    if (!validTypes.includes(type)) {
+                        type = 'info';
+                        errors++;
+                    }
+                    
+                    newLogs.push({
+                        timestamp: timestamp,
+                        type: type,
+                        message: message
+                    });
+                } else if (line.length > 0) {
+                    // Invalid format, try to salvage it
+                    newLogs.push({
+                        timestamp: new Date().toLocaleString(),
+                        type: 'info',
+                        message: line
+                    });
+                    errors++;
+                }
+            }
+            
+            // Update the game state
+            gameState.logs = newLogs;
+            $('#log-editor-modal').hide();
+            updateLogsDisplay();
+            
+            if (errors > 0) {
+                showNotification('Log file saved with ' + errors + ' format corrections', 'warning');
+            } else {
+                showNotification('Log file saved successfully', 'success');
+            }
+            
+            addToLogs('Log file manually edited and saved (' + newLogs.length + ' entries)', 'system');
+        }
+
+        function handleEditorKeyboard(event) {
+            // Ctrl+S to save
+            if (event.ctrlKey && event.key === 's') {
+                event.preventDefault();
+                saveLogFile();
+                return false;
+            }
+            
+            // Escape to close without saving
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeLogEditor();
+                return false;
+            }
+        }
+
+        function addCustomLog() {
+            var message = prompt('Enter log message:');
+            if (!message || message.trim() === '') {
+                showNotification('Log message cannot be empty', 'error');
+                return;
+            }
+            
+            var type = prompt('Enter log type (system, transaction, security, info, error):', 'info');
+            if (!type) type = 'info';
+            
+            // Validate log type
+            var validTypes = ['system', 'transaction', 'security', 'info', 'error'];
+            if (!validTypes.includes(type)) {
+                showNotification('Invalid log type! Using "info" instead.', 'error');
+                type = 'info';
+            }
+            
+            addToLogs(message.trim(), type);
+            showNotification('Custom log entry added successfully', 'info');
+        }
+
+        // Server Management Functions
+        function updateServersDisplay() {
+            var serverTableBody = $('#servers-page table tbody');
+            var html = '';
+            
+            Object.keys(gameState.servers).forEach(function(serverId) {
+                var server = gameState.servers[serverId];
+                var statusClass = server.status === 'online' ? 'process-running' : 
+                                 server.status === 'offline' ? 'process-stopped' : 'process-paused';
+                var typeIcon = server.type === 'rented' ? '☁️' : '🖥️';
+                
+                html += '<tr>';
+                html += '<td>' + typeIcon + ' ' + server.name + '</td>';
+                html += '<td>' + server.ip + '</td>';
+                html += '<td><span class="' + statusClass + '">' + server.status.charAt(0).toUpperCase() + server.status.slice(1) + '</span></td>';
+                html += '<td>' + server.uptime + '</td>';
+                html += '<td>';
+                if (server.status === 'online') {
+                    html += '<button class="btn btn-xs btn-primary" onclick="connectToServer(' + serverId + ')" style="margin-right: 5px;">Connect</button>';
+                    html += '<button class="btn btn-xs btn-warning" onclick="shutdownServer(' + serverId + ')">Shutdown</button>';
+                } else {
+                    html += '<button class="btn btn-xs btn-success" onclick="startServer(' + serverId + ')" style="margin-right: 5px;">Start</button>';
+                    html += '<button class="btn btn-xs btn-danger" onclick="deleteServer(' + serverId + ')">Delete</button>';
+                }
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            serverTableBody.html(html);
+        }
+
+        function connectToServer(serverId) {
+            var server = gameState.servers[serverId];
+            if (!server || server.status !== 'online') {
+                showNotification('Cannot connect to offline server', 'error');
+                return;
+            }
+            
+            // Create new connection
+            var connectionId = Date.now();
+            gameState.connections[connectionId] = {
+                target_ip: server.ip,
+                type: 'Direct',
+                status: 'connected',
+                duration: '00:00:00',
+                established: new Date()
+            };
+            
+            updateConnectionsDisplay();
+            addToLogs('Connected to server ' + server.name + ' (' + server.ip + ')', 'info');
+            showNotification('Connected to ' + server.name + ' successfully', 'success');
+        }
+
+        function shutdownServer(serverId) {
+            var server = gameState.servers[serverId];
+            if (!server) return;
+            
+            if (confirm('Are you sure you want to shutdown ' + server.name + '?')) {
+                server.status = 'offline';
+                server.uptime = '0h 00m';
+                updateServersDisplay();
+                addToLogs('Server ' + server.name + ' shutdown by user', 'system');
+                showNotification('Server ' + server.name + ' shutdown', 'info');
+            }
+        }
+
+        function startServer(serverId) {
+            var server = gameState.servers[serverId];
+            if (!server) return;
+            
+            server.status = 'online';
+            server.uptime = '0h 01m';
+            updateServersDisplay();
+            addToLogs('Server ' + server.name + ' started successfully', 'system');
+            showNotification('Server ' + server.name + ' started', 'success');
+        }
+
+        function deleteServer(serverId) {
+            var server = gameState.servers[serverId];
+            if (!server) return;
+            
+            if (confirm('Are you sure you want to delete ' + server.name + '? This action cannot be undone.')) {
+                delete gameState.servers[serverId];
+                updateServersDisplay();
+                addToLogs('Server ' + server.name + ' deleted by user', 'system');
+                showNotification('Server deleted successfully', 'info');
+            }
+        }
+
+        function rentNewServer() {
+            var serverName = prompt('Enter server name:', 'VPS-' + Math.random().toString(36).substr(2, 5).toUpperCase());
+            if (!serverName) return;
+            
+            var cost = 50000; // $50,000 to rent a server
+            if (gameState.money < cost) {
+                showNotification('Insufficient funds! Need $' + cost.toLocaleString(), 'error');
+                return;
+            }
+            
+            if (confirm('Rent new server "' + serverName + '" for $' + cost.toLocaleString() + '?')) {
+                var serverId = Date.now();
+                var serverIp = '172.16.' + Math.floor(Math.random() * 255) + '.' + Math.floor(Math.random() * 255);
+                
+                gameState.money -= cost;
+                gameState.servers[serverId] = {
+                    name: serverName,
+                    ip: serverIp,
+                    status: 'online',
+                    uptime: '0h 00m',
+                    type: 'rented'
+                };
+                
+                updateServersDisplay();
+                updateMoneyDisplay();
+                addToLogs('Rented new server "' + serverName + '" for $' + cost.toLocaleString(), 'transaction');
+                showNotification('Server rented successfully!', 'success');
+            }
+        }
+
+        function openServerMarketplace() {
+            showNotification('Server marketplace - Choose from available servers:', 'info');
+            
+            var servers = [
+                { name: 'Basic VPS', price: 25000, specs: '1 Core, 1GB RAM' },
+                { name: 'Advanced VPS', price: 75000, specs: '4 Cores, 8GB RAM' },
+                { name: 'Dedicated Server', price: 150000, specs: '8 Cores, 32GB RAM' }
+            ];
+            
+            var choice = prompt('Available servers:\n1. ' + servers[0].name + ' - $' + servers[0].price.toLocaleString() + ' (' + servers[0].specs + ')\n2. ' + servers[1].name + ' - $' + servers[1].price.toLocaleString() + ' (' + servers[1].specs + ')\n3. ' + servers[2].name + ' - $' + servers[2].price.toLocaleString() + ' (' + servers[2].specs + ')\n\nEnter choice (1-3):');
+            
+            var serverChoice = parseInt(choice) - 1;
+            if (serverChoice >= 0 && serverChoice < servers.length) {
+                var server = servers[serverChoice];
+                if (gameState.money >= server.price) {
+                    if (confirm('Purchase ' + server.name + ' for $' + server.price.toLocaleString() + '?')) {
+                        var serverId = Date.now();
+                        var serverIp = '203.0.113.' + Math.floor(Math.random() * 255);
+                        
+                        gameState.money -= server.price;
+                        gameState.servers[serverId] = {
+                            name: server.name,
+                            ip: serverIp,
+                            status: 'online',
+                            uptime: '0h 00m',
+                            type: 'rented'
+                        };
+                        
+                        updateServersDisplay();
+                        updateMoneyDisplay();
+                        addToLogs('Purchased ' + server.name + ' from marketplace for $' + server.price.toLocaleString(), 'transaction');
+                        showNotification('Server purchased successfully!', 'success');
+                    }
+                } else {
+                    showNotification('Insufficient funds!', 'error');
+                }
+            }
+        }
+
+        function connectToRemoteServer() {
+            var targetIp = prompt('Enter target IP address (or leave blank to scan for targets):');
+            if (!targetIp) {
+                scanForTargets();
+                return;
+            }
+            
+            // Validate IP format (basic)
+            if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(targetIp)) {
+                showNotification('Invalid IP address format', 'error');
+                return;
+            }
+            
+            // Check if target is known
+            if (gameState.targetPCs[targetIp]) {
+                showTargetInfo(targetIp);
+            } else {
+                // Unknown target - perform reconnaissance
+                showNotification('Target unknown - performing reconnaissance...', 'info');
+                performRecon(targetIp);
+            }
+        }
+
+        function scanForTargets() {
+            showNotification('Scanning network for targets...', 'info');
+            
+            var scanProgress = 0;
+            var scanInterval = setInterval(function() {
+                scanProgress += Math.random() * 20;
+                if (scanProgress >= 100) {
+                    clearInterval(scanInterval);
+                    showAvailableTargets();
+                } else {
+                    showNotification('Network scan: ' + Math.floor(scanProgress) + '% complete', 'info');
+                }
+            }, 1000);
+            
+            addToLogs('Network reconnaissance scan initiated', 'security');
+        }
+
+        function showAvailableTargets() {
+            var targetList = 'Available targets found:\n\n';
+            var targetIPs = Object.keys(gameState.targetPCs);
+            
+            targetIPs.forEach(function(ip, index) {
+                var target = gameState.targetPCs[ip];
+                targetList += (index + 1) + '. ' + ip + ' (' + target.owner + ') - ' + target.type + ' [' + target.difficulty + ']\n';
+            });
+            
+            targetList += '\nEnter target number (1-' + targetIPs.length + ') or IP address:';
+            
+            var choice = prompt(targetList);
+            if (!choice) return;
+            
+            var choiceNum = parseInt(choice);
+            var selectedIP;
+            
+            if (choiceNum >= 1 && choiceNum <= targetIPs.length) {
+                selectedIP = targetIPs[choiceNum - 1];
+            } else if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(choice)) {
+                selectedIP = choice;
+            } else {
+                showNotification('Invalid selection', 'error');
+                return;
+            }
+            
+            showTargetInfo(selectedIP);
+        }
+
+        function performRecon(targetIp) {
+            var scanId = Date.now();
+            gameState.activeScans[scanId] = {
+                target: targetIp,
+                progress: 0,
+                started: new Date()
+            };
+            
+            var progress = 0;
+            var scanInterval = setInterval(function() {
+                progress += Math.random() * 15;
+                gameState.activeScans[scanId].progress = progress;
+                
+                if (progress >= 100) {
+                    clearInterval(scanInterval);
+                    delete gameState.activeScans[scanId];
+                    
+                    // Generate random target data
+                    var difficulty = Math.random() > 0.7 ? 'Hard' : Math.random() > 0.4 ? 'Medium' : 'Easy';
+                    var money = difficulty === 'Hard' ? Math.floor(Math.random() * 50000) + 25000 : 
+                               difficulty === 'Medium' ? Math.floor(Math.random() * 20000) + 5000 : 
+                               Math.floor(Math.random() * 5000) + 500;
+                    
+                    gameState.targetPCs[targetIp] = {
+                        owner: 'Unknown_' + Math.random().toString(36).substr(2, 6),
+                        type: Math.random() > 0.5 ? 'Personal PC' : 'Server',
+                        security: difficulty === 'Hard' ? Math.floor(Math.random() * 3) + 6 : 
+                                 difficulty === 'Medium' ? Math.floor(Math.random() * 3) + 3 : 
+                                 Math.floor(Math.random() * 3) + 1,
+                        money: money,
+                        difficulty: difficulty,
+                        services: ['SSH-22', 'HTTP-80'],
+                        vulnerabilities: ['Unknown'],
+                        location: 'Unknown',
+                        lastSeen: new Date().toLocaleString()
+                    };
+                    
+                    showNotification('Reconnaissance complete!', 'success');
+                    addToLogs('Target ' + targetIp + ' successfully scanned and added to database', 'security');
+                    showTargetInfo(targetIp);
+                } else {
+                    showNotification('Scanning ' + targetIp + ': ' + Math.floor(progress) + '% complete', 'info');
+                }
+            }, 1500);
+        }
+
+        function showTargetInfo(targetIp) {
+            var target = gameState.targetPCs[targetIp];
+            if (!target) {
+                showNotification('Target not found in database', 'error');
+                return;
+            }
+            
+            // Store current target for modal actions
+            window.currentTargetIp = targetIp;
+            
+            // Build target information HTML with authentic HE table styling
+            var difficultyColor = target.difficulty === 'Easy' ? 'process-running' : 
+                                  target.difficulty === 'Medium' ? 'process-paused' : 'process-error';
+            
+            var html = '<table class="table">';
+            html += '<tr><td><strong>IP Address:</strong></td><td>' + targetIp + '</td></tr>';
+            html += '<tr><td><strong>Owner:</strong></td><td>' + target.owner + '</td></tr>';
+            html += '<tr><td><strong>Type:</strong></td><td>' + target.type + '</td></tr>';
+            html += '<tr><td><strong>Security Level:</strong></td><td>' + target.security + '/10</td></tr>';
+            html += '<tr><td><strong>Difficulty:</strong></td><td><span class="' + difficultyColor + '">' + target.difficulty + '</span></td></tr>';
+            html += '<tr><td><strong>Estimated Money:</strong></td><td><span class="process-running">$' + target.money.toLocaleString() + '</span></td></tr>';
+            html += '<tr><td><strong>Location:</strong></td><td>' + target.location + '</td></tr>';
+            html += '<tr><td><strong>Last Seen:</strong></td><td>' + target.lastSeen + '</td></tr>';
+            html += '</table>';
+            
+            html += '<div style="margin-top: 15px;">';
+            html += '<h6><strong>Open Services:</strong></h6>';
+            html += '<p>';
+            target.services.forEach(function(service, index) {
+                html += service;
+                if (index < target.services.length - 1) html += ', ';
+            });
+            html += '</p>';
+            
+            html += '<h6><strong>Known Vulnerabilities:</strong></h6>';
+            html += '<p>';
+            target.vulnerabilities.forEach(function(vuln, index) {
+                html += '<span style="color: #dc3545;">' + vuln + '</span>';
+                if (index < target.vulnerabilities.length - 1) html += ', ';
+            });
+            html += '</p>';
+            html += '</div>';
+            
+            $('#target-info-content').html(html);
+            $('#target-info-modal').show();
+        }
+        
+        function closeTargetInfo() {
+            $('#target-info-modal').hide();
+            window.currentTargetIp = null;
+        }
+
+        // Hacking System Functions
+        function scanVulnerabilities(targetIp) {
+            var target = gameState.targetPCs[targetIp];
+            if (!target) {
+                showNotification('Target not found', 'error');
+                return;
+            }
+            
+            // Close target info modal if open
+            $('#target-info-modal').hide();
+            
+            // Store target for modal actions
+            window.currentTargetIp = targetIp;
+            
+            // Show vulnerability scan modal
+            $('#vuln-scan-content').html('<div id="scan-progress">Initializing vulnerability scanner...</div>');
+            $('#vuln-scan-modal').show();
+            
+            addToLogs('Initiating vulnerability scan on ' + targetIp, 'info');
+            showNotification('Vulnerability scan initiated...', 'info');
+            
+            // Simulate scan with real-time progress
+            var progress = 0;
+            var scanResults = [];
+            
+            var scanInterval = setInterval(function() {
+                progress += Math.random() * 15 + 5; // 5-20% increments
+                
+                if (progress < 100) {
+                    var scanMessages = [
+                        'Scanning ports... (' + Math.floor(progress) + '%)',
+                        'Checking service versions... (' + Math.floor(progress) + '%)', 
+                        'Analyzing security configurations... (' + Math.floor(progress) + '%)',
+                        'Probing for known exploits... (' + Math.floor(progress) + '%)',
+                        'Testing authentication mechanisms... (' + Math.floor(progress) + '%)',
+                        'Fingerprinting operating system... (' + Math.floor(progress) + '%)'
+                    ];
+                    var message = scanMessages[Math.floor(Math.random() * scanMessages.length)];
+                    scanResults.push('<div>' + message + '</div>');
+                    $('#scan-progress').html(scanResults.join(''));
+                    addToLogs(message, 'system');
+                } else {
+                    clearInterval(scanInterval);
+                    
+                    // Show detailed scan results in terminal format
+                    scanResults = [];
+                    scanResults.push('<div>VULNERABILITY SCAN COMPLETE</div>');
+                    scanResults.push('<div>============================</div>');
+                    scanResults.push('<div>Target: ' + targetIp + '</div>');
+                    scanResults.push('<div>Security Level: ' + target.security + '/10</div>');
+                    scanResults.push('<div></div>');
+                    
+                    scanResults.push('<div>DISCOVERED VULNERABILITIES:</div>');
+                    target.vulnerabilities.forEach(function(vuln, index) {
+                        scanResults.push('<div>' + (index + 1) + '. ' + vuln + '</div>');
+                    });
+                    
+                    scanResults.push('<div></div>');
+                    scanResults.push('<div>OPEN SERVICES:</div>');
+                    target.services.forEach(function(service, index) {
+                        scanResults.push('<div>' + (index + 1) + '. ' + service + '</div>');
+                    });
+                    
+                    scanResults.push('<div></div>');
+                    scanResults.push('<div>RECOMMENDATIONS:</div>');
+                    if (target.security <= 3) {
+                        scanResults.push('<div>• Target has weak defenses - high success probability</div>');
+                        scanResults.push('<div>• Consider direct attack or password cracking</div>');
+                    } else if (target.security <= 6) {
+                        scanResults.push('<div>• Medium security - use specialized tools</div>');
+                        scanResults.push('<div>• Recommend exploiting discovered vulnerabilities</div>');
+                    } else {
+                        scanResults.push('<div>• High security - requires advanced techniques</div>');
+                        scanResults.push('<div>• Consider proxy routing and stealth approaches</div>');
+                    }
+                    
+                    $('#scan-progress').html(scanResults.join(''));
+                    $('#vuln-scan-content').scrollTop($('#vuln-scan-content')[0].scrollHeight);
+                    
+                    addToLogs('Vulnerability scan completed for ' + targetIp, 'success');
+                    showNotification('Scan complete - check results in modal', 'success');
+                }
+            }, 800);
+        }
+        
+        function closeVulnScan() {
+            $('#vuln-scan-modal').hide();
+        }
+        
+        function beginHackAttempt(targetIp) {
+            var target = gameState.targetPCs[targetIp];
+            if (!target) {
+                showNotification('Target not found', 'error');
+                return;
+            }
+            
+            // Check if player has required software
+            var hasHackingTools = gameState.software.some(function(sw) {
+                return sw.name.includes('Cracker') || sw.name.includes('Exploit');
+            });
+            
+            if (!hasHackingTools) {
+                showNotification('You need hacking tools to attempt intrusion', 'error');
+                return;
+            }
+            
+            // Calculate success probability based on player level, target security, and equipment
+            var playerLevel = gameState.level || 1;
+            var successRate = Math.max(10, Math.min(90, 
+                (playerLevel * 8) + (gameState.hardware.cpu / 100) - (target.security * 5)
+            ));
+            
+            // Deduct money for attempt (equipment costs)
+            var attemptCost = 500 + (target.security * 200);
+            if (gameState.money < attemptCost) {
+                showNotification('Insufficient funds for hack attempt (Need $' + attemptCost + ')', 'error');
+                return;
+            }
+            
+            // Close any open modals
+            $('#target-info-modal').hide();
+            $('#vuln-scan-modal').hide();
+            
+            gameState.money -= attemptCost;
+            updateMoneyDisplay();
+            addToLogs('Hack attempt initiated - $' + attemptCost + ' deducted for equipment', 'info');
+            
+            // Show hack progress modal
+            $('#hack-console').html('<div>Initializing hack sequence...</div>');
+            $('#hack-progress-bar').css('width', '0%');
+            $('#hack-progress-text').text('Progress: 0%');
+            $('#hack-timer').text('00:00');
+            $('#hack-result-actions').hide();
+            $('#hack-progress-modal').show();
+            
+            // Start timer
+            var startTime = Date.now();
+            var timerInterval = setInterval(function() {
+                var elapsed = Math.floor((Date.now() - startTime) / 1000);
+                var minutes = Math.floor(elapsed / 60);
+                var seconds = elapsed % 60;
+                $('#hack-timer').text(String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0'));
+            }, 1000);
+            
+            // Create real-time hacking process
+            var hackProgress = 0;
+            var hackLog = [];
+            
+            var hackInterval = setInterval(function() {
+                hackProgress += Math.random() * 8 + 2; // 2-10% increments
+                
+                if (hackProgress < 100) {
+                    var hackMessages = [
+                        'Establishing connection...',
+                        'Bypassing authentication...',
+                        'Exploiting vulnerabilities...',
+                        'Accessing file system...',
+                        'Extracting data...',
+                        'Cracking passwords...',
+                        'Elevating privileges...',
+                        'Disabling security systems...'
+                    ];
+                    var message = hackMessages[Math.floor(Math.random() * hackMessages.length)];
+                    hackLog.push('<div>' + message + ' (' + Math.floor(hackProgress) + '%)</div>');
+                    
+                    $('#hack-console').html(hackLog.join(''));
+                    $('#hack-console').scrollTop($('#hack-console')[0].scrollHeight);
+                    $('#hack-progress-bar').css('width', Math.floor(hackProgress) + '%');
+                    $('#hack-progress-text').text('Progress: ' + Math.floor(hackProgress) + '%');
+                    
+                    addToLogs(message + ' (' + Math.floor(hackProgress) + '%)', 'system');
+                } else {
+                    clearInterval(hackInterval);
+                    clearInterval(timerInterval);
+                    
+                    // Determine success/failure
+                    var success = Math.random() * 100 < successRate;
+                    
+                    if (success) {
+                        var reward = target.money + Math.floor(Math.random() * 5000);
+                        var experienceGain = 100 + (target.security * 50);
+                        
+                        hackLog.push('<div style="color: #00ff00; font-weight: bold;">HACK SUCCESSFUL!</div>');
+                        hackLog.push('<div style="color: #00ff00;">Gained: $' + reward.toLocaleString() + '</div>');
+                        hackLog.push('<div style="color: #00ff00;">Experience: +' + experienceGain + ' XP</div>');
+                        
+                        gameState.money += reward;
+                        gameState.experience = (gameState.experience || 0) + experienceGain;
+                        
+                        // Level up check
+                        var newLevel = Math.floor(Math.sqrt(gameState.experience / 100)) + 1;
+                        if (newLevel > gameState.level) {
+                            gameState.level = newLevel;
+                            hackLog.push('<div style="color: #ffff00; font-weight: bold;">LEVEL UP! Now level ' + newLevel + '</div>');
+                            showNotification('LEVEL UP! Now level ' + newLevel, 'success');
+                        }
+                        
+                        updateMoneyDisplay();
+                        addToLogs('HACK SUCCESSFUL! Gained $' + reward.toLocaleString() + ' and ' + experienceGain + ' XP', 'success');
+                        showNotification('Hack successful! Check your balance', 'success');
+                        
+                        // Add to successful connections
+                        var connectionId = Date.now();
+                        gameState.connections[connectionId] = {
+                            target_ip: targetIp,
+                            type: 'COMPROMISED',
+                            status: 'connected',
+                            established: new Date(),
+                            duration: '00:00:00'
+                        };
+                        updateConnectionsDisplay();
+                        
+                    } else {
+                        hackLog.push('<div style="color: #ff0000; font-weight: bold;">HACK FAILED!</div>');
+                        hackLog.push('<div style="color: #ff0000;">Target defenses detected intrusion</div>');
+                        
+                        addToLogs('HACK FAILED - Target defenses detected intrusion', 'error');
+                        showNotification('Hack attempt failed - target secured', 'error');
+                        
+                        // Potential consequences for failure
+                        if (Math.random() < 0.3) {
+                            var penalty = Math.floor(attemptCost * 0.5);
+                            hackLog.push('<div style="color: #ff0000;">Countermeasures triggered! -$' + penalty + '</div>');
+                            gameState.money = Math.max(0, gameState.money - penalty);
+                            updateMoneyDisplay();
+                            addToLogs('Countermeasures triggered - additional $' + penalty + ' penalty', 'error');
+                        }
+                    }
+                    
+                    $('#hack-console').html(hackLog.join(''));
+                    $('#hack-console').scrollTop($('#hack-console')[0].scrollHeight);
+                    $('#hack-progress-bar').css('width', '100%');
+                    $('#hack-progress-text').text('Complete');
+                    $('#hack-result-actions').show();
+                }
+            }, 1000);
+        }
+        
+        function closeHackProgress() {
+            $('#hack-progress-modal').hide();
+        }
+        
+        function addToBounceRoute(targetIp) {
+            var target = gameState.targetPCs[targetIp];
+            if (!target) {
+                showNotification('Target not found', 'error');
+                return;
+            }
+            
+            // Initialize bounce route if not exists
+            if (!gameState.bounceRoute) {
+                gameState.bounceRoute = [];
+            }
+            
+            // Check if already in bounce route
+            if (gameState.bounceRoute.includes(targetIp)) {
+                showNotification('Target already in bounce route', 'error');
+                return;
+            }
+            
+            // Limit bounce route length (realistic limit)
+            if (gameState.bounceRoute.length >= 5) {
+                showNotification('Bounce route full (max 5 hops)', 'error');
+                return;
+            }
+            
+            // Add to bounce route
+            gameState.bounceRoute.push(targetIp);
+            
+            // Close other modals
+            $('#target-info-modal').hide();
+            $('#vuln-scan-modal').hide();
+            
+            // Show bounce route modal
+            updateBounceRouteModal();
+            $('#bounce-route-modal').show();
+            
+            addToLogs('Added ' + targetIp + ' to bounce route (Hop #' + gameState.bounceRoute.length + ')', 'info');
+            showNotification('Target added to bounce route', 'success');
+        }
+        
+        function updateBounceRouteModal() {
+            if (!gameState.bounceRoute) {
+                gameState.bounceRoute = [];
+            }
+            
+            var html = '<h6><strong>Current Bounce Route (' + gameState.bounceRoute.length + '/5 hops):</strong></h6>';
+            
+            if (gameState.bounceRoute.length === 0) {
+                html += '<p><em>No bounce route configured. Your connections will be direct.</em></p>';
+            } else {
+                html += '<table class="table">';
+                html += '<tr><th>Hop</th><th>IP Address</th><th>Owner</th><th>Actions</th></tr>';
+                gameState.bounceRoute.forEach(function(ip, index) {
+                    var hopTarget = gameState.targetPCs[ip];
+                    html += '<tr>';
+                    html += '<td>' + (index + 1) + '</td>';
+                    html += '<td>' + ip + '</td>';
+                    html += '<td>' + (hopTarget ? hopTarget.owner : 'Unknown') + '</td>';
+                    html += '<td><button class="btn btn-xs" onclick="removeBounceHop(' + index + ')">Remove</button></td>';
+                    html += '</tr>';
+                });
+                html += '</table>';
+                
+                html += '<div style="margin-top: 15px; padding: 10px; background: #f9f9f9; border: 1px solid #ddd;">';
+                html += '<h6><strong>Bounce Route Benefits:</strong></h6>';
+                html += '<ul style="margin: 5px 0; padding-left: 20px;">';
+                html += '<li>Increased anonymity during attacks</li>';
+                html += '<li>Harder for targets to trace connections back to you</li>';
+                html += '<li>Protection from countermeasures and retaliation</li>';
+                html += '<li>Better success rates on high-security targets</li>';
+                html += '</ul>';
+                html += '</div>';
+            }
+            
+            $('#bounce-route-content').html(html);
+        }
+        
+        function removeBounceHop(index) {
+            if (gameState.bounceRoute && index >= 0 && index < gameState.bounceRoute.length) {
+                var removedIp = gameState.bounceRoute.splice(index, 1)[0];
+                updateBounceRouteModal();
+                addToLogs('Removed ' + removedIp + ' from bounce route', 'info');
+                showNotification('Hop removed from bounce route', 'info');
+            }
+        }
+        
+        function clearBounceRoute() {
+            if (gameState.bounceRoute && gameState.bounceRoute.length > 0) {
+                gameState.bounceRoute = [];
+                updateBounceRouteModal();
+                addToLogs('Bounce route cleared', 'info');
+                showNotification('Bounce route cleared', 'info');
+            }
+        }
+        
+        function closeBounceRoute() {
+            $('#bounce-route-modal').hide();
+        }
+
+        // Connection Management Functions
+        function updateConnectionsDisplay() {
+            var connectionTableBody = $('#connections-page table tbody');
+            var html = '';
+            
+            Object.keys(gameState.connections).forEach(function(connectionId) {
+                var connection = gameState.connections[connectionId];
+                var statusClass = connection.status === 'connected' ? 'process-running' : 
+                                 connection.status === 'connecting' ? 'process-paused' : 'process-stopped';
+                
+                // Update duration
+                if (connection.established) {
+                    var elapsed = Math.floor((new Date() - connection.established) / 1000);
+                    var hours = Math.floor(elapsed / 3600);
+                    var minutes = Math.floor((elapsed % 3600) / 60);
+                    var seconds = elapsed % 60;
+                    connection.duration = String(hours).padStart(2, '0') + ':' + 
+                                        String(minutes).padStart(2, '0') + ':' + 
+                                        String(seconds).padStart(2, '0');
+                }
+                
+                var typeIcon = connection.type === 'SSH' ? '🔐' : 
+                              connection.type === 'FTP' ? '📁' : 
+                              connection.type === 'HTTP' ? '🌐' : '🖥️';
+                
+                html += '<tr>';
+                html += '<td>' + connection.target_ip + '</td>';
+                html += '<td>' + typeIcon + ' ' + connection.type + '</td>';
+                html += '<td><span class="' + statusClass + '">' + connection.status.charAt(0).toUpperCase() + connection.status.slice(1) + '</span></td>';
+                html += '<td>' + connection.duration + '</td>';
+                html += '<td>';
+                if (connection.status === 'connected') {
+                    html += '<button class="btn btn-xs btn-danger" onclick="disconnectConnection(' + connectionId + ')">Disconnect</button>';
+                } else {
+                    html += '<button class="btn btn-xs btn-info" onclick="reconnectConnection(' + connectionId + ')">Reconnect</button>';
+                }
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            connectionTableBody.html(html);
+        }
+
+        function disconnectConnection(connectionId) {
+            var connection = gameState.connections[connectionId];
+            if (!connection) return;
+            
+            if (confirm('Disconnect from ' + connection.target_ip + '?')) {
+                delete gameState.connections[connectionId];
+                updateConnectionsDisplay();
+                addToLogs('Disconnected from ' + connection.target_ip + ' (' + connection.type + ')', 'info');
+                showNotification('Disconnected successfully', 'info');
+            }
+        }
+
+        function reconnectConnection(connectionId) {
+            var connection = gameState.connections[connectionId];
+            if (!connection) return;
+            
+            showNotification('Attempting to reconnect to ' + connection.target_ip + '...', 'info');
+            
+            setTimeout(function() {
+                var success = Math.random() > 0.4; // 60% success rate for reconnection
+                
+                if (success) {
+                    connection.status = 'connected';
+                    connection.established = new Date();
+                    updateConnectionsDisplay();
+                    addToLogs('Reconnected to ' + connection.target_ip + ' via ' + connection.type, 'security');
+                    showNotification('Reconnection successful!', 'success');
+                } else {
+                    connection.status = 'failed';
+                    updateConnectionsDisplay();
+                    addToLogs('Failed to reconnect to ' + connection.target_ip + ' - Connection timeout', 'error');
+                    showNotification('Reconnection failed', 'error');
+                }
+            }, 1500);
+        }
+
+        // Hardware Management Functions
+        function upgradeHardware(component) {
+            var upgrades = {
+                cpu: { name: 'Intel Core i9-12900K @ 5.2GHz', price: 45000, icon: '🖥️' },
+                ram: { name: '32GB DDR5 RAM', price: 15000, icon: '💾' },
+                hdd: { name: '1TB NVMe SSD', price: 25000, icon: '💿' },
+                net: { name: '10 Gigabit Ethernet', price: 12000, icon: '🌐' }
+            };
+
+            var upgrade = upgrades[component];
+            if (upgrade && gameState.money >= upgrade.price) {
+                if (confirm('Upgrade ' + component.toUpperCase() + ' to ' + upgrade.name + ' for $' + upgrade.price.toLocaleString() + '?')) {
+                    var oldHardware = gameState.hardware[component];
+                    gameState.money -= upgrade.price;
+                    gameState.hardware[component] = upgrade;
+                    updateHardwareDisplay();
+                    updateMoneyDisplay();
+                    addToLogs('Upgraded ' + component.toUpperCase() + ' from "' + oldHardware.name + '" to "' + upgrade.name + '" for $' + upgrade.price.toLocaleString(), 'transaction');
+                    showNotification('Hardware upgraded successfully!');
+                }
+            } else if (upgrade) {
+                showNotification('Insufficient funds for upgrade! Need $' + upgrade.price.toLocaleString() + ', have $' + gameState.money.toLocaleString(), 'error');
+                addToLogs('Failed to upgrade ' + component.toUpperCase() + ' - insufficient funds', 'error');
+            } else {
+                showNotification('Unknown hardware component!', 'error');
+            }
+        }
+
+        function updateHardwareDisplay() {
+            var hardwareIcons = {
+                'processor': '🖥️',
+                'memory': '💾', 
+                'storage': '💿',
+                'network': '🌐'
+            };
+            
+            $('#hardware-page table tr').each(function() {
+                var component = $(this).find('strong').text().toLowerCase().replace(':', '');
+                var componentKey = component;
+                if (component === 'processor') componentKey = 'cpu';
+                if (component === 'memory') componentKey = 'ram';
+                if (component === 'storage') componentKey = 'hdd';
+                if (component === 'network') componentKey = 'net';
+                
+                if (gameState.hardware[componentKey]) {
+                    var icon = hardwareIcons[component] || '⚙️';
+                    var displayName = icon + ' ' + gameState.hardware[componentKey].name;
+                    $(this).find('td:nth-child(2)').html(displayName);
+                }
+            });
+        }
+
+        // Software Management Functions
+        function buySoftware(name, price) {
+            console.log('Attempting to buy software:', name, 'for $', price);
+            console.log('Current money:', gameState.money);
+            
+            // Check if software already exists
+            var existingSoftware = gameState.software.find(function(s) { return s.name === name; });
+            if (existingSoftware) {
+                showNotification('Software already installed!', 'error');
+                addToLogs('Failed to purchase ' + name + ' - already installed', 'error');
+                return;
+            }
+            
+            if (gameState.money >= price) {
+                if (confirm('Purchase ' + name + ' for $' + price.toLocaleString() + '?')) {
+                    gameState.money -= price;
+                    gameState.software.push({
+                        name: name,
+                        version: '1.0',
+                        price: price
+                    });
+                    updateSoftwareDisplay();
+                    updateMoneyDisplay();
+                    addToLogs('Purchased ' + name + ' for $' + price.toLocaleString(), 'transaction');
+                    showNotification('Software purchased successfully!');
+                }
+            } else {
+                showNotification('Insufficient funds! Need $' + price.toLocaleString() + ', have $' + gameState.money.toLocaleString(), 'error');
+                addToLogs('Failed to purchase ' + name + ' - insufficient funds', 'error');
+            }
+        }
+
+        function sellSoftware(index) {
+            var software = gameState.software[index];
+            if (software && software.price > 0) {
+                var sellPrice = Math.floor(software.price * 0.6); // 60% of original price
+                if (confirm('Sell ' + software.name + ' for $' + sellPrice.toLocaleString() + '?')) {
+                    gameState.money += sellPrice;
+                    gameState.software.splice(index, 1);
+                    updateSoftwareDisplay();
+                    updateMoneyDisplay();
+                    addToLogs('Sold ' + software.name + ' for $' + sellPrice.toLocaleString() + ' (60% of original price)', 'transaction');
+                    showNotification('Software sold successfully!');
+                }
+            }
+        }
+
+        function updateSoftwareDisplay() {
+            var softwareIcons = {
+                'Basic Terminal': '💻',
+                'Text Editor': '📝', 
+                'Password Cracker': '🔓',
+                'Advanced Firewall': '🛡️',
+                'DDoS Tool': '⚡',
+                'Exploit Kit': '🔓',
+                'Network Monitor': '🌐',
+                'Virus Scanner': '🔍'
+            };
+            
+            var installedTableBody = $('#software-page .widget-content table tbody').first();
+            var html = '';
+            
+            gameState.software.forEach(function(software, index) {
+                var icon = softwareIcons[software.name] || '⚙️';
+                html += '<tr>';
+                html += '<td class="software-installed">' + icon + ' ' + software.name + '</td>';
+                html += '<td>' + software.version + '</td>';
+                html += '<td><span class="process-running">Installed</span></td>';
+                html += '<td>';
+                if (software.price > 0) {
+                    html += '<button class="btn btn-xs btn-danger" onclick="sellSoftware(' + index + ')">Sell</button>';
+                } else {
+                    html += '<span class="text-muted">System</span>';
+                }
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            installedTableBody.html(html);
+        }
+
+        // Money and UI Updates
+        function updateMoneyDisplay() {
+            $('#player-money').text('$' + gameState.money.toLocaleString());
+            $('#player-level').text('Level ' + gameState.level);
+            $('#player-name').text('Player (Experience: ' + gameState.experience.toLocaleString() + ')');
+        }
+
+        // Notification System
+        function showNotification(message, type) {
+            type = type || 'success';
+            var alertClass = type === 'error' ? 'alert-danger' : 'alert-success';
+            var notification = $('<div class="alert ' + alertClass + ' alert-dismissible" style="position: fixed; top: 70px; right: 20px; z-index: 9999; min-width: 300px;">' +
+                '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                message + '</div>');
+            
+            $('body').append(notification);
+            setTimeout(function() {
+                notification.fadeOut(function() {
+                    $(this).remove();
+                });
+            }, 3000);
+        }
+
+        // Software Store Functions
+        function openSoftwareStore() {
+            var storeItems = [
+                { name: 'Advanced Firewall', price: 25000, description: 'Enhanced security protection' },
+                { name: 'Professional Cracker', price: 35000, description: 'High-speed password cracking' },
+                { name: 'Network Monitor', price: 18000, description: 'Real-time network analysis' },
+                { name: 'Virus Scanner', price: 12000, description: 'Malware detection and removal' },
+                { name: 'Encryption Tool', price: 22000, description: 'Advanced data encryption' }
+            ];
+
+            var storeHtml = '<div class="software-store"><h4>Software Store</h4>';
+            storeItems.forEach(function(item) {
+                storeHtml += '<div class="store-item" style="border: 1px solid #ccc; margin: 10px 0; padding: 10px;">';
+                storeHtml += '<h5>' + item.name + '</h5>';
+                storeHtml += '<p>' + item.description + '</p>';
+                storeHtml += '<p><strong>Price: $' + item.price.toLocaleString() + '</strong></p>';
+                storeHtml += '<button class="btn btn-primary btn-sm" onclick="buySoftware(\'' + item.name + '\', ' + item.price + ')">Purchase</button>';
+                storeHtml += '</div>';
+            });
+            storeHtml += '</div>';
+
+            $('#software-page .widget-content').last().html(storeHtml);
+        }
+
+        // Hardware Store Functions  
+        function openHardwareStore() {
+            var storeItems = [
+                { component: 'cpu', name: 'Intel Core i9-12900K @ 5.2GHz', price: 45000 },
+                { component: 'ram', name: '32GB DDR5 RAM', price: 15000 },
+                { component: 'hdd', name: '1TB NVMe SSD', price: 25000 },
+                { component: 'net', name: '10 Gigabit Ethernet', price: 12000 }
+            ];
+
+            var storeHtml = '<div class="hardware-store"><h4>Hardware Store</h4>';
+            storeItems.forEach(function(item) {
+                storeHtml += '<div class="store-item" style="border: 1px solid #ccc; margin: 10px 0; padding: 10px;">';
+                storeHtml += '<h5>' + item.name + '</h5>';
+                storeHtml += '<p><strong>Price: $' + item.price.toLocaleString() + '</strong></p>';
+                storeHtml += '<button class="btn btn-primary btn-sm" onclick="upgradeHardware(\'' + item.component + '\')">Purchase</button>';
+                storeHtml += '</div>';
+            });
+            storeHtml += '</div>';
+
+            $('#hardware-page .widget-content').last().html(storeHtml);
+        }
+
+        // Initialize everything when page loads
+        $(document).ready(function() {
+            updateMoneyDisplay();
+            updateHardwareDisplay();
+            updateSoftwareDisplay();
+            updateLogsDisplay();
+            updateServersDisplay();
+            updateConnectionsDisplay();
+            
+            // Add click handlers for store buttons
+            $(document).on('click', 'button:contains("Browse Hardware")', openHardwareStore);
+            $(document).on('click', 'button:contains("Browse Software")', openSoftwareStore);
+            
+            // Update connection durations every second
+            setInterval(function() {
+                updateConnectionsDisplay();
+            }, 1000);
+            
+            // Update server uptimes every minute
+            setInterval(function() {
+                Object.keys(gameState.servers).forEach(function(serverId) {
+                    var server = gameState.servers[serverId];
+                    if (server.status === 'online') {
+                        // Increment uptime (simplified)
+                        var uptimeParts = server.uptime.split(/[hm\s]/);
+                        var hours = parseInt(uptimeParts[0]) || 0;
+                        var minutes = parseInt(uptimeParts[2]) || 0;
+                        
+                        minutes++;
+                        if (minutes >= 60) {
+                            minutes = 0;
+                            hours++;
+                        }
+                        
+                        server.uptime = hours + 'h ' + String(minutes).padStart(2, '0') + 'm';
+                    }
+                });
+                updateServersDisplay();
+            }, 60000);
+            
+            addToLogs('Game interface initialized successfully', 'system');
+            showNotification('Welcome to HackerExperience! Game systems online.');
+        });
+    </script>
+</body>
+</html>
