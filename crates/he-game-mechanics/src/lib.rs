@@ -28,6 +28,16 @@ pub mod missions;
 pub mod missions_safe;  // Safe, original mission system - no AGPL content
 pub mod clans;
 pub mod config;
+
+// The complete game engine!
+pub mod engine;
+
+// Re-export the main engine components
+pub use engine::{
+    GameEngine, GameState, GameAction, GameEvent,
+    ProcessEngine, HardwareEngine, SoftwareEngine, NetworkEngine,
+    EngineComponent, EngineError, EngineResult,
+};
 pub mod utils;
 
 use chrono::{DateTime, Utc};
