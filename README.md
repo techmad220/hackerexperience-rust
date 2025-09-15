@@ -1,134 +1,69 @@
-# HackerExperience - Complete Rust Port
+# HackerExperience Rust Implementation
 
-**A comprehensive 1:1 Rust port of the legendary HackerExperience game that EXCEEDS the original functionality by 250-300% while maintaining complete backward compatibility.**
+A Rust-based implementation inspired by the classic HackerExperience browser game, focusing on modern architecture and performance.
 
-🎉 **PROJECT STATUS: PRODUCTION READY WITH LEPTOS FRONTEND** 🎉
+## Current Status
 
-## 🆕 Latest Updates (September 2025)
-- ✅ **Interactive Leptos Frontend** - Modern reactive UI with WebAssembly
-- ✅ **Complete Hacking Simulation** - Real-time terminal interface
-- ✅ **Authentic GUI Components** - Original HackerExperience modal system
-- ✅ **WebSocket Integration** - Live updates and real-time gameplay
-- ✅ **Full API Coverage** - 319 AJAX endpoints fully operational
+This project is under active development. It represents a ground-up reimplementation using Rust, with modern web technologies and architectural patterns.
 
-## 🔥 **IMPLEMENTATION ACHIEVED**
+### What's Implemented
 
-### **Verified Against Original Repositories:**
-- **HackerExperience/legacy**: 6,991 files (2,294 PHP files) ✅
-- **HackerExperience/Helix**: 982 files (912 Elixir files) ✅
-- **Rust Implementation**: 384 files (165,788 lines) ✅
+#### Core Systems
+- **Player Management** - Basic player entities, authentication, and session handling
+- **Database Layer** - PostgreSQL integration with SQLx for type-safe queries
+- **REST API** - Partial implementation of game endpoints
+- **WebSocket Support** - Real-time communication infrastructure
+- **Actor System** - Message-passing concurrency for game processes
 
-### **Coverage Analysis - EXCEEDS 1:1 PARITY:**
-- **Player System**: **255% coverage** (79 methods vs original 31) 🚀
-- **AJAX Handlers**: **532% coverage** (319 handlers vs original 60) 🚀
-- **Game Mechanics**: **138% expansion** (8,999 lines of production code) 🚀
-- **GenServer Actors**: **Complete coverage** (6,026+ lines) ✅
+#### Game Mechanics (Partial)
+- **Process System** - Basic process scheduling and execution
+- **Hardware Components** - CPU, RAM, HDD management
+- **Software System** - Program installation and dependencies
+- **Network Topology** - Simple server connections
+- **Banking System** - Basic financial transactions
 
-## 📊 **COMPLETE IMPLEMENTATION STATUS**
+#### Frontend
+- **Leptos Framework** - Modern reactive UI with WebAssembly
+- **Terminal Interface** - Basic command-line simulation
+- **Modal System** - UI components for game interactions
 
-### ✅ **FULLY IMPLEMENTED SYSTEMS**
+### What's NOT Implemented Yet
 
-#### **1. Player Management System** - 2,091 lines
-```rust
-// Complete Player.class.php equivalent with 79 methods
-pub struct Player {
-    // 52+ public methods covering all functionality:
-    // - Authentication & session management
-    // - Money, bitcoin, and premium systems  
-    // - Clan membership and ranking
-    // - Mission progress and achievements
-    // - PvP attacks and hacking operations
-    // - Hardware and software management
-    // - Research and skill progression
-    // - Social features and messaging
-}
+- Complete mission system
+- Full hacking mechanics
+- Clan/corporation features
+- Research tree
+- Marketplace
+- PvP combat system
+- Many original game features
+
+## Technical Stack
+
+- **Backend**: Rust with Actix-Web
+- **Database**: PostgreSQL with SQLx
+- **Frontend**: Leptos (Rust/WASM)
+- **Real-time**: WebSockets via Actix
+- **Async Runtime**: Tokio
+
+## Project Structure
+
+```
+hackerexperience-rust/
+├── crates/
+│   ├── he-core/           # Core game types and entities
+│   ├── he-db/             # Database layer
+│   ├── he-api/            # REST API endpoints
+│   ├── he-game-mechanics/ # Game logic implementation
+│   ├── he-leptos-frontend/# Web UI
+│   └── he-*               # Various game subsystems
+├── migrations/            # Database schema
+└── scripts/              # Development utilities
 ```
 
-#### **2. AJAX API System** - 2,274 lines
-```rust
-// Complete ajax.php equivalent with 319 handlers
-// Covers ALL original 60 endpoints plus extensive additions:
-// - User registration and authentication
-// - Game process management
-// - Hardware/software operations
-// - Financial transactions
-// - Clan warfare and social features
-// - Admin panel operations
-// - Real-time game updates
-```
+## Getting Started
 
-#### **3. Complete Game Mechanics** - 8,999 lines
-```rust
-├── Defense System (618 lines)     → Firewall, IDS, security ratings
-├── Process Engine (1,055 lines)   → Scheduling, resources, execution  
-├── Hardware System (792 lines)    → Components, performance, failures
-├── Software System (896 lines)    → Dependencies, licensing, compatibility
-├── Network System (990 lines)     → Topology, routing, intrusion detection
-├── Mission System (1,144 lines)   → Objectives, rewards, prerequisites
-├── Clan System (1,035 lines)      → Warfare, alliances, contribution tracking
-└── Configuration (442 lines)      → Game balance and parameters
-```
+### Prerequisites
 
-#### **4. GenServer Actor System** - 6,026+ lines
-```rust
-// Complete Elixir/OTP equivalent with full message patterns
-├── ProcessActor (656 lines)       → handle_call, handle_cast, handle_info
-├── CacheActor (856 lines)         → Distributed caching with TTL
-├── StoryActor (956 lines)         → Dynamic progression system
-├── UniverseActor (996 lines)      → World state management
-├── LogActor (1,033 lines)         → Real-time log streaming
-├── BankActor (724 lines)          → Financial transactions
-├── ServerActor (505 lines)        → Hardware lifecycle
-├── NetworkActor (552 lines)       → Connection management
-└── Additional actors (1,748 lines) → Account, Software, Event systems
-```
-
-## 🏗️ **MODERN ARCHITECTURE IMPROVEMENTS**
-
-### **Performance Enhancements:**
-- **10-100x faster** than original PHP
-- **Memory-safe** zero-copy operations
-- **Concurrent processing** with async/await
-- **Real-time WebSocket** communication
-- **Distributed caching** system
-
-### **Safety & Security:**
-- **Type safety** prevents runtime errors
-- **Memory safety** eliminates vulnerabilities  
-- **SQL injection proof** with compile-time queries
-- **Comprehensive error handling**
-- **Audit trail** for all operations
-
-### **Developer Experience:**
-- **Hot code reloading** for development
-- **Comprehensive testing** with 95%+ coverage
-- **API documentation** with examples
-- **Docker containerization** for deployment
-- **Monitoring & observability** built-in
-
-## 🎮 **GAME FEATURES - ALL PRESERVED + ENHANCED**
-
-### **Core Mechanics (100% Parity):**
-- ✅ **Hacking System** - Complete process simulation
-- ✅ **Hardware Management** - Full component system
-- ✅ **Software Dependencies** - Complex installation chains
-- ✅ **Network Topology** - Internet simulation
-- ✅ **Financial System** - Banking and bitcoin
-- ✅ **Mission System** - Dynamic objectives
-- ✅ **Clan Warfare** - Complete PvP system
-- ✅ **Research Tree** - Skill progression
-
-### **Enhanced Features (Beyond Original):**
-- 🚀 **Real-time Updates** - WebSocket event streaming
-- 🚀 **Advanced Analytics** - Performance metrics
-- 🚀 **API-First Design** - REST + GraphQL endpoints
-- 🚀 **Mobile Ready** - Cross-platform support
-- 🚀 **Microservice Architecture** - Scalable deployment
-- 🚀 **Background Processing** - Efficient task scheduling
-
-## 🚀 **GETTING STARTED**
-
-### **Prerequisites:**
 ```bash
 # Install Rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -136,147 +71,77 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 # Install PostgreSQL
 sudo apt install postgresql postgresql-contrib
 
-# Install Docker (optional)
-sudo apt install docker.io docker-compose
+# Install Trunk (for frontend)
+cargo install trunk
 ```
 
-### **Quick Start:**
+### Setup
+
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/yourusername/hackerexperience-rust
 cd hackerexperience-rust
 
 # Setup database
-./scripts/setup-database.sh
+createdb hackerexperience
+export DATABASE_URL="postgresql://localhost/hackerexperience"
 
 # Run migrations
-cargo run --bin migrate
+sqlx migrate run
 
-# Start the game server
-cargo run --bin server
+# Build project
+cargo build --workspace
 
-# In a new terminal, start the Leptos frontend (optional)
+# Run backend server
+cargo run --bin he-api
+
+# In another terminal, run frontend
 cd crates/he-leptos-frontend
-trunk serve --open
+trunk serve
 ```
 
-### **Expected Output:**
-```
-🎯 HackerExperience Rust Server Starting...
+### Development
 
-✅ Database connected (PostgreSQL)
-✅ All 19 crates loaded successfully
-✅ 10 GenServer actors initialized
-✅ Game mechanics engine started
-✅ WebSocket server listening on :8080
-✅ REST API available at http://localhost:3000
-✅ GraphQL playground at http://localhost:3000/graphql
-
-🔥 Server ready! All 165,788 lines of code operational.
-
-📊 System Status:
-   - Player management: ✅ Ready (79 methods)
-   - AJAX handlers: ✅ Ready (319 endpoints)  
-   - Game mechanics: ✅ Ready (7 modules)
-   - Actor system: ✅ Ready (10 actors)
-   - Database: ✅ Connected (17 tables)
-
-🎮 Game server running at: http://localhost:3000
-```
-
-### **Development Mode:**
 ```bash
-# Hot reload development server
-cargo watch -x "run --bin server"
-
-# Run comprehensive tests
+# Run tests
 cargo test --workspace
 
-# Generate API documentation
-cargo doc --open --no-deps
+# Watch for changes
+cargo watch -x "run --bin he-api"
+
+# Check code
+cargo check --workspace
+cargo clippy --workspace
 ```
 
-## 🗂️ **PROJECT STRUCTURE**
+## Architecture Notes
 
-```
-hackerexperience-rust/
-├── 📁 crates/
-│   ├── 🎯 he-core/                 → Core game entities & types
-│   ├── 🗄️  he-db/                  → Database layer (SQLx + migrations)  
-│   ├── 🌐 he-api/                  → REST/GraphQL API endpoints
-│   ├── ⚡ he-realtime/             → WebSocket real-time engine
-│   ├── ⚙️  he-game-mechanics/       → Complete game logic (8,999 lines)
-│   ├── 👤 he-legacy-compat/        → Player & AJAX systems (4,365 lines)
-│   ├── 🎭 he-helix-process/        → Process actor system  
-│   ├── 🏦 he-helix-bank/           → Financial transaction system
-│   ├── 🖥️  he-helix-server/         → Hardware management system
-│   ├── 💾 he-helix-software/       → Software dependency system
-│   ├── 🌐 he-helix-network/        → Network topology system
-│   ├── 🗃️  he-helix-cache/          → Distributed caching system
-│   ├── 📖 he-helix-story/          → Mission & storyline system
-│   ├── 🌍 he-helix-universe/       → World state management
-│   ├── 📜 he-helix-log/            → Audit & logging system
-│   ├── 👥 he-helix-account/        → User account system
-│   ├── ⏰ he-cron/                 → Background job scheduler
-│   └── 🛠️  he-cli/                  → Admin command-line tools
-├── 📁 migrations/                  → Database schema (17 files)
-├── 📁 frontend/                    → Modern web interface
-├── 📁 docker/                      → Container deployment
-└── 📁 docs/                        → Complete documentation
-```
+This implementation takes a different approach from the original:
 
-## 🎯 **NEXT STEPS - OPEN CORE DEVELOPMENT**
+- **Actor-based concurrency** instead of traditional threading
+- **Type-safe SQL** queries compiled at build time
+- **WebAssembly frontend** for better performance
+- **Event-sourced** game state for consistency
+- **Microservice-ready** architecture
 
-### **Phase 1: Open Source Release**
-- [ ] **MIT License** application
-- [ ] **Community documentation** 
-- [ ] **Contributor guidelines**
-- [ ] **Issue templates** and roadmap
-- [ ] **CI/CD pipeline** setup
+## Contributing
 
-### **Phase 2: New Game Development**
-- [ ] **Modern UI/UX** design system
-- [ ] **Mobile companion** app
-- [ ] **Advanced AI** NPC systems  
-- [ ] **Blockchain integration** for rare items
-- [ ] **VR/AR support** for immersive hacking
+This is an educational project exploring game development with Rust. Contributions are welcome, but please note:
 
-### **Phase 3: Platform Scaling**
-- [ ] **Cloud deployment** (AWS/GCP)
-- [ ] **Global CDN** distribution
-- [ ] **Multi-region** database replication
-- [ ] **Load balancing** for millions of users
-- [ ] **Analytics dashboard** for game designers
+1. This is NOT a complete recreation of the original game
+2. Many features are simplified or reimagined
+3. Focus is on learning and experimentation with Rust
 
-## 🤝 **CONTRIBUTING**
+## Disclaimer
 
-We welcome contributions! The codebase is production-ready with:
-- **165,788 lines** of well-documented Rust code
-- **Comprehensive test suite** with CI/CD
-- **Modern development workflow**
-- **Clear architecture** with separated concerns
+This is an independent project inspired by HackerExperience. It is not affiliated with, endorsed by, or connected to the original game or its creators. This implementation is for educational purposes and explores modern web game architecture using Rust.
 
-### **Areas for Contribution:**
-- 🎨 **Frontend Development** - React/Vue.js interface
-- 🎮 **Game Design** - New mechanics and features
-- 🔧 **DevOps** - Deployment and infrastructure
-- 📖 **Documentation** - Guides and tutorials
-- 🧪 **Testing** - Quality assurance and automation
+## License
 
-## 📄 **LICENSE**
+MIT - See LICENSE file for details
 
-MIT License - Open source community revival of the legendary HackerExperience.
+## Acknowledgments
 
----
-
-## 🔥 **THE LEGEND CONTINUES**
-
-*"The original creator's vision, rebuilt with modern technology. This is how we bring HackerExperience back from the ashes!"*
-
-**Ready for production. Ready for the community. Ready for the next generation of hackers.** 🚀
-
----
-
-**⭐ Star this repository to support the open-source revival of HackerExperience!**
-
-**🎮 [Play Now](http://localhost:3000) | 📚 [Documentation](./docs) | 💬 [Community](https://github.com/discussions)**
+- Inspired by the original HackerExperience game concept
+- Built with the Rust community's excellent libraries and tools
+- Thanks to all contributors and testers
