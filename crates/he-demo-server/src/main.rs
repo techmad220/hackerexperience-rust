@@ -1,7 +1,7 @@
 use axum::{
-    extract::Query,
-    response::{Html, Json},
-    routing::{get},
+    extract::{Query, Path},
+    response::{Html, Json, Redirect},
+    routing::{get, post},
     Router,
     http::StatusCode,
 };
@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use std::collections::HashMap;
 use tokio::net::TcpListener;
-use tower::ServiceBuilder;
 use tower_http::services::ServeDir;
 
 /// Basic health check response
@@ -69,6 +68,19 @@ async fn game() -> Result<Html<String>, StatusCode> {
     Ok(Html(content))
 }
 
+/// Serve any HTML file from frontend directory
+async fn serve_html(Path(filename): Path<String>) -> Result<Html<String>, StatusCode> {
+    // Security: only allow .html files and prevent directory traversal
+    if !filename.ends_with(".html") || filename.contains("..") || filename.contains("/") {
+        return Err(StatusCode::NOT_FOUND);
+    }
+    
+    let file_path = format!("frontend/{}", filename);
+    let content = std::fs::read_to_string(&file_path)
+        .map_err(|_| StatusCode::NOT_FOUND)?;
+    Ok(Html(content))
+}
+
 /// User info endpoint
 async fn user_info(Query(params): Query<HashMap<String, String>>) -> Json<ApiResponse<UserInfo>> {
     let username = params.get("username").unwrap_or(&"anonymous".to_string()).clone();
@@ -105,14 +117,61 @@ async fn api_status() -> Json<ApiResponse<HashMap<String, serde_json::Value>>> {
     Json(ApiResponse::success(status, "HackerExperience Authentic Interface - Production Ready!"))
 }
 
+/// Logout handler - redirects to landing page  
+async fn logout() -> Redirect {
+    // In a real application, this would clear session data, cookies, etc.
+    // For this demo, we simply redirect to the landing page
+    Redirect::to("/")
+}
+
+/// Serve the Leptos frontend - Pure Rust HackerExperience Interface
+async fn leptos_frontend() -> Result<Html<String>, StatusCode> {
+    let leptos_html_path = "crates/he-leptos-frontend/index.html";
+    match std::fs::read_to_string(leptos_html_path) {
+        Ok(content) => Ok(Html(content)),
+        Err(_) => {
+            // Fallback with instructions
+            let fallback_html = r#"
+<!DOCTYPE html>
+<html>
+<head><title>Leptos Frontend - Pure Rust</title></head>
+<body style="background: #0a0a0a; color: #00ff00; font-family: monospace; padding: 20px;">
+    <h1>🦀 Pure Rust HackerExperience Frontend (Leptos)</h1>
+    <h2>🚧 Build Required</h2>
+    <p>The Leptos frontend needs to be built with Trunk. Run:</p>
+    <pre style="background: #111; padding: 10px; color: #0f0;">
+cd crates/he-leptos-frontend
+trunk build --release
+    </pre>
+    <p><strong>Features:</strong></p>
+    <ul>
+        <li>✅ Pure Rust compiled to WebAssembly</li>
+        <li>✅ No JavaScript dependencies</li>
+        <li>✅ Client-side routing with Leptos Router</li>
+        <li>✅ All tabs working with SPA navigation</li>
+        <li>✅ Complete NetHeist UI replica</li>
+    </ul>
+    <a href="/game.html" style="color: #00ff00;">← Back to Static Demo</a>
+</body>
+</html>
+            "#;
+            Ok(Html(fallback_html.to_string()))
+        }
+    }
+}
+
 /// Create the router
 fn create_app() -> Router {
     Router::new()
         .route("/", get(index))
         .route("/game.html", get(game))
+        .route("/leptos", get(leptos_frontend))
         .route("/health", get(health))
         .route("/api/user/info", get(user_info))
         .route("/api/status", get(api_status))
+        .route("/logout", get(logout))
+        .route("/auth/logout", post(logout))
+        .route("/:filename", get(serve_html))
         .nest_service("/css", ServeDir::new("frontend/css"))
         .nest_service("/js", ServeDir::new("frontend/js"))
         .nest_service("/images", ServeDir::new("frontend/images"))
@@ -122,6 +181,14 @@ fn create_app() -> Router {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Initialize tracing
     tracing_subscriber::fmt::init();
+    
+    // Get port from command line args or use default
+    let args: Vec<String> = std::env::args().collect();
+    let port = if args.len() > 1 {
+        args[1].parse::<u16>().unwrap_or(3000)
+    } else {
+        3000
+    };
     
     println!("🚀 HackerExperience - AUTHENTIC INTERFACE READY!");
     println!();
@@ -145,14 +212,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("   - All original game sections implemented");
     
     let app = create_app();
-    let listener = TcpListener::bind("127.0.0.1:3000").await?;
+    let addr = format!("127.0.0.1:{}", port);
+    let listener = TcpListener::bind(&addr).await?;
     
     println!();
     println!("🌟 HackerExperience Authentic Interface ONLINE!");
-    println!("📍 Landing Page: http://127.0.0.1:3000");
-    println!("🎮 Game Interface: http://127.0.0.1:3000/game.html");
-    println!("❤️  Health Check: http://127.0.0.1:3000/health"); 
-    println!("📊 API Status: http://127.0.0.1:3000/api/status");
+    println!("📍 Landing Page: http://127.0.0.1:{}", port);
+    println!("🎮 Game Interface: http://127.0.0.1:{}/he_game.html", port);
+    println!("❤️  Health Check: http://127.0.0.1:{}/health", port); 
+    println!("📊 API Status: http://127.0.0.1:{}/api/status", port);
     println!();
     println!("🎉 SUCCESS: Pixel-perfect HackerExperience replica ready!");
     println!("👉 Visit the landing page to see the authentic terminal animation");

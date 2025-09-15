@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="/css/he-matrix.css" />
     <style>
         body {
-            padding-top: 92px;
             background: #0a0a0a;
             color: #c0c0c0;
             font-family: 'Courier New', monospace;
@@ -17,11 +16,6 @@
         
         /* Header */
         #header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
             background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
             border-bottom: 1px solid #00ff00;
             padding: 10px 20px;
@@ -40,11 +34,6 @@
         
         /* User nav bar */
         #user-nav {
-            position: fixed;
-            top: 51px;
-            left: 0;
-            right: 0;
-            z-index: 999;
             background: #1a1a1a;
             border-bottom: 1px solid #333;
             padding: 0;
@@ -91,7 +80,6 @@
         
         /* Sidebar */
         #sidebar {
-            z-index: 998;
             position: fixed;
             left: 0;
             top: 92px;
@@ -405,17 +393,17 @@
     
     <div id="sidebar">
         <ul>
-            <li class="active"><a href="index.html"><i class="fa fa-home"></i> <span>Home</span></a></li>
+            <li class="active"><a href="index"><i class="fa fa-home"></i> <span>Home</span></a></li>
             <li><a href="task_manager.html"><i class="fa fa-tasks"></i> <span>Task Manager</span></a></li>
-            <li id="menu-software"><a href="software.html"><i class="fa fa-folder-open"></i> <span>Software</span></a></li>
-            <li id="menu-internet"><a href="internet.html"><i class="fa fa-globe"></i> <span>Internet</span></a></li>
-            <li><a href="log.html"><i class="fa fa-book"></i> <span>Log File</span></a></li>
-            <li><a href="hardware.html"><i class="fa fa-desktop"></i> <span>Hardware</span></a></li>
-            <li><a href="university.html"><i class="fa fa-flask"></i> <span>University</span></a></li>
-            <li><a href="finances.html"><i class="fa fa-briefcase"></i> <span>Finances</span></a></li>
-            <li><a href="hacked_database.html"><i class="fa fa-terminal"></i> <span>Hacked Database</span></a></li>
-            <li id="menu-mission"><a href="missions.html"><i class="fa fa-building"></i> <span>Missions</span></a></li>
-            <li><a href="utilities.html"><i class="fa fa-cogs"></i> <span>Utilities</span></a></li>
+            <li id="menu-software"><a href="software"><i class="fa fa-folder-open"></i> <span>Software</span></a></li>
+            <li id="menu-internet"><a href="internet"><i class="fa fa-globe"></i> <span>Internet</span></a></li>
+            <li><a href="log"><i class="fa fa-book"></i> <span>Log File</span></a></li>
+            <li><a href="hardware"><i class="fa fa-desktop"></i> <span>Hardware</span></a></li>
+            <li><a href="university"><i class="fa fa-flask"></i> <span>University</span></a></li>
+            <li><a href="finances"><i class="fa fa-briefcase"></i> <span>Finances</span></a></li>
+            <li><a href="list"><i class="fa fa-terminal"></i> <span>Hacked Database</span></a></li>
+            <li id="menu-mission"><a href="missions"><i class="fa fa-building"></i> <span>Missions</span></a></li>
+            <li><a href="utilities"><i class="fa fa-cogs"></i> <span>Utilities</span></a></li>
             <li><a href="clan.html"><i class="fa fa-users"></i> <span>Clan</span></a></li>
             <li><a href="ranking.html"><i class="fa fa-bars"></i> <span>Ranking</span></a></li>
             <li><a href="fame.html"><i class="fa fa-star"></i> <span>Hall of Fame</span></a></li>
@@ -471,7 +459,7 @@
                             <!-- Hardware Information -->
                             <div class="widget-box">
                                 <div class="widget-title">
-                                    <a href="hardware.html"><span class="icon">🖥️</span></a>
+                                    <a href="hardware"><span class="icon">🖥️</span></a>
                                     <h5>Hardware Information</h5>
                                 </div>
                                 <div class="widget-content nopadding border">
@@ -529,7 +517,7 @@
                                             <tr>
                                                 <td><span class="heicon">📊</span></td>
                                                 <td><span class="item">Running tasks</span></td>
-                                                <td><a class="black" href="task_manager.html">0</a></td>
+                                                <td><a class="black" href="processes">0</a></td>
                                             </tr>
                                             <tr>
                                                 <td><span class="heicon">🌍</span></td>

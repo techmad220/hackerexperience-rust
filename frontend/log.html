@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Log File - NetHeist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/he-matrix.css" />
+    <style>
+        body {
+            padding-top: 92px;
+            background: #0a0a0a;
+            color: #c0c0c0;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin: 0;
+        }
+        
+        /* Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+        }
+        
+        #header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        #header h1 a {
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            text-decoration: none;
+        }
+        
+        /* User nav bar */
+        #user-nav {
+            position: fixed;
+            top: 51px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 0;
+        }
+        
+        #user-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        
+        #user-nav li {
+            border-right: 1px solid #333;
+        }
+        
+        #user-nav .btn {
+            display: block;
+            padding: 8px 15px;
+            color: #888;
+            text-decoration: none;
+            background: transparent;
+            border: none;
+            font-size: 11px;
+        }
+        
+        #user-nav .btn:hover {
+            background: #222;
+            color: #00ff00;
+        }
+        
+        /* Sidebar */
+        #sidebar {
+            z-index: 998;
+            position: fixed;
+            left: 0;
+            top: 92px;
+            width: 200px;
+            background: linear-gradient(to right, #1a1a1a, #222222);
+            border-right: 1px solid #00ff00;
+            height: calc(100vh - 92px);
+            overflow-y: auto;
+        }
+        
+        #sidebar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #sidebar li {
+            border-bottom: 1px solid #0a0a0a;
+        }
+        
+        #sidebar a {
+            display: block;
+            padding: 10px 15px;
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        
+        #sidebar li.active a,
+        #sidebar a:hover {
+            background: #0a0a0a;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            border-left: 3px solid #00ff00;
+        }
+        
+        /* Content */
+        #content {
+            margin-left: 200px;
+            padding: 0;
+        }
+        
+        #content-header {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+            position: relative;
+        }
+        
+        #content-header h1 {
+            margin: 0;
+            font-size: 14px;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            display: inline-block;
+        }
+        
+        .header-ip {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+        
+        .header-ip-show {
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 14px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Breadcrumb */
+        #breadcrumb {
+            background: #0a0a0a;
+            border-bottom: 1px solid #333;
+            padding: 5px 20px;
+            font-size: 11px;
+        }
+        
+        #breadcrumb a {
+            color: #888;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        
+        #breadcrumb a:hover {
+            color: #00ff00;
+        }
+        
+        #breadcrumb .current {
+            color: #00ff00;
+        }
+        
+        /* Container */
+        .container-fluid {
+            padding: 20px;
+        }
+        
+        .span12 {
+            width: 100%;
+        }
+        
+        /* Widget boxes */
+        .widget-box {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+        }
+        
+        .widget-title {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 0;
+        }
+        
+        /* Nav tabs */
+        .nav-tabs {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            border-bottom: none;
+        }
+        
+        .nav-tabs li {
+            margin-right: 10px;
+        }
+        
+        .nav-tabs a {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-bottom: none;
+            color: #888 !important;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        
+        .nav-tabs li.active a {
+            background: #1a1a1a;
+            border-color: #00ff00;
+            color: #00ff00 !important;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .widget-content {
+            padding: 20px;
+            background: #0a0a0a;
+        }
+        
+        /* Log textarea */
+        .logarea {
+            width: 100%;
+            background: #000;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            resize: vertical;
+            min-height: 300px;
+        }
+        
+        .logarea:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        /* Button */
+        .btn-inverse {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 6px 15px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+        
+        .btn-inverse:hover {
+            background: linear-gradient(to bottom, #333, #222);
+            text-shadow: 0 0 3px #00ff00;
+        }
+        
+        /* Label */
+        .label {
+            background: #333;
+            color: #888;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 2px;
+            margin-left: 10px;
+        }
+        
+        .label-info {
+            background: #333 !important;
+            color: #00ff00 !important;
+        }
+        
+        .center {
+            text-align: center;
+        }
+        
+        .icon-tab {
+            margin-right: 5px;
+        }
+        
+        form.log {
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="page-log">
+    <div id="header">
+        <h1><a href="#">NetHeist</a></h1>
+    </div>
+    
+    <div id="user-nav">
+        <ul>
+            <li class="btn"><a href="profile.html"><i class="fa fa-user"></i> <span class="text">Techmad</span></a></li>
+            <li class="btn"><a href="mail.html"><i class="fa fa-envelope"></i> <span class="text">E-Mail</span></a></li>
+            <li class="btn"><a href="settings.html"><i class="fa fa-wrench"></i> <span class="text">Settings</span></a></li>
+            <li class="btn"><a href="logout"><i class="fa fa-power-off"></i> <span class="text">Logout</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="sidebar">
+        <ul>
+            <li><a href="index.html"><i class="fa fa-home"></i> <span>Home</span></a></li>
+            <li><a href="task_manager.html"><i class="fa fa-tasks"></i> <span>Task Manager</span></a></li>
+            <li><a href="software.html"><i class="fa fa-folder-open"></i> <span>Software</span></a></li>
+            <li><a href="internet.html"><i class="fa fa-globe"></i> <span>Internet</span></a></li>
+            <li class="active"><a href="log.html"><i class="fa fa-book"></i> <span>Log File</span></a></li>
+            <li><a href="hardware.html"><i class="fa fa-desktop"></i> <span>Hardware</span></a></li>
+            <li><a href="university.html"><i class="fa fa-flask"></i> <span>University</span></a></li>
+            <li><a href="finances.html"><i class="fa fa-briefcase"></i> <span>Finances</span></a></li>
+            <li><a href="hacked_database.html"><i class="fa fa-terminal"></i> <span>Hacked Database</span></a></li>
+            <li><a href="missions.html"><i class="fa fa-building"></i> <span>Missions</span></a></li>
+            <li><a href="utilities.html"><i class="fa fa-cogs"></i> <span>Utilities</span></a></li>
+            <li><a href="clan.html"><i class="fa fa-users"></i> <span>Clan</span></a></li>
+            <li><a href="ranking.html"><i class="fa fa-bars"></i> <span>Ranking</span></a></li>
+            <li><a href="fame.html"><i class="fa fa-star"></i> <span>Hall of Fame</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="content">
+        <div id="content-header">
+            <h1>Log File</h1>
+            <div class="header-ip">
+                <div style="text-align: right;">
+                    <span class="header-ip-show">59.35.236.56</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="breadcrumb">
+            <a href="index.html"><i class="fa fa-home"></i> Home</a>
+            <a href="log.html" class="current">Log File</a>
+        </div>
+        
+        <div class="container-fluid">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <ul class="nav-tabs">
+                        <li class="active"><a href="log.html"><span class="icon-tab">📜</span>Log file</a></li>
+                        <a href="#" target="_blank"><span class="label label-info">Help</span></a>
+                    </ul>
+                </div>
+                <div class="widget-content center">
+                    <form action="#" method="POST" class="log">
+                        <textarea class="logarea" rows="15" name="log" spellcheck="false">2025-09-14 11:12 - localhost logged in
+2025-09-14 11:15 - localhost installed Firewall 1.0
+2025-09-14 11:18 - localhost accessed 1.2.3.4
+2025-09-14 11:20 - localhost downloaded Cracker 1.0 from 254.25.57.137
+2025-09-14 11:25 - localhost installed Cracker 1.0
+2025-09-14 11:28 - localhost accessed 147.199.198.164
+2025-09-14 11:30 - Puzzle server accessed localhost
+2025-09-14 11:32 - localhost solved puzzle #1
+2025-09-14 11:35 - localhost received $100 reward
+2025-09-14 11:40 - localhost upgraded CPU to 1.0 GHz
+2025-09-14 11:45 - localhost accessed 208.31.244.177
+2025-09-14 11:48 - Bank system verified account
+2025-09-14 11:50 - localhost created bank account #48291
+2025-09-14 11:55 - localhost transferred $50 to account #48291
+2025-09-14 12:00 - System backup completed
+</textarea>
+                        <br/>
+                        <input class="btn-inverse" type="submit" value="Edit log file">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Add timestamp on new lines
+        document.querySelector('.logarea').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const now = new Date();
+                const timestamp = now.toISOString().slice(0, 16).replace('T', ' ');
+                const cursorPos = this.selectionStart;
+                const textBefore = this.value.substring(0, cursorPos);
+                const textAfter = this.value.substring(cursorPos);
+                this.value = textBefore + '\n' + timestamp + ' - ' + textAfter;
+                e.preventDefault();
+                this.selectionStart = this.selectionEnd = cursorPos + timestamp.length + 5;
+            }
+        });
+    </script>
+</body>
+</html>
