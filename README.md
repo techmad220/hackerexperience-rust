@@ -1,147 +1,81 @@
-# HackerExperience Rust Implementation
+# hackerexperience-rust
 
-A Rust-based implementation inspired by the classic HackerExperience browser game, focusing on modern architecture and performance.
+An attempt to recreate some aspects of HackerExperience in Rust.
 
-## Current Status
+## What This Actually Is
 
-This project is under active development. It represents a ground-up reimplementation using Rust, with modern web technologies and architectural patterns.
+This is a learning project with ~78,000 lines of Rust code across 258 files. It contains:
 
-### What's Implemented
+- 20 separate crates with various incomplete implementations
+- Database schemas and migrations
+- Some API endpoints that don't do much
+- A Leptos frontend that barely works
+- Lots of boilerplate and scaffolding
 
-#### Core Systems
-- **Player Management** - Basic player entities, authentication, and session handling
-- **Database Layer** - PostgreSQL integration with SQLx for type-safe queries
-- **REST API** - Partial implementation of game endpoints
-- **WebSocket Support** - Real-time communication infrastructure
-- **Actor System** - Message-passing concurrency for game processes
+## Reality Check
 
-#### Game Mechanics (Partial)
-- **Process System** - Basic process scheduling and execution
-- **Hardware Components** - CPU, RAM, HDD management
-- **Software System** - Program installation and dependencies
-- **Network Topology** - Simple server connections
-- **Banking System** - Basic financial transactions
+Despite what previous commits may claim:
+- This is NOT a complete port of HackerExperience
+- It does NOT have "100% parity" with anything
+- Most of the code is just structure without real functionality
+- The game mechanics are mostly stubbed out
+- It won't run as a playable game
 
-#### Frontend
-- **Leptos Framework** - Modern reactive UI with WebAssembly
-- **Terminal Interface** - Basic command-line simulation
-- **Modal System** - UI components for game interactions
+## What Actually Works
 
-### What's NOT Implemented Yet
-
-- Complete mission system
-- Full hacking mechanics
-- Clan/corporation features
-- Research tree
-- Marketplace
-- PvP combat system
-- Many original game features
-
-## Technical Stack
-
-- **Backend**: Rust with Actix-Web
-- **Database**: PostgreSQL with SQLx
-- **Frontend**: Leptos (Rust/WASM)
-- **Real-time**: WebSockets via Actix
-- **Async Runtime**: Tokio
+Very little. You might be able to:
+- Compile the project (if dependencies cooperate)
+- Run a basic server that serves some endpoints
+- See a basic frontend if you squint
 
 ## Project Structure
 
 ```
-hackerexperience-rust/
-├── crates/
-│   ├── he-core/           # Core game types and entities
-│   ├── he-db/             # Database layer
-│   ├── he-api/            # REST API endpoints
-│   ├── he-game-mechanics/ # Game logic implementation
-│   ├── he-leptos-frontend/# Web UI
-│   └── he-*               # Various game subsystems
-├── migrations/            # Database schema
-└── scripts/              # Development utilities
+crates/
+├── he-core/              # Basic types
+├── he-db/                # Database stuff
+├── he-api/               # Some API routes
+├── he-game-mechanics/    # Mostly empty game logic
+├── he-legacy-compat/     # Attempts at compatibility
+├── he-leptos-frontend/   # Basic web UI
+└── [14 other crates]     # Various incomplete pieces
 ```
 
-## Getting Started
+## Don't Bother Running This
 
-### Prerequisites
-
-```bash
-# Install Rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-# Install PostgreSQL
-sudo apt install postgresql postgresql-contrib
-
-# Install Trunk (for frontend)
-cargo install trunk
-```
-
-### Setup
+But if you insist:
 
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/hackerexperience-rust
-cd hackerexperience-rust
-
-# Setup database
-createdb hackerexperience
-export DATABASE_URL="postgresql://localhost/hackerexperience"
-
-# Run migrations
-sqlx migrate run
-
-# Build project
+# You'll need Rust and PostgreSQL
 cargo build --workspace
 
-# Run backend server
-cargo run --bin he-api
+# Set up a database somehow
+export DATABASE_URL="postgresql://localhost/whatever"
 
-# In another terminal, run frontend
-cd crates/he-leptos-frontend
-trunk serve
+# Try to run something
+cargo run --bin he-api  # Might start a server
 ```
 
-### Development
+## What's Missing
 
-```bash
-# Run tests
-cargo test --workspace
-
-# Watch for changes
-cargo watch -x "run --bin he-api"
-
-# Check code
-cargo check --workspace
-cargo clippy --workspace
-```
-
-## Architecture Notes
-
-This implementation takes a different approach from the original:
-
-- **Actor-based concurrency** instead of traditional threading
-- **Type-safe SQL** queries compiled at build time
-- **WebAssembly frontend** for better performance
-- **Event-sourced** game state for consistency
-- **Microservice-ready** architecture
+Almost everything:
+- Actual game mechanics
+- Working hacking system
+- Missions
+- Multiplayer
+- Banking
+- Clans
+- Research
+- Any form of fun
 
 ## Contributing
 
-This is an educational project exploring game development with Rust. Contributions are welcome, but please note:
-
-1. This is NOT a complete recreation of the original game
-2. Many features are simplified or reimagined
-3. Focus is on learning and experimentation with Rust
-
-## Disclaimer
-
-This is an independent project inspired by HackerExperience. It is not affiliated with, endorsed by, or connected to the original game or its creators. This implementation is for educational purposes and explores modern web game architecture using Rust.
+This is a learning mess. Fork it if you want, but you're probably better off starting fresh.
 
 ## License
 
-MIT - See LICENSE file for details
+MIT - Take it, it's not worth much.
 
-## Acknowledgments
+## Note
 
-- Inspired by the original HackerExperience game concept
-- Built with the Rust community's excellent libraries and tools
-- Thanks to all contributors and testers
+This was an educational exercise in Rust. The inflated claims in the git history were misguided. This is nowhere near a working game.
