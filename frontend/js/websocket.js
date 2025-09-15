@@ -471,10 +471,14 @@ class WebSocketManager {
 // Create global instance
 window.WebSocketManager = new WebSocketManager();
 
-// Auto-connect when page loads
+// Auto-connect when page loads if authenticated
 document.addEventListener('DOMContentLoaded', () => {
     // Delay connection to allow game to initialize first
     setTimeout(() => {
-        window.WebSocketManager.connect();
+        if (window.API && window.API.isAuthenticated()) {
+            window.WebSocketManager.connect();
+        } else {
+            console.log('Not connecting WebSocket - user not authenticated');
+        }
     }, 1000);
 });

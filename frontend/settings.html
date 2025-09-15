@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Settings - NetHeist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/he-matrix.css" />
+    <style>
+        body {
+            padding-top: 92px;
+            background: #0a0a0a;
+            color: #c0c0c0;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin: 0;
+        }
+        
+        /* Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+        }
+        
+        #header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        #header h1 a {
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            text-decoration: none;
+        }
+        
+        /* User nav bar */
+        #user-nav {
+            position: fixed;
+            top: 51px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 0;
+        }
+        
+        #user-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        
+        #user-nav li {
+            border-right: 1px solid #333;
+        }
+        
+        #user-nav .btn {
+            display: block;
+            padding: 8px 15px;
+            color: #888;
+            text-decoration: none;
+            background: transparent;
+            border: none;
+            font-size: 11px;
+        }
+        
+        #user-nav .btn:hover {
+            background: #222;
+            color: #00ff00;
+        }
+        
+        /* Sidebar */
+        #sidebar {
+            z-index: 998;
+            position: fixed;
+            left: 0;
+            top: 92px;
+            width: 200px;
+            background: linear-gradient(to right, #1a1a1a, #222222);
+            border-right: 1px solid #00ff00;
+            height: calc(100vh - 92px);
+            overflow-y: auto;
+        }
+        
+        #sidebar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #sidebar li {
+            border-bottom: 1px solid #0a0a0a;
+        }
+        
+        #sidebar a {
+            display: block;
+            padding: 10px 15px;
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        
+        #sidebar li.active a,
+        #sidebar a:hover {
+            background: #0a0a0a;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            border-left: 3px solid #00ff00;
+        }
+        
+        /* Content */
+        #content {
+            margin-left: 200px;
+            padding: 0;
+        }
+        
+        #content-header {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+            position: relative;
+        }
+        
+        #content-header h1 {
+            margin: 0;
+            font-size: 14px;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            display: inline-block;
+        }
+        
+        .header-ip {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+        
+        .header-ip-show {
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 14px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .header-info {
+            font-size: 10px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .header-info .small {
+            color: #888;
+        }
+        
+        .header-info .green {
+            color: #00ff00;
+        }
+        
+        /* Breadcrumb */
+        #breadcrumb {
+            background: #0a0a0a;
+            border-bottom: 1px solid #333;
+            padding: 5px 20px;
+            font-size: 11px;
+        }
+        
+        #breadcrumb a {
+            color: #888;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        
+        #breadcrumb a:hover {
+            color: #00ff00;
+        }
+        
+        #breadcrumb .current {
+            color: #00ff00;
+        }
+        
+        /* Container */
+        .container-fluid {
+            padding: 20px;
+        }
+        
+        .row-fluid {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .span12 {
+            width: 100%;
+        }
+        
+        .span6 {
+            width: 48%;
+        }
+        
+        /* Widget boxes */
+        .widget-box {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+        }
+        
+        .widget-title {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 0;
+            position: relative;
+        }
+        
+        .widget-title h5 {
+            margin: 0;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #00ff00;
+            text-shadow: 0 0 3px #00ff00;
+            display: inline-block;
+        }
+        
+        .widget-content {
+            padding: 15px;
+            background: #0a0a0a;
+        }
+        
+        .widget-content.padding {
+            padding: 15px;
+        }
+        
+        .widget-content.noborder {
+            border: none;
+        }
+        
+        .widget-content.nopadding {
+            padding: 0;
+        }
+        
+        /* Nav tabs */
+        .nav-tabs {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            border-bottom: none;
+        }
+        
+        .nav-tabs li {
+            margin-right: 10px;
+        }
+        
+        .nav-tabs a {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-bottom: none;
+            color: #888 !important;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        
+        .nav-tabs li.active a {
+            background: #1a1a1a;
+            border-color: #00ff00;
+            color: #00ff00 !important;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Forms */
+        .form-horizontal {
+            margin: 0;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-label {
+            display: block;
+            color: #888;
+            margin-bottom: 5px;
+            font-size: 11px;
+        }
+        
+        .controls {
+            margin: 0;
+        }
+        
+        .controls input[type="password"],
+        .controls input[type="text"],
+        .controls select {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #c0c0c0;
+            padding: 6px 8px;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+            width: 250px;
+        }
+        
+        .controls input:focus,
+        .controls select:focus {
+            border-color: #00ff00;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+        }
+        
+        .controls select option {
+            background: #1a1a1a;
+            color: #c0c0c0;
+        }
+        
+        /* Buttons */
+        .btn {
+            background: #333;
+            border: 1px solid #555;
+            color: #c0c0c0;
+            padding: 8px 15px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-right: 10px;
+            text-decoration: none;
+            display: inline-block;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .btn:hover {
+            background: #444;
+            color: #00ff00;
+        }
+        
+        .btn-primary {
+            background: #1a5a1a;
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+        
+        .btn-primary:hover {
+            background: #2a6a2a;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        
+        .btn-danger {
+            background: #5a1a1a;
+            border-color: #ff3333;
+            color: #ff3333;
+        }
+        
+        .btn-danger:hover {
+            background: #6a2a2a;
+            box-shadow: 0 0 5px #ff3333;
+        }
+        
+        .form-actions {
+            border-top: 1px solid #333;
+            padding: 15px;
+            margin: 0;
+            background: #0a0a0a;
+        }
+        
+        /* Labels */
+        .label {
+            background: #333;
+            color: #888;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 2px;
+            margin-left: 10px;
+        }
+        
+        .label:hover {
+            background: #00ff00;
+            color: #000;
+        }
+        
+        .label-info {
+            background: #333 !important;
+            color: #00ff00 !important;
+        }
+        
+        /* Icons */
+        .icon {
+            margin-right: 5px;
+            color: #00ff00;
+        }
+        
+        .he16-settings::before { content: "⚙️"; margin-right: 5px; }
+        .he16-clan::before { content: "👥"; margin-right: 5px; }
+        .he16-chg_lang::before { content: "🌐"; margin-right: 5px; }
+        .he16-change_pwd::before { content: "🔒"; margin-right: 5px; }
+        .he16-premium::before { content: "💎"; margin-right: 5px; }
+        .he16-del_acc::before { content: "🗑️"; margin-right: 5px; }
+        .he16-time::before { content: "🕒"; margin-right: 3px; }
+        .he16-online::before { content: "🟢"; margin-right: 3px; }
+        
+        /* Hide phone elements on desktop */
+        .hide-phone {
+            display: inline;
+        }
+        
+        .visible-phone {
+            display: none;
+        }
+        
+        /* Footer breadcrumb */
+        .center {
+            text-align: center;
+        }
+        
+        #breadcrumb.center {
+            background: #0a0a0a;
+            border-top: 1px solid #333;
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 10px;
+        }
+        
+        #breadcrumb.center a {
+            color: #888;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        #breadcrumb.center a:hover {
+            color: #00ff00;
+        }
+        
+        .pull-left {
+            float: left;
+        }
+        
+        .pull-right {
+            float: right;
+        }
+        
+        /* Clear fix */
+        .center:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        /* Special link styling */
+        .widget-content a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        
+        .widget-content a:hover {
+            text-shadow: 0 0 5px #00ff00;
+        }
+    </style>
+</head>
+<body class="settings">
+    <div id="header">
+        <h1><a href="#">NetHeist</a></h1>
+    </div>
+    
+    <div id="user-nav">
+        <ul>
+            <li class="btn"><a href="profile.html"><i class="fa fa-user"></i> <span class="text">Techmad</span></a></li>
+            <li class="btn"><a href="mail.html"><i class="fa fa-envelope"></i> <span class="text">E-Mail</span></a></li>
+            <li class="btn"><a href="settings.html"><i class="fa fa-wrench"></i> <span class="text">Settings</span></a></li>
+            <li class="btn"><a href="logout"><i class="fa fa-power-off"></i> <span class="text">Logout</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="sidebar">
+        <ul>
+            <li><a href="index.html"><i class="fa fa-home"></i> <span>Home</span></a></li>
+            <li><a href="task_manager.html"><i class="fa fa-tasks"></i> <span>Task Manager</span></a></li>
+            <li><a href="software.html"><i class="fa fa-folder-open"></i> <span>Software</span></a></li>
+            <li><a href="internet.html"><i class="fa fa-globe"></i> <span>Internet</span></a></li>
+            <li><a href="log.html"><i class="fa fa-book"></i> <span>Log File</span></a></li>
+            <li><a href="hardware.html"><i class="fa fa-desktop"></i> <span>Hardware</span></a></li>
+            <li><a href="university.html"><i class="fa fa-flask"></i> <span>University</span></a></li>
+            <li><a href="finances.html"><i class="fa fa-briefcase"></i> <span>Finances</span></a></li>
+            <li><a href="hacked_database.html"><i class="fa fa-terminal"></i> <span>Hacked Database</span></a></li>
+            <li><a href="missions.html"><i class="fa fa-building"></i> <span>Missions</span></a></li>
+            <li><a href="utilities.html"><i class="fa fa-cogs"></i> <span>Utilities</span></a></li>
+            <li><a href="clan.html"><i class="fa fa-users"></i> <span>Clan</span></a></li>
+            <li><a href="ranking.html"><i class="fa fa-bars"></i> <span>Ranking</span></a></li>
+            <li><a href="fame.html"><i class="fa fa-star"></i> <span>Hall of Fame</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="content">
+        <div id="content-header">
+            <h1>Settings</h1>
+            <div class="header-ip hide-phone">
+                <div style="text-align: right;">
+                    <span class="header-ip-show">59.35.236.56</span>
+                </div>
+                <div class="header-info">
+                    <div class="pull-right">
+                        <span class="icon-tab he16-time" title="Server Time"></span> <span class="small nomargin" style="margin-right: 7px;">2025-09-14 14:10</span>
+                        <span class="online"><span class="he16-online" title="Online Players"></span> <span class="small nomargin">29</span></span>
+                        <div class="reputation-info" style="display: inline-block;">
+                            <span class="small nomargin item" title="Reputation">1</span>
+                            <span class="small nomargin" title="Ranking">(#128)</span>
+                        </div>
+                        <div class="finance-info" style="display: inline-block; margin-left: 10px;">
+                            <span class="small nomargin green header-finances" title="Finances">$500</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="breadcrumb">
+            <a href="index.html" title="Go to Home"><i class="fa fa-home"></i> Home</a>
+            <a href="settings.html" class="current">Settings</a>
+        </div>
+        
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <ul class="nav-tabs">
+                                <li class="link active"><a href="settings.html?view=settings"><span class="icon-tab he16-settings"></span>My settings</a></li>
+                                <li class="link"><a href="settings.html?view=referrals"><span class="icon-tab he16-clan"></span>My referrals</a></li>
+                                <a href="#"><span class="label label-info">Help</span></a>
+                            </ul>
+                        </div>
+                        
+                        <div class="widget-content padding noborder">
+                            <div class="span6">
+                                <div class="widget-box">
+                                    <div class="widget-title">
+                                        <span class="icon"><span class="he16-chg_lang"></span></span>
+                                        <h5>Change language</h5>
+                                    </div>
+                                    <div class="widget-content nopadding">
+                                        <form action="" method="POST" class="form-horizontal">
+                                            <div class="widget-content" style="padding: 15px;">
+                                                <div class="control-group">
+                                                    <label class="control-label">Set Language</label>
+                                                    <div class="controls">
+                                                        <select id="select-lang" name="lang" style="width: 300px;">
+                                                            <option value="en" selected>English</option>
+                                                            <option value="pt">Português</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-actions">
+                                                <button type="submit" class="btn btn-primary">Change</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                
+                                <div class="widget-box">
+                                    <div class="widget-title">
+                                        <span class="icon"><span class="he16-change_pwd"></span></span>
+                                        <h5>Change password</h5>
+                                    </div>
+                                    <div class="widget-content nopadding">
+                                        <form action="" method="POST" class="form-horizontal">
+                                            <div class="widget-content" style="padding: 15px;">
+                                                <div class="control-group">
+                                                    <label class="control-label">Current password</label>
+                                                    <div class="controls">
+                                                        <input name="old" type="password" />
+                                                    </div>
+                                                </div>
+                                                <div class="control-group">
+                                                    <label class="control-label">New password</label>
+                                                    <div class="controls">
+                                                        <input name="new1" type="password" />
+                                                    </div>
+                                                </div>
+                                                <div class="control-group">
+                                                    <label class="control-label">Confirm new password</label>
+                                                    <div class="controls">
+                                                        <input name="new2" type="password" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-actions">
+                                                <button type="submit" class="btn btn-primary">Change</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="span6">
+                                <div class="widget-box">
+                                    <div class="widget-title">
+                                        <span class="icon"><span class="he16-premium"></span></span>
+                                        <h5>Buy premium account</h5>
+                                    </div>
+                                    <div class="widget-content">
+                                        Hey oh! Let's make this real fun. refer to the <a href="premium">premium page</a> in order to get detailed information about premium accounts.
+                                        <br />
+                                    </div>
+                                </div>
+                                
+                                <div class="widget-box">
+                                    <div class="widget-title">
+                                        <span class="icon"><span class="he16-del_acc"></span></span>
+                                        <h5>Delete Account</h5>
+                                    </div>
+                                    <div class="widget-content nopadding">
+                                        <form action="" method="POST" class="form-horizontal">
+                                            <div class="widget-content" style="padding: 15px;">
+                                                We are sad to hear you want to delete your account. We hope you enjoyed your time here.<br><br>
+                                                Upon confirmation, your account will be banned and all personal information associated with your account will be overwritten or deleted. Once deleted, accounts are <b>NOT</b> recoverable.<br><br>
+                                                Clicking the below button will initiate the process and send you a confirmation email, click the link in the email to delete your account.
+                                            </div>
+                                            <div class="form-actions">
+                                                <input type="hidden" name="action" value="deleteAccount">
+                                                <button type="submit" class="btn btn-danger">Delete Account</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="clear: both;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="breadcrumb" class="center">
+            <span class="pull-left hide-phone" style="margin-left: 10px;"><a href="TOS" target="_blank">Terms of Service and Use</a></span>
+            <span class="pull-left hide-phone"><a href="privacy" target="_blank">Privacy Policy</a></span>
+            <span class="pull-left hide-phone"><a href="https://discordapp.com/invite/8qXvhHR" target="_blank">Discord</a></span>
+            <span class="pull-left hide-phone"><a href="stats">Stats</a></span>
+            
+            <span class="center">2025 - <b>NetHeist</b><a target="_blank" href="https://evolushost.com/?ref=hackerwars">Powered by Evolushost</a></span>
+
+            <span class="pull-right hide-phone"><a href="">v1.0.0</a></span>
+            <span class="pull-right hide-phone"><a href="premium">Premium</a></span>
+            <span class="pull-right hide-phone"><a href="/report" target="_blank">Report Player</a></span>
+            <span class="pull-right hide-phone"><a href="https://github.com/hackerwars-io/issue-tracker" target="_blank">Report Bug</a></span>
+            <span class="pull-right hide-phone"><a>Credits</a></span>
+        </div>
+    </div>
+</body>
+</html>

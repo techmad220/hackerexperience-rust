@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Profile - NetHeist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/he-matrix.css" />
+    <style>
+        body {
+            padding-top: 92px;
+            background: #0a0a0a;
+            color: #c0c0c0;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin: 0;
+        }
+        
+        /* Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+        }
+        
+        #header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        #header h1 a {
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            text-decoration: none;
+        }
+        
+        /* User nav bar */
+        #user-nav {
+            position: fixed;
+            top: 51px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 0;
+        }
+        
+        #user-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        
+        #user-nav li {
+            border-right: 1px solid #333;
+        }
+        
+        #user-nav .btn {
+            display: block;
+            padding: 8px 15px;
+            color: #888;
+            text-decoration: none;
+            background: transparent;
+            border: none;
+            font-size: 11px;
+        }
+        
+        #user-nav .btn:hover,
+        #user-nav li.open .btn {
+            background: #222;
+            color: #00ff00;
+        }
+        
+        /* Sidebar */
+        #sidebar {
+            z-index: 998;
+            position: fixed;
+            left: 0;
+            top: 92px;
+            width: 200px;
+            background: linear-gradient(to right, #1a1a1a, #222222);
+            border-right: 1px solid #00ff00;
+            height: calc(100vh - 92px);
+            overflow-y: auto;
+        }
+        
+        #sidebar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #sidebar li {
+            border-bottom: 1px solid #0a0a0a;
+        }
+        
+        #sidebar a {
+            display: block;
+            padding: 10px 15px;
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        
+        #sidebar li.active a,
+        #sidebar a:hover {
+            background: #0a0a0a;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            border-left: 3px solid #00ff00;
+        }
+        
+        /* Content */
+        #content {
+            margin-left: 200px;
+            padding: 0;
+        }
+        
+        #content-header {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+            position: relative;
+        }
+        
+        #content-header h1 {
+            margin: 0;
+            font-size: 14px;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            display: inline-block;
+        }
+        
+        .header-ip {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+        
+        .header-ip-show {
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 14px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .header-info {
+            font-size: 10px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .header-info .small {
+            color: #888;
+        }
+        
+        .header-info .green {
+            color: #00ff00;
+        }
+        
+        /* Breadcrumb */
+        #breadcrumb {
+            background: #0a0a0a;
+            border-bottom: 1px solid #333;
+            padding: 5px 20px;
+            font-size: 11px;
+        }
+        
+        #breadcrumb a {
+            color: #888;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        
+        #breadcrumb a:hover {
+            color: #00ff00;
+        }
+        
+        #breadcrumb .current {
+            color: #00ff00;
+        }
+        
+        /* Container */
+        .container-fluid {
+            padding: 20px;
+        }
+        
+        .row-fluid {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .span12 {
+            width: 100%;
+        }
+        
+        .span8 {
+            width: 65%;
+        }
+        
+        .span4 {
+            width: 30%;
+        }
+        
+        .span6 {
+            width: 48%;
+        }
+        
+        .span2 {
+            width: 15%;
+        }
+        
+        .span10 {
+            width: 80%;
+        }
+        
+        /* Widget boxes */
+        .widget-box {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+        }
+        
+        .widget-title {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 0;
+            position: relative;
+        }
+        
+        .widget-title h5 {
+            margin: 0;
+            padding: 8px 10px;
+            font-size: 12px;
+            color: #00ff00;
+            text-shadow: 0 0 3px #00ff00;
+            display: inline-block;
+        }
+        
+        .widget-content {
+            padding: 15px;
+            background: #0a0a0a;
+        }
+        
+        .widget-content.padding {
+            padding: 15px;
+        }
+        
+        .widget-content.noborder {
+            border: none;
+        }
+        
+        .widget-content.nopadding {
+            padding: 0;
+        }
+        
+        /* Nav tabs */
+        .nav-tabs {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            border-bottom: none;
+        }
+        
+        .nav-tabs li {
+            margin-right: 10px;
+        }
+        
+        .nav-tabs a {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-bottom: none;
+            color: #888 !important;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        
+        .nav-tabs li.active a {
+            background: #1a1a1a;
+            border-color: #00ff00;
+            color: #00ff00 !important;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Tables */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #0a0a0a;
+            margin: 0;
+        }
+        
+        .table tbody td {
+            padding: 8px;
+            border: 1px solid #333;
+            color: #c0c0c0;
+            font-size: 11px;
+        }
+        
+        .table-bordered {
+            border: 1px solid #333;
+        }
+        
+        .table-striped tbody tr:nth-child(odd) {
+            background: #111;
+        }
+        
+        .table-striped tbody tr:nth-child(even) {
+            background: #0a0a0a;
+        }
+        
+        .table a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        
+        .table a:hover {
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .item {
+            color: #888;
+        }
+        
+        /* Labels */
+        .label {
+            background: #333;
+            color: #888;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 2px;
+            margin-left: 10px;
+        }
+        
+        .label-info {
+            background: #333 !important;
+            color: #00ff00 !important;
+        }
+        
+        .right {
+            float: right;
+        }
+        
+        /* Icons */
+        .icon {
+            margin-right: 5px;
+            color: #00ff00;
+        }
+        
+        .he16-pda::before { content: "💻"; margin-right: 5px; }
+        .he16-stats::before { content: "📊"; margin-right: 5px; }
+        .he16-profile::before { content: "👤"; margin-right: 5px; }
+        .he16-profile_friends::before { content: "👥"; margin-right: 5px; }
+        .he16-profile_edit::before { content: "✏️"; margin-right: 5px; }
+        .he16-search::before { content: "🔍"; margin-right: 5px; }
+        .he16-clan::before { content: "🏛️"; margin-right: 5px; }
+        .he16-reputation::before { content: "⭐"; margin-right: 3px; }
+        .he16-ranking::before { content: "🏆"; margin-right: 3px; }
+        .he16-time::before { content: "🕒"; margin-right: 3px; }
+        .he16-online::before { content: "🟢"; margin-right: 3px; }
+        .icol32-help::before { content: "❓"; margin-right: 3px; }
+        
+        /* Badge images */
+        .badge-div {
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .badge-div img {
+            margin: 2px;
+            border: 1px solid #333;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .badge-div img:hover {
+            opacity: 1;
+            border-color: #00ff00;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Friends list */
+        .list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .list li {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+        }
+        
+        .list li:hover {
+            background: #1a1a1a;
+        }
+        
+        .list-ip {
+            color: #00ff00;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .list-user {
+            font-size: 10px;
+            color: #888;
+        }
+        
+        .hard-ico {
+            margin-right: 10px;
+        }
+        
+        .hard-ico img {
+            border: 1px solid #333;
+            border-radius: 3px;
+        }
+        
+        /* Buttons */
+        .btn {
+            background: #333;
+            border: 1px solid #555;
+            color: #c0c0c0;
+            padding: 6px 12px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-right: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #444;
+            color: #00ff00;
+        }
+        
+        .btn-inverse {
+            background: #444;
+            color: #c0c0c0;
+        }
+        
+        .btn-success {
+            background: #1a5a1a;
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+        
+        .btn-success:hover {
+            background: #2a6a2a;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Hide phone elements on desktop */
+        .hide-phone {
+            display: inline;
+        }
+        
+        .visible-phone {
+            display: none;
+        }
+        
+        /* Footer breadcrumb */
+        .center {
+            text-align: center;
+        }
+        
+        #breadcrumb.center {
+            background: #0a0a0a;
+            border-top: 1px solid #333;
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 10px;
+        }
+        
+        #breadcrumb.center a {
+            color: #888;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        #breadcrumb.center a:hover {
+            color: #00ff00;
+        }
+        
+        .pull-left {
+            float: left;
+        }
+        
+        .pull-right {
+            float: right;
+        }
+        
+        /* Profile specific */
+        .black {
+            color: #c0c0c0;
+        }
+        
+        .small {
+            font-size: 10px;
+            color: #888;
+        }
+        
+        .spacer {
+            margin: 20px 0;
+        }
+        
+        /* Clear fix */
+        .center:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+    </style>
+</head>
+<body class="profile view">
+    <div id="header">
+        <h1><a href="#">NetHeist</a></h1>
+    </div>
+    
+    <div id="user-nav">
+        <ul>
+            <li class="btn open"><a href="profile.html"><i class="fa fa-user"></i> <span class="text">Techmad</span></a></li>
+            <li class="btn"><a href="mail.html"><i class="fa fa-envelope"></i> <span class="text">E-Mail</span></a></li>
+            <li class="btn"><a href="settings.html"><i class="fa fa-wrench"></i> <span class="text">Settings</span></a></li>
+            <li class="btn"><a href="logout"><i class="fa fa-power-off"></i> <span class="text">Logout</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="sidebar">
+        <ul>
+            <li><a href="index.html"><i class="fa fa-home"></i> <span>Home</span></a></li>
+            <li><a href="task_manager.html"><i class="fa fa-tasks"></i> <span>Task Manager</span></a></li>
+            <li><a href="software.html"><i class="fa fa-folder-open"></i> <span>Software</span></a></li>
+            <li><a href="internet.html"><i class="fa fa-globe"></i> <span>Internet</span></a></li>
+            <li><a href="log.html"><i class="fa fa-book"></i> <span>Log File</span></a></li>
+            <li><a href="hardware.html"><i class="fa fa-desktop"></i> <span>Hardware</span></a></li>
+            <li><a href="university.html"><i class="fa fa-flask"></i> <span>University</span></a></li>
+            <li><a href="finances.html"><i class="fa fa-briefcase"></i> <span>Finances</span></a></li>
+            <li><a href="hacked_database.html"><i class="fa fa-terminal"></i> <span>Hacked Database</span></a></li>
+            <li><a href="missions.html"><i class="fa fa-building"></i> <span>Missions</span></a></li>
+            <li><a href="utilities.html"><i class="fa fa-cogs"></i> <span>Utilities</span></a></li>
+            <li><a href="clan.html"><i class="fa fa-users"></i> <span>Clan</span></a></li>
+            <li><a href="ranking.html"><i class="fa fa-bars"></i> <span>Ranking</span></a></li>
+            <li><a href="fame.html"><i class="fa fa-star"></i> <span>Hall of Fame</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="content">
+        <div id="content-header">
+            <h1>Profile</h1>
+            <div class="header-ip hide-phone">
+                <div style="text-align: right;">
+                    <span class="header-ip-show">59.35.236.56</span>
+                </div>
+                <div class="header-info">
+                    <div class="pull-right">
+                        <span class="icon-tab he16-time" title="Server Time"></span> <span class="small nomargin" style="margin-right: 7px;">2025-09-14 14:09</span>
+                        <span class="online"><span class="he16-online" title="Online Players"></span> <span class="small nomargin">29</span></span>
+                        <div class="reputation-info" style="display: inline-block;">
+                            <span class="small nomargin item" title="Reputation">1</span>
+                            <span class="small nomargin" title="Ranking">(#128)</span>
+                        </div>
+                        <div class="finance-info" style="display: inline-block; margin-left: 10px;">
+                            <span class="small nomargin green header-finances" title="Finances">$500</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="breadcrumb">
+            <a href="index.html" title="Go to Home"><i class="fa fa-home"></i> Home</a>
+            <a href="profile.html" class="current">Profile</a>
+        </div>
+        
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <ul class="nav-tabs">
+                                <li class="link active"><a href="profile.html"><span class="icon-tab he16-profile"></span><span class="hide-phone">Profile of Techmad</span></a></li>
+                                <li class="link"><a href="?view=friends"><span class="icon-tab he16-profile_friends"></span><span class="hide-phone">Friends</span></a></li>
+                                <li class="link"><a href="?view=edit"><span class="icon-tab he16-profile_edit"></span><span class="hide-phone">Edit</span></a></li>
+                                <li class="link"><a href="?view=search"><span class="icon-tab he16-search"></span><span class="hide-phone">Search</span></a></li>
+                                <li class="link" style="float: right;"><span class="icol32-help"></span></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="widget-content padding">
+                            <div class="span8">
+                                <div class="widget-box">
+                                    <div class="widget-title">
+                                        <span class="icon"><i class="he16-pda"></i></span>
+                                        <h5>[tek] Techmad</h5>
+                                    </div>
+                                    <div class="widget-content nopadding">
+                                        <table class="table table-cozy table-bordered table-striped table-fixed">
+                                            <tbody>
+                                                <tr>
+                                                    <td><span class="item">Reputation</span></td>
+                                                    <td>1 <span class="small">(Ranked #128)</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Age</span></td>
+                                                    <td>1153 days</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Time playing</span></td>
+                                                    <td>21 minutes</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Clan</span></td>
+                                                    <td><a href="clan.html?id=967" class="black">[tek] techmad</a><span class="label label-info right">Master</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <div class="widget-box">
+                                    <div class="widget-title">
+                                        <span class="icon"><i class="he16-stats"></i></span>
+                                        <h5>Stats</h5>
+                                    </div>
+                                    <div class="widget-content nopadding">
+                                        <table class="table table-cozy table-bordered table-striped table-fixed">
+                                            <tbody>
+                                                <tr>
+                                                    <td><span class="item">Hack count</span></td>
+                                                    <td>0</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">IP Resets</span></td>
+                                                    <td>0</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Servers used to DDoS</span></td>
+                                                    <td>0</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Spam sent</span></td>
+                                                    <td>0 mails</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Bitcoin mined</span></td>
+                                                    <td>0 BTC</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Warez uploaded</span></td>
+                                                    <td>0 GB</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Missions completed</span></td>
+                                                    <td>0</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Profile clicks</span></td>
+                                                    <td>0</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Money earned</span></td>
+                                                    <td><span style="color: #00ff00;">$0</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Money transferred</span></td>
+                                                    <td><span style="color: #00ff00;">$0</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Money spent on hardware</span></td>
+                                                    <td><span style="color: #00ff00;">$0</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><span class="item">Money spent on research</span></td>
+                                                    <td><span style="color: #00ff00;">$0</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="span4">
+                                <div class="widget-box">
+                                    <div class="widget-title">
+                                        <span class="icon"><span class="he16-profile"></span></span>
+                                        <h5>Photo & Badges</h5>
+                                        <span class="label label-info">11</span>
+                                    </div>
+                                    <div class="widget-content padding noborder">
+                                        <div class="span12">
+                                            <div class="span12" style="text-align: center; margin-right: 15px; margin-bottom: 5px;">
+                                                <img src="images/profile/unsub.jpg">
+                                            </div>
+                                            <div class="row-fluid">
+                                                <div class="span12 badge-div">
+                                                    <img src="images/badges/10.png" class="profile-tip" title="Almost there - Placed within the top 10 players of the round." />
+                                                    <img src="images/badges/22.png" class="profile-tip" title="H4x0r - Player has 100 or more IPs in their Hacked Database." />
+                                                    <img src="images/badges/23.png" class="profile-tip" title="B4nk3r - Player has 50 or more bank accounts in their Hacked Database." />
+                                                    <img src="images/badges/36.png" class="profile-tip" title="Employee - Player completed a total of 50 missions on the round." />
+                                                    <img src="images/badges/37.png" class="profile-tip" title="Seriously, you are addicted - Player completed a total of 500 missions during the game history." />
+                                                    <img src="images/badges/38.png" class="profile-tip" title="I Can't Handle - Player reset their IP over 20 times this round." />
+                                                    <img src="images/badges/42.png" class="profile-tip" title="Anniversary - Player account is 1 year old." />
+                                                    <img src="images/badges/43.png" class="profile-tip" title="Old School - Player account is 2 years old." />
+                                                    <img src="images/badges/54.png" class="profile-tip" title="Student - Player completed all of the certifications." />
+                                                    <img src="images/badges/67.png" class="profile-tip" title="Hacker - Player has hacked 100 IPs on the round." />
+                                                    <img src="images/badges/69.png" class="profile-tip" title="What'ya doin'?? - Player has over 50 running tasks" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="widget-box">
+                                    <div class="widget-title">
+                                        <span class="icon"><i class="he16-clan"></i></span>
+                                        <h5>Friends</h5>
+                                        <a href="profile.html?view=friends"><span class="label label-info">3</span></a>
+                                    </div>
+                                    <div class="widget-content padding">
+                                        <ul class="list">
+                                            <a href="profile?id=15216">
+                                                <li class="li-click">
+                                                    <div class="span2 hard-ico">
+                                                        <img style="max-height:60px;max-width:60px;height:auto;width:auto;" src="images/profile/unsub.jpg">
+                                                    </div>
+                                                    <div class="span10">
+                                                        <div class="list-ip">azure7609</div>
+                                                        <div class="list-user">
+                                                            <span class="he16-reputation heicon"></span><small>0 </small>
+                                                            <span class="he16-ranking heicon"></span><small>#167 </small>
+                                                            <span class="he16-clan heicon"></span><small><a href="clan?id=973">Smokey the Bear</a></small>
+                                                        </div>
+                                                    </div>
+                                                    <div style="clear: both;"></div>
+                                                </li>
+                                            </a>
+                                        </ul>
+                                        
+                                        <ul class="list">
+                                            <a href="profile?id=12911">
+                                                <li class="li-click">
+                                                    <div class="span2 hard-ico">
+                                                        <img style="max-height:60px;max-width:60px;height:auto;width:auto;" src="images/profile/unsub.jpg">
+                                                    </div>
+                                                    <div class="span10">
+                                                        <div class="list-ip">darkarx97</div>
+                                                        <div class="list-user">
+                                                            <span class="he16-reputation heicon"></span><small>0 </small>
+                                                            <span class="he16-ranking heicon"></span><small>#167 </small>
+                                                            <span class="he16-clan heicon"></span><small><a href="clan?id=873">Shadow</a></small>
+                                                        </div>
+                                                    </div>
+                                                    <div style="clear: both;"></div>
+                                                </li>
+                                            </a>
+                                        </ul>
+                                        
+                                        <div>
+                                            <a href="profile.html?view=friends" class="btn btn-inverse">View all</a>
+                                            <a href="profile?view=friends&add=15179" class="btn btn-success add-friend">Add friend</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="clear: both;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="breadcrumb" class="center">
+            <span class="pull-left hide-phone" style="margin-left: 10px;"><a href="TOS" target="_blank">Terms of Service and Use</a></span>
+            <span class="pull-left hide-phone"><a href="privacy" target="_blank">Privacy Policy</a></span>
+            <span class="pull-left hide-phone"><a href="https://discordapp.com/invite/8qXvhHR" target="_blank">Discord</a></span>
+            <span class="pull-left hide-phone"><a href="stats">Stats</a></span>
+            
+            <span class="center">2025 - <b>NetHeist</b><a target="_blank" href="https://evolushost.com/?ref=hackerwars">Powered by Evolushost</a></span>
+
+            <span class="pull-right hide-phone"><a href="">v1.0.0</a></span>
+            <span class="pull-right hide-phone"><a href="premium">Premium</a></span>
+            <span class="pull-right hide-phone"><a href="/report" target="_blank">Report Player</a></span>
+            <span class="pull-right hide-phone"><a href="https://github.com/hackerwars-io/issue-tracker" target="_blank">Report Bug</a></span>
+            <span class="pull-right hide-phone"><a>Credits</a></span>
+        </div>
+    </div>
+</body>
+</html>

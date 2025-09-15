@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Internet - NetHeist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/he-matrix.css" />
+    <style>
+        body {
+            padding-top: 92px;
+            background: #0a0a0a;
+            color: #c0c0c0;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin: 0;
+        }
+        
+        /* Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+        }
+        
+        #header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        #header h1 a {
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            text-decoration: none;
+        }
+        
+        /* User nav bar */
+        #user-nav {
+            position: fixed;
+            top: 51px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 0;
+        }
+        
+        #user-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        
+        #user-nav li {
+            border-right: 1px solid #333;
+        }
+        
+        #user-nav .btn {
+            display: block;
+            padding: 8px 15px;
+            color: #888;
+            text-decoration: none;
+            background: transparent;
+            border: none;
+            font-size: 11px;
+        }
+        
+        #user-nav .btn:hover {
+            background: #222;
+            color: #00ff00;
+        }
+        
+        /* Sidebar */
+        #sidebar {
+            z-index: 998;
+            position: fixed;
+            left: 0;
+            top: 92px;
+            width: 200px;
+            background: linear-gradient(to right, #1a1a1a, #222222);
+            border-right: 1px solid #00ff00;
+            height: calc(100vh - 92px);
+            overflow-y: auto;
+        }
+        
+        #sidebar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #sidebar li {
+            border-bottom: 1px solid #0a0a0a;
+        }
+        
+        #sidebar a {
+            display: block;
+            padding: 10px 15px;
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        
+        #sidebar li.active a,
+        #sidebar a:hover {
+            background: #0a0a0a;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            border-left: 3px solid #00ff00;
+        }
+        
+        /* Content */
+        #content {
+            margin-left: 200px;
+            padding: 0;
+        }
+        
+        #content-header {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+            position: relative;
+        }
+        
+        #content-header h1 {
+            margin: 0;
+            font-size: 14px;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            display: inline-block;
+        }
+        
+        .header-ip {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+        
+        .header-ip-show {
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 14px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Breadcrumb */
+        #breadcrumb {
+            background: #0a0a0a;
+            border-bottom: 1px solid #333;
+            padding: 5px 20px;
+            font-size: 11px;
+        }
+        
+        #breadcrumb a {
+            color: #888;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        
+        #breadcrumb a:hover {
+            color: #00ff00;
+        }
+        
+        #breadcrumb .current {
+            color: #00ff00;
+        }
+        
+        /* Container */
+        .container-fluid {
+            padding: 20px;
+        }
+        
+        .row-fluid {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .span9 {
+            flex: 0 0 75%;
+        }
+        
+        .span3 {
+            flex: 0 0 23%;
+        }
+        
+        .span12 {
+            width: 100%;
+        }
+        
+        /* Widget boxes */
+        .widget-box {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+        }
+        
+        .widget-title {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 8px 10px;
+            position: relative;
+        }
+        
+        .widget-title h5 {
+            margin: 0;
+            font-size: 12px;
+            color: #00ff00;
+            text-shadow: 0 0 3px #00ff00;
+            display: inline-block;
+        }
+        
+        .widget-content {
+            padding: 10px;
+            background: #0a0a0a;
+        }
+        
+        /* Browser bar */
+        .browser-input {
+            background: #1a1a1a;
+            padding: 10px;
+            border: 1px solid #333;
+            margin-bottom: 10px;
+        }
+        
+        .browser-bar {
+            background: #0a0a0a;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 4px 8px;
+            width: 300px;
+            font-family: monospace;
+            margin: 0 10px;
+        }
+        
+        .btn-inverse {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .btn-inverse:hover {
+            background: linear-gradient(to bottom, #333, #222);
+            text-shadow: 0 0 3px #00ff00;
+        }
+        
+        /* Nav tabs */
+        .nav-tabs {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            border-bottom: 1px solid #333;
+        }
+        
+        .nav-tabs li {
+            margin-right: 10px;
+        }
+        
+        .nav-tabs a {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-bottom: none;
+            color: #888 !important;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        
+        .nav-tabs li.active a {
+            background: #1a1a1a;
+            border-color: #00ff00;
+            color: #00ff00 !important;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Whois list */
+        .whois {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+        }
+        
+        .whois li {
+            padding: 5px 0;
+            border-bottom: 1px solid #222;
+        }
+        
+        .whois a {
+            color: #888 !important;
+            text-decoration: none;
+        }
+        
+        .whois a:hover {
+            color: #00ff00 !important;
+        }
+        
+        .whois .item {
+            color: #00ff00;
+            font-family: monospace;
+            margin-right: 10px;
+        }
+        
+        .whois-member {
+            color: #c0c0c0;
+        }
+        
+        /* Collapsible widgets */
+        .collapsible .widget-title {
+            cursor: pointer;
+        }
+        
+        .collapse {
+            overflow: hidden;
+        }
+        
+        .collapse.in {
+            height: auto;
+        }
+        
+        /* Labels */
+        .label {
+            background: #333;
+            color: #888;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 2px;
+            margin-left: 10px;
+        }
+        
+        .label-warning {
+            background: #ffaa00 !important;
+            color: #000 !important;
+        }
+        
+        .label-important {
+            background: #ff0000 !important;
+            color: #fff !important;
+        }
+        
+        /* Footer */
+        .center {
+            text-align: center;
+            background: #0a0a0a;
+            border-top: 1px solid #333;
+            padding: 10px;
+            color: #666;
+            font-size: 10px;
+        }
+        
+        .pull-right {
+            float: right;
+            margin-left: 10px;
+        }
+        
+        .icon-tab {
+            margin-right: 5px;
+        }
+        
+        .small {
+            font-size: 10px;
+            color: #666;
+            margin-left: 10px;
+        }
+        
+        .icon {
+            margin-right: 5px;
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body class="internet">
+    <div id="header">
+        <h1><a href="#">NetHeist</a></h1>
+    </div>
+    
+    <div id="user-nav">
+        <ul>
+            <li class="btn"><a href="profile.html"><i class="fa fa-user"></i> <span class="text">Techmad</span></a></li>
+            <li class="btn"><a href="mail.html"><i class="fa fa-envelope"></i> <span class="text">E-Mail</span></a></li>
+            <li class="btn"><a href="settings.html"><i class="fa fa-wrench"></i> <span class="text">Settings</span></a></li>
+            <li class="btn"><a href="logout"><i class="fa fa-power-off"></i> <span class="text">Logout</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="sidebar">
+        <ul>
+            <li><a href="index.html"><i class="fa fa-home"></i> <span>Home</span></a></li>
+            <li><a href="task_manager.html"><i class="fa fa-tasks"></i> <span>Task Manager</span></a></li>
+            <li><a href="software.html"><i class="fa fa-folder-open"></i> <span>Software</span></a></li>
+            <li class="active"><a href="internet.html"><i class="fa fa-globe"></i> <span>Internet</span></a></li>
+            <li><a href="log.html"><i class="fa fa-book"></i> <span>Log File</span></a></li>
+            <li><a href="hardware.html"><i class="fa fa-desktop"></i> <span>Hardware</span></a></li>
+            <li><a href="university.html"><i class="fa fa-flask"></i> <span>University</span></a></li>
+            <li><a href="finances.html"><i class="fa fa-briefcase"></i> <span>Finances</span></a></li>
+            <li><a href="hacked_database.html"><i class="fa fa-terminal"></i> <span>Hacked Database</span></a></li>
+            <li><a href="missions.html"><i class="fa fa-building"></i> <span>Missions</span></a></li>
+            <li><a href="utilities.html"><i class="fa fa-cogs"></i> <span>Utilities</span></a></li>
+            <li><a href="clan.html"><i class="fa fa-users"></i> <span>Clan</span></a></li>
+            <li><a href="ranking.html"><i class="fa fa-bars"></i> <span>Ranking</span></a></li>
+            <li><a href="fame.html"><i class="fa fa-star"></i> <span>Hall of Fame</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="content">
+        <div id="content-header">
+            <h1>Internet</h1>
+            <div class="header-ip">
+                <div style="text-align: right;">
+                    <span class="header-ip-show">59.35.236.56</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="breadcrumb">
+            <a href="index.html"><i class="fa fa-home"></i> Home</a>
+            <a href="internet.html">Internet</a>
+            <a href="#" class="current">1.2.3.4</a>
+        </div>
+        
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span9">
+                    <div class="widget-box">
+                        <div class="widget-content">
+                            <div class="browser-input">
+                                IP address: <input class="browser-bar" type="text" value="1.2.3.4" />
+                                <input type="submit" class="btn-inverse" value="Go">
+                                <div style="float: right; padding-top: 5px;">
+                                    <a href="#" style="color: #00ff00; margin: 0 5px;">🏠</a>
+                                    <a href="#" style="color: #00ff00; margin: 0 5px;">🔄</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <ul class="nav-tabs">
+                                <li class="active"><a href="#index"><span class="icon-tab">📄</span>Index</a></li>
+                                <li><a href="#login"><span class="icon-tab">🔐</span>Login</a></li>
+                                <li><a href="#hack"><span class="icon-tab">💀</span>Hack</a></li>
+                            </ul>
+                        </div>
+                        <div class="widget-content">
+                            <!-- Index Tab Content -->
+                            <div id="index-content" style="display: block;">
+                            <p>Server 1.2.3.4 is <span style="color: #00ff00; font-weight: bold;">online</span>
+                            <span class="label label-warning pull-right">Whois</span></p>
+                            
+                            <p>Welcome to the First Whois server. Enjoy our services!</p>
+                            
+                            <ul class="whois">
+                                <li>
+                                    <a href="?ip=254.25.57.137">
+                                        <span class="item">254.25.57.137</span> - 
+                                        <span class="whois-member">Download Center</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?ip=58.247.222.42">
+                                        <span class="item">58.247.222.42</span> - 
+                                        <span class="whois-member">Torrent Market</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?ip=147.199.198.164">
+                                        <span class="item">147.199.198.164</span> - 
+                                        <span class="whois-member">First Puzzle</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?ip=208.31.244.177">
+                                        <span class="item">208.31.244.177</span> - 
+                                        <span class="whois-member">First International Bank</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?ip=104.67.220.12">
+                                        <span class="item">104.67.220.12</span> - 
+                                        <span class="whois-member">elgooG</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?ip=71.56.35.86">
+                                        <span class="item">71.56.35.86</span> - 
+                                        <span class="whois-member">Murder King</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?ip=175.160.237.93">
+                                        <span class="item">175.160.237.93</span> - 
+                                        <span class="whois-member">Safenet</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?ip=75.227.191.56">
+                                        <span class="item">75.227.191.56</span> - 
+                                        <span class="whois-member">Pineapple</span>
+                                    </a>
+                                </li>
+                            </ul>
+                            
+                            <p>Trending Sites:</p>
+                            <ul class="whois">
+                                <li>
+                                    <a href="?ip=205.182.54.67">
+                                        <span class="item">205.182.54.67</span> - 
+                                        <span class="whois-member">ISP - Internet Service Provider</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?ip=162.113.3.69">
+                                        <span class="item">162.113.3.69</span> - 
+                                        <span class="whois-member">NSA</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?ip=212.250.188.220">
+                                        <span class="item">212.250.188.220</span> - 
+                                        <span class="whois-member">Hacker News</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="?ip=87.244.128.22">
+                                        <span class="item">87.244.128.22</span> - 
+                                        <span class="whois-member">Bitcoin Market</span>
+                                    </a>
+                                </li>
+                            </ul>
+                            </div>
+                            
+                            <!-- Login Tab Content -->
+                            <div id="login-content" style="display: none;">
+                                <form class="form-horizontal">
+                                    <div class="control-group">
+                                        <label class="control-label">Username:</label>
+                                        <div class="controls">
+                                            <input type="text" placeholder="Enter username" style="background: #1a1a1a; border: 1px solid #333; color: #00ff00;">
+                                        </div>
+                                    </div>
+                                    <div class="control-group">
+                                        <label class="control-label">Password:</label>
+                                        <div class="controls">
+                                            <input type="password" placeholder="Enter password" style="background: #1a1a1a; border: 1px solid #333; color: #00ff00;">
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-primary">🔐 Login</button>
+                                        <button type="button" class="btn">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Hack Tab Content -->
+                            <div id="hack-content" style="display: none;">
+                                <div style="background: #000; padding: 15px; border: 1px solid #00ff00; margin-bottom: 10px;">
+                                    <p style="color: #00ff00; font-family: monospace;">💀 HACK CONSOLE INITIALIZED...</p>
+                                    <p style="color: #00ff00; font-family: monospace;">Target: 1.2.3.4</p>
+                                    <p style="color: #888; font-family: monospace;">Analyzing system vulnerabilities...</p>
+                                </div>
+                                
+                                <h5 style="color: #00ff00;">Available Attack Vectors:</h5>
+                                <ul style="list-style: none; padding: 0;">
+                                    <li style="margin: 5px 0;">
+                                        <button class="btn" style="width: 100%; text-align: left;">
+                                            🔓 Brute Force Attack
+                                        </button>
+                                    </li>
+                                    <li style="margin: 5px 0;">
+                                        <button class="btn" style="width: 100%; text-align: left;">
+                                            🦠 Deploy Virus
+                                        </button>
+                                    </li>
+                                    <li style="margin: 5px 0;">
+                                        <button class="btn" style="width: 100%; text-align: left;">
+                                            🎭 DDoS Attack
+                                        </button>
+                                    </li>
+                                    <li style="margin: 5px 0;">
+                                        <button class="btn" style="width: 100%; text-align: left;">
+                                            🔍 Port Scan
+                                        </button>
+                                    </li>
+                                </ul>
+                                
+                                <div style="margin-top: 15px; padding: 10px; background: #1a1a1a; border: 1px solid #333;">
+                                    <small style="color: #888;">Note: Higher level tools required for advanced attacks</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="span3">
+                    <div class="widget-box collapsible">
+                        <div class="widget-title">
+                            <a href="#history">
+                                <span class="icon">📋</span>
+                                <h5>Recently visited</h5>
+                            </a>
+                        </div>
+                        <div class="collapse in" id="history">
+                            <div class="widget-content">
+                                <div style="color: #666;">No recent visits</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget-box collapsible">
+                        <div class="widget-title">
+                            <a href="#important">
+                                <span class="icon">⭐</span>
+                                <h5>Important IPs</h5>
+                                <span class="label label-important">1</span>
+                            </a>
+                        </div>
+                        <div class="collapse in" id="important">
+                            <div class="widget-content">
+                                <a href="?ip=1.2.3.4" style="color: #888;">1.2.3.4<span class="small"> First Whois</span></a><br />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Server data
+        const servers = {
+            '1.2.3.4': {
+                name: 'First Whois Server',
+                status: 'online',
+                firewall: { version: 1.0, running: true },
+                antivirus: { version: 1.5, running: true },
+                hasLogin: true,
+                username: 'admin',
+                password: 'whois123',
+                files: [
+                    { name: 'database.txt', size: 5, hidden: false },
+                    { name: 'users.db', size: 12, hidden: false },
+                    { name: 'config.sys', size: 2, hidden: false },
+                    { name: 'passwords.txt', size: 1, hidden: false },
+                    { name: 'bank_account.txt', size: 1, hidden: false, content: 'Account: 98765432\nBalance: $45,000\nPIN: 1234' },
+                    { name: 'system.log', size: 8, hidden: false, content: '[10:23:14] User login from 192.168.1.1\n[10:24:01] Firewall started\n[10:25:33] SSH connection accepted' }
+                ],
+                logs: [],
+                isHacked: false,
+                processes: [
+                    { name: 'Firewall 1.0', pid: 1001, cpu: 15, running: true },
+                    { name: 'Antivirus 1.5', pid: 1002, cpu: 20, running: true },
+                    { name: 'SSH Server 2.1', pid: 1003, cpu: 5, running: true },
+                    { name: 'FTP Server 1.5', pid: 1004, cpu: 10, running: true }
+                ],
+                malware: [],
+                storage: { used: 45, total: 100 },
+                bankAccount: { number: '98765432', balance: 45000, pin: '1234' }
+            }
+        };
+        
+        // Player inventory
+        const playerInventory = {
+            software: [
+                { name: 'Virus 1.0', type: 'malware', level: 1.0 },
+                { name: 'Keylogger 0.5', type: 'malware', level: 0.5 },
+                { name: 'Miner 2.0', type: 'malware', level: 2.0 },
+                { name: 'Crypter 1.0', type: 'tool', level: 1.0 },
+                { name: 'Log Deleter 1.5', type: 'tool', level: 1.5 }
+            ],
+            downloadedFiles: []
+        };
+        
+        let currentIP = '1.2.3.4';
+        let isLoggedIn = false;
+        let hackProgress = 0;
+        let accessedServers = {};
+        
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all content
+            document.getElementById('index-content').style.display = 'none';
+            document.getElementById('login-content').style.display = 'none';
+            document.getElementById('hack-content').style.display = 'none';
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.nav-tabs li');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected content and mark tab as active
+            if (tabName === 'login') {
+                document.getElementById('login-content').style.display = 'block';
+                tabs[1].classList.add('active');
+            } else if (tabName === 'hack') {
+                document.getElementById('hack-content').style.display = 'block';
+                tabs[2].classList.add('active');
+            } else {
+                document.getElementById('index-content').style.display = 'block';
+                tabs[0].classList.add('active');
+            }
+        }
+        
+        // Handle hash changes
+        function handleHashChange() {
+            const hash = window.location.hash.slice(1);
+            if (hash === 'login' || hash === 'hack' || hash === 'index') {
+                switchTab(hash);
+            } else {
+                switchTab('index');
+            }
+        }
+        
+        // Login functionality
+        function attemptLogin(event) {
+            event.preventDefault();
+            const username = document.querySelector('#login-content input[type="text"]').value;
+            const password = document.querySelector('#login-content input[type="password"]').value;
+            const server = servers[currentIP];
+            
+            if (server && username === server.username && password === server.password) {
+                isLoggedIn = true;
+                alert('✅ Login successful! Access granted to ' + currentIP);
+                addLog('Successful login to ' + currentIP);
+                window.location.hash = 'index';
+            } else {
+                alert('❌ Login failed! Invalid credentials.');
+                addLog('Failed login attempt to ' + currentIP);
+            }
+        }
+        
+        // Hack functionality
+        function startHack(type) {
+            const server = servers[currentIP];
+            if (!server) {
+                alert('❌ Server not found!');
+                return;
+            }
+            
+            const hackConsole = document.querySelector('#hack-content > div');
+            let message = '';
+            
+            switch(type) {
+                case 'bruteforce':
+                    message = '🔓 Starting brute force attack...\n';
+                    message += 'Trying passwords: admin, 123456, password...\n';
+                    hackConsole.innerHTML = `<p style="color: #00ff00; font-family: monospace;">${message.replace(/\n/g, '<br>')}</p>`;
+                    
+                    setTimeout(() => {
+                        message += '✅ Password found: ' + server.password + '\n';
+                        message += '🎯 Gaining root access...\n';
+                        hackConsole.innerHTML = `<p style="color: #00ff00; font-family: monospace;">${message.replace(/\n/g, '<br>')}</p>`;
+                        
+                        setTimeout(() => {
+                            server.isHacked = true;
+                            accessedServers[currentIP] = true;
+                            message += '💀 ACCESS GRANTED! You now control this server!\n';
+                            hackConsole.innerHTML = `<p style="color: #00ff00; font-family: monospace;">${message.replace(/\n/g, '<br>')}</p>`;
+                            addLog('Brute force attack successful - Full access gained on ' + currentIP);
+                            
+                            // Show remote access panel
+                            showRemoteAccess();
+                        }, 1000);
+                    }, 2000);
+                    break;
+                    
+                case 'virus':
+                    message = '🦠 Deploying virus...\n';
+                    message += 'Uploading malware.exe...\n';
+                    message += 'Executing payload...';
+                    hackConsole.innerHTML = `<p style="color: #00ff00; font-family: monospace;">${message.replace(/\n/g, '<br>')}</p>`;
+                    addLog('Virus deployed to ' + currentIP);
+                    break;
+                    
+                case 'ddos':
+                    message = '🎯 Initiating DDoS attack...\n';
+                    message += 'Sending packets: ';
+                    let packets = 0;
+                    const interval = setInterval(() => {
+                        packets += Math.floor(Math.random() * 1000);
+                        hackConsole.innerHTML = `<p style="color: #00ff00; font-family: monospace;">${message}${packets} packets sent</p>`;
+                        if (packets > 10000) {
+                            clearInterval(interval);
+                            hackConsole.innerHTML += `<p style="color: #ff0000;">⚠️ Server overloaded!</p>`;
+                            addLog('DDoS attack completed on ' + currentIP);
+                        }
+                    }, 100);
+                    break;
+                    
+                case 'portscan':
+                    message = '🔍 Scanning ports...\n';
+                    const ports = [21, 22, 80, 443, 3306, 8080];
+                    ports.forEach(port => {
+                        const status = Math.random() > 0.5 ? 'OPEN' : 'CLOSED';
+                        const color = status === 'OPEN' ? '#00ff00' : '#ff0000';
+                        message += `Port ${port}: <span style="color: ${color}">${status}</span>\n`;
+                    });
+                    hackConsole.innerHTML = `<p style="color: #00ff00; font-family: monospace;">${message.replace(/\n/g, '<br>')}</p>`;
+                    addLog('Port scan completed on ' + currentIP);
+                    break;
+            }
+            
+            hackConsole.innerHTML = `<p style="color: #00ff00; font-family: monospace;">${message.replace(/\n/g, '<br>')}</p>`;
+        }
+        
+        // Add log entry
+        function addLog(entry) {
+            const timestamp = new Date().toLocaleTimeString();
+            if (servers[currentIP]) {
+                servers[currentIP].logs.push(`[${timestamp}] ${entry}`);
+            }
+            
+            // Update the log file page if it exists
+            if (window.updateLogFile) {
+                window.updateLogFile(entry);
+            }
+        }
+        
+        // Connect to IP
+        function connectToIP(ip) {
+            currentIP = ip;
+            const server = servers[ip];
+            if (server) {
+                document.querySelector('#index-content p').innerHTML = 
+                    `Server ${ip} is <span style="color: #00ff00; font-weight: bold;">${server.status}</span>
+                    <span class="label label-warning pull-right">${server.name}</span>`;
+                document.querySelector('#hack-content p:nth-child(2)').innerHTML = 
+                    `Target: ${ip}`;
+            }
+        }
+        
+        // Show remote access panel  
+        function showRemoteAccess() {
+            const server = servers[currentIP];
+            if (!server || !server.isHacked) {
+                alert('❌ You need to hack this server first!');
+                return;
+            }
+            
+            // Change the entire content to show we're on the victim's computer
+            const indexContent = document.getElementById('index-content');
+            
+            // Filter files based on visibility
+            const visibleFiles = server.files.filter(f => !f.hidden || playerInventory.software.some(s => s.name === 'Decrypter' && s.level > 1.0));
+            
+            indexContent.innerHTML = `
+                <div style="background: #1a0000; border: 2px solid #ff0000; padding: 10px; margin-bottom: 10px;">
+                    <h3 style="color: #ff0000;">💀 REMOTE ACCESS - ${currentIP} [${server.name}]</h3>
+                    <p style="color: #ffaa00;">Root access granted - You control this system</p>
+                </div>
+                
+                <!-- File System -->
+                <div style="background: #0a0a0a; padding: 10px; border: 1px solid #00ff00; margin-bottom: 10px;">
+                    <h4 style="color: #00ff00;">📁 File System (${server.storage.used}/${server.storage.total} MB):</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        ${visibleFiles.map(file => `
+                            <li style="margin: 5px 0;">
+                                <span style="color: ${file.hidden ? '#ff00ff' : '#00ff00'};">
+                                    📄 ${file.name} (${file.size} MB) ${file.hidden ? '[ENCRYPTED]' : ''}
+                                </span>
+                                <button onclick="viewFile('${file.name}')" style="margin-left: 10px;">View</button>
+                                <button onclick="downloadFile('${file.name}')">Download</button>
+                                <button onclick="editFile('${file.name}')">Edit</button>
+                                <button onclick="deleteFile('${file.name}')" style="background: #330000; color: #ff0000;">Delete</button>
+                            </li>
+                        `).join('')}
+                    </ul>
+                    <button onclick="showUploadPanel()" class="btn btn-primary">📤 Upload File</button>
+                </div>
+                
+                <!-- Running Processes -->
+                <div style="background: #0a0a0a; padding: 10px; border: 1px solid #00ff00; margin-bottom: 10px;">
+                    <h4 style="color: #00ff00;">⚙️ Running Processes:</h4>
+                    <table style="width: 100%; color: #888;">
+                        <tr><th>PID</th><th>Process</th><th>CPU%</th><th>Status</th><th>Action</th></tr>
+                        ${server.processes.map(proc => `
+                            <tr>
+                                <td>${proc.pid}</td>
+                                <td style="color: ${proc.running ? '#00ff00' : '#ff0000'}">${proc.name}</td>
+                                <td>${proc.cpu}%</td>
+                                <td>${proc.running ? '✅ Running' : '❌ Stopped'}</td>
+                                <td>
+                                    ${proc.running ? 
+                                        `<button onclick="stopProcess(${proc.pid})" style="background: #330000; color: #ff0000;">Kill</button>` :
+                                        `<button onclick="startProcess(${proc.pid})" style="background: #003300; color: #00ff00;">Start</button>`
+                                    }
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                </div>
+                
+                <!-- Malware Section -->
+                <div style="background: #0a0a0a; padding: 10px; border: 1px solid #00ff00; margin-bottom: 10px;">
+                    <h4 style="color: #00ff00;">🦠 Upload Malware:</h4>
+                    <select id="malware-select" style="background: #1a1a1a; color: #00ff00; border: 1px solid #333;">
+                        ${playerInventory.software.filter(s => s.type === 'malware').map(mal => 
+                            `<option value="${mal.name}">${mal.name} (Level ${mal.level})</option>`
+                        ).join('')}
+                    </select>
+                    <button onclick="uploadMalware()" class="btn" style="background: #660000; color: #ff0000;">🦠 Install</button>
+                    
+                    ${server.malware.length > 0 ? `
+                        <h5 style="color: #ff0000; margin-top: 10px;">Installed Malware:</h5>
+                        <ul style="list-style: none; padding: 0;">
+                            ${server.malware.map(m => `
+                                <li style="color: #ff6600;">
+                                    ${m.name} ${m.hidden ? '[HIDDEN]' : '[VISIBLE]'}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    ` : ''}
+                </div>
+                
+                <!-- Actions -->
+                <div style="background: #0a0a0a; padding: 10px; border: 1px solid #00ff00;">
+                    <h4 style="color: #00ff00;">💰 Actions:</h4>
+                    <button onclick="searchForBankInfo()" class="btn btn-primary">🔍 Search Financial Info</button>
+                    <button onclick="clearLogs()" class="btn btn-primary">🗑️ Clear Logs</button>
+                    <button onclick="installBackdoor()" class="btn btn-primary">🚪 Install Backdoor</button>
+                    <button onclick="formatServer()" class="btn" style="background: #660000; color: #ff0000;">💣 Format Server</button>
+                    <button onclick="disconnectFromServer()" class="btn">🔌 Disconnect</button>
+                </div>
+            `;
+            
+            // Switch to index tab to show the remote access
+            window.location.hash = 'index';
+        }
+        
+        // File operations
+        function viewFile(filename) {
+            const server = servers[currentIP];
+            const file = server.files.find(f => f.name === filename);
+            if (file && file.content) {
+                alert(`📄 ${file.name}:\n\n${file.content}`);
+            } else {
+                alert(`📄 ${file.name}: [Binary file - cannot display]`);
+            }
+        }
+        
+        function downloadFile(filename) {
+            const server = servers[currentIP];
+            const file = server.files.find(f => f.name === filename);
+            playerInventory.downloadedFiles.push(file);
+            addLog(`Downloaded ${filename} from ${currentIP}`);
+            alert(`✅ Downloaded ${filename} (${file.size} MB) to your local storage!`);
+        }
+        
+        function editFile(filename) {
+            const server = servers[currentIP];
+            const file = server.files.find(f => f.name === filename);
+            if (file && file.name === 'system.log') {
+                const newContent = prompt('Edit log file:', file.content);
+                if (newContent !== null) {
+                    file.content = newContent;
+                    addLog(`Modified ${filename} on ${currentIP}`);
+                    alert(`✅ Log file edited!`);
+                }
+            } else {
+                alert(`❌ Cannot edit this file type`);
+            }
+        }
+        
+        function deleteFile(filename) {
+            const server = servers[currentIP];
+            const fileIndex = server.files.findIndex(f => f.name === filename);
+            if (fileIndex > -1) {
+                const file = server.files[fileIndex];
+                server.storage.used -= file.size;
+                server.files.splice(fileIndex, 1);
+                addLog(`Deleted ${filename} from ${currentIP}`);
+                showRemoteAccess();
+            }
+        }
+        
+        function showUploadPanel() {
+            const files = playerInventory.downloadedFiles;
+            if (files.length === 0) {
+                alert('❌ No files to upload. Download files from other servers first!');
+                return;
+            }
+            const fileName = prompt('Available files:\n' + files.map(f => f.name).join('\n') + '\n\nEnter filename to upload:');
+            if (fileName) {
+                uploadFile(fileName);
+            }
+        }
+        
+        function uploadFile(filename) {
+            const file = playerInventory.downloadedFiles.find(f => f.name === filename);
+            if (file) {
+                const server = servers[currentIP];
+                if (server.storage.used + file.size > server.storage.total) {
+                    alert('❌ Not enough space on server!');
+                    return;
+                }
+                server.files.push({...file});
+                server.storage.used += file.size;
+                addLog(`Uploaded ${filename} to ${currentIP}`);
+                showRemoteAccess();
+            }
+        }
+        
+        // Process management
+        function stopProcess(pid) {
+            const server = servers[currentIP];
+            const process = server.processes.find(p => p.pid === pid);
+            if (process) {
+                process.running = false;
+                addLog(`Killed process ${process.name} (PID: ${pid}) on ${currentIP}`);
+                
+                // Check if antivirus was stopped
+                if (process.name.includes('Antivirus')) {
+                    server.antivirus.running = false;
+                    alert('⚠️ Antivirus disabled! Malware can now be installed undetected.');
+                }
+                showRemoteAccess();
+            }
+        }
+        
+        function startProcess(pid) {
+            const server = servers[currentIP];
+            const process = server.processes.find(p => p.pid === pid);
+            if (process) {
+                process.running = true;
+                addLog(`Started process ${process.name} (PID: ${pid}) on ${currentIP}`);
+                
+                // Check if antivirus was started
+                if (process.name.includes('Antivirus')) {
+                    server.antivirus.running = true;
+                    // Check for malware
+                    const visibleMalware = server.malware.filter(m => !m.hidden);
+                    if (visibleMalware.length > 0) {
+                        alert('🛡️ Antivirus detected and removed visible malware!');
+                        server.malware = server.malware.filter(m => m.hidden);
+                    }
+                }
+                showRemoteAccess();
+            }
+        }
+        
+        // Malware operations
+        function uploadMalware() {
+            const server = servers[currentIP];
+            const malwareName = document.getElementById('malware-select').value;
+            const malware = playerInventory.software.find(s => s.name === malwareName);
+            
+            if (!malware) return;
+            
+            // Check if antivirus is running
+            const av = server.processes.find(p => p.name.includes('Antivirus'));
+            if (av && av.running && malware.level <= server.antivirus.version) {
+                alert(`❌ Antivirus (Level ${server.antivirus.version}) blocked ${malware.name} (Level ${malware.level})!\nYou need higher level malware or disable the antivirus first.`);
+                addLog(`Antivirus blocked ${malware.name} upload attempt on ${currentIP}`);
+                return;
+            }
+            
+            // Check if we have crypter to hide it
+            const crypter = playerInventory.software.find(s => s.name === 'Crypter 1.0');
+            const isHidden = crypter && crypter.level >= 1.0;
+            
+            server.malware.push({
+                name: malware.name,
+                level: malware.level,
+                hidden: isHidden
+            });
+            
+            addLog(`Installed ${malware.name} on ${currentIP} ${isHidden ? '[HIDDEN]' : '[VISIBLE]'}`);
+            alert(`🦠 ${malware.name} installed! ${isHidden ? 'Hidden with crypter.' : 'Visible to antivirus.'}`);
+            showRemoteAccess();
+        }
+        
+        function searchForBankInfo() {
+            const server = servers[currentIP];
+            const bankFile = server.files.find(f => f.name === 'bank_account.txt');
+            if (bankFile) {
+                alert(`💰 BANK ACCOUNT FOUND!\n\n${bankFile.content}\n\nUse this info to transfer money.`);
+                // Now allow money transfer
+                const transferAmount = prompt('Enter amount to transfer (Max: $45,000):');
+                if (transferAmount && parseInt(transferAmount) <= server.bankAccount.balance) {
+                    server.bankAccount.balance -= parseInt(transferAmount);
+                    addLog(`Transferred $${transferAmount} from account ${server.bankAccount.number}`);
+                    alert(`✅ Successfully transferred $${transferAmount} to your account!`);
+                } else if (transferAmount) {
+                    alert('❌ Insufficient funds or invalid amount!');
+                }
+            } else {
+                alert('❌ No financial information found on this server.');
+            }
+        }
+        
+        function clearLogs() {
+            const server = servers[currentIP];
+            const logFile = server.files.find(f => f.name === 'system.log');
+            if (logFile) {
+                logFile.content = '[LOGS CLEARED]';
+                server.logs = [];
+                addLog(`Cleared all logs on ${currentIP}`);
+                alert('✅ All logs have been cleared!');
+            }
+        }
+        
+        function installBackdoor() {
+            const server = servers[currentIP];
+            server.files.push({
+                name: 'backdoor.exe',
+                size: 1,
+                hidden: true,
+                content: 'Remote access backdoor installed'
+            });
+            addLog(`Backdoor installed on ${currentIP}`);
+            alert(`🚪 Backdoor installed! You can now access this server anytime without hacking.`);
+        }
+        
+        function formatServer() {
+            if (confirm('⚠️ This will destroy all data on the server! Continue?')) {
+                const server = servers[currentIP];
+                server.files = [];
+                server.processes.forEach(p => p.running = false);
+                server.malware = [];
+                server.isHacked = false;
+                server.storage.used = 0;
+                addLog(`FORMATTED SERVER ${currentIP} - All data destroyed!`);
+                alert(`💣 Server formatted! All data has been destroyed.`);
+                disconnectFromServer();
+            }
+        }
+        
+        function disconnectFromServer() {
+            location.reload();
+        }
+        
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            handleHashChange();
+            
+            // Add login form handler
+            const loginForm = document.querySelector('#login-content form');
+            if (loginForm) {
+                loginForm.addEventListener('submit', attemptLogin);
+            }
+            
+            // Add hack button handlers
+            document.querySelectorAll('#hack-content button').forEach((btn, index) => {
+                const types = ['bruteforce', 'virus', 'ddos', 'portscan'];
+                btn.addEventListener('click', () => startHack(types[index]));
+            });
+            
+            // Handle IP links
+            document.querySelectorAll('a[href*="?ip="]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const ip = link.href.split('ip=')[1];
+                    connectToIP(ip);
+                    alert('Connected to ' + ip);
+                });
+            });
+        });
+        
+        window.addEventListener('hashchange', handleHashChange);
+    </script>
+</body>
+</html>

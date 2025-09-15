@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker Experience</title>
+    <link href="/css/he-matrix.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <style>
+        /* Top navigation bar */
+        #top-nav {
+            background: #1a1a1a;
+            border-bottom: 1px solid #00ff00;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        #top-nav .logo {
+            color: #00ff00;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        #top-nav .user-menu {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        #top-nav .user-menu a {
+            color: #888888;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        
+        #top-nav .user-menu a:hover {
+            color: #00ff00;
+            text-shadow: 0 0 3px #00ff00;
+        }
+        
+        #top-nav .user-menu .badge {
+            background: #ff0000;
+            color: white;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 9px;
+            margin-left: 2px;
+        }
+        
+        /* Main navigation */
+        #main-nav {
+            background: #0a0a0a;
+            border-bottom: 1px solid #333333;
+            padding: 0;
+        }
+        
+        #main-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        
+        #main-nav li {
+            border-right: 1px solid #333333;
+        }
+        
+        #main-nav a {
+            display: block;
+            padding: 10px 15px;
+            color: #888888;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        
+        #main-nav a:hover,
+        #main-nav a.active {
+            background: #1a1a1a;
+            color: #00ff00;
+            text-shadow: 0 0 3px #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <div id="top-nav">
+        <div class="logo">NetHeist</div>
+        <div class="user-menu">
+            <a href="#">▶ Techmad</a>
+            <a href="#">▶ E-Mail <span class="badge">2</span></a>
+            <a href="#">▶ Settings</a>
+            <a href="#">▶ Logout</a>
+        </div>
+    </div>
+    
+    <!-- Main Navigation -->
+    <div id="main-nav">
+        <ul>
+            <li><a href="#" class="active" onclick="loadPage('home')">Home</a></li>
+            <li><a href="#" onclick="loadPage('processes')">Task Manager</a></li>
+            <li><a href="#" onclick="loadPage('software')">Software</a></li>
+            <li><a href="#" onclick="loadPage('internet')">Internet</a></li>
+            <li><a href="#" onclick="loadPage('logs')">Log File</a></li>
+            <li><a href="#" onclick="loadPage('hardware')">Hardware</a></li>
+            <li><a href="#" onclick="loadPage('university')">University</a></li>
+            <li><a href="#" onclick="loadPage('finances')">Finances</a></li>
+            <li><a href="#" onclick="loadPage('hacked')">Hacked Database</a></li>
+            <li><a href="#" onclick="loadPage('missions')">Missions</a></li>
+            <li><a href="#" onclick="loadPage('utilities')">Utilities</a></li>
+            <li><a href="#" onclick="loadPage('clan')">Clan</a></li>
+            <li><a href="#" onclick="loadPage('ranking')">Ranking</a></li>
+            <li><a href="#" onclick="loadPage('hall')">Hall of Fame</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header clearfix">
+            <h2>Control Panel</h2>
+            <span class="ip-address">59.35.236.56</span>
+        </div>
+        
+        <div class="row">
+            <!-- Left Column - smaller -->
+            <div class="col-md-3">
+                <!-- System Info Box -->
+                <div class="panel">
+                    <div class="panel-body" style="padding: 8px;">
+                        <div style="font-size: 10px; color: #888;">Uptime: <span style="color: #c0c0c0;">8 days and 4 hours</span></div>
+                        <div style="margin-top: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #00ff00; font-family: monospace;">bmLik4tG</span>
+                            <a href="#" onclick="changePassword()" style="font-size: 10px; color: #888;">[ change ]</a>
+                            <span style="color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">31</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Home Menu -->
+                <div class="panel">
+                    <div class="panel-body" style="padding: 0;">
+                        <div style="padding: 8px 12px; background: linear-gradient(to bottom, #2a2a2a, #1a1a1a); border-bottom: 1px solid #00ff00;">
+                            <span style="color: #00ff00; font-size: 11px;">▶ Home</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Panel -->
+                <div class="panel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Control Panel</h3>
+                    </div>
+                    <div class="panel-body" style="padding: 0;">
+                        <!-- This would have sub-menu items in full implementation -->
+                    </div>
+                </div>
+
+                <!-- Hardware Information -->
+                <div class="panel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Hardware Information</h3>
+                    </div>
+                    <div class="panel-body" style="padding: 8px;">
+                        <div class="hardware-item">
+                            <span class="name">Processor</span>
+                            <span class="spec">0.5 GHz</span>
+                        </div>
+                        <div class="hardware-item">
+                            <span class="name">Hard Drive</span>
+                            <span class="spec">100 MB</span>
+                        </div>
+                        <div class="hardware-item">
+                            <span class="name">Memory</span>
+                            <span class="spec">256 MB</span>
+                        </div>
+                        <div class="hardware-item">
+                            <span class="name">Internet</span>
+                            <span class="spec">1 Mbit/s</span>
+                        </div>
+                        <div class="hardware-item">
+                            <span class="name">External HD</span>
+                            <span class="spec" style="color: #666;">None</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-md-9">
+                <!-- Home Page Content -->
+                <div id="home-page" class="page-content">
+                    <div class="row">
+                        <!-- Left Content Column -->
+                        <div class="col-md-6">
+                            <!-- General Info -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">General Info <span class="badge" style="background: #333; color: #888; float: right;">Basic</span></h3>
+                                </div>
+                                <div class="panel-body" style="padding: 8px;">
+                                    <table style="width: 100%; font-size: 11px;">
+                                        <tr>
+                                            <td style="color: #888; padding: 3px;">Reputation</td>
+                                            <td style="color: #c0c0c0; padding: 3px;">0 <span style="color: #666;">Ranked #165</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color: #888; padding: 3px;">Running tasks</td>
+                                            <td style="color: #c0c0c0; padding: 3px;">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color: #888; padding: 3px;">Connected to</td>
+                                            <td style="color: #c0c0c0; padding: 3px;">No one</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color: #888; padding: 3px;">Mission</td>
+                                            <td style="color: #c0c0c0; padding: 3px;">None</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color: #888; padding: 3px;">Clan</td>
+                                            <td style="color: #c0c0c0; padding: 3px;">
+                                                <span style="color: #ff0000; font-weight: bold;">[tek]</span> techmad
+                                                <span class="badge-success" style="background: #00ff00; color: #000; padding: 1px 4px; font-size: 9px;">Master</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- News -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">News <a href="#" style="float: right; font-size: 10px; color: #888;">View all</a></h3>
+                                </div>
+                                <div class="panel-body" style="padding: 8px;">
+                                    <div style="font-size: 10px; margin-bottom: 5px;">
+                                        <span style="color: #666;">2025-09-06 06:38:30</span><br>
+                                        <span style="color: #c0c0c0;">Round #64 started</span>
+                                    </div>
+                                    <div style="font-size: 10px; margin-bottom: 5px;">
+                                        <span style="color: #666;">2025-09-05 04:22:24</span><br>
+                                        <span style="color: #c0c0c0;">Doom disabled</span>
+                                    </div>
+                                    <div style="font-size: 10px;">
+                                        <span style="color: #666;">2025-09-05 01:45:03</span><br>
+                                        <span style="color: #c0c0c0;">TOXIK seized FBI suspect known as Dead_Puffin</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FBI Wanted List -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">FBI Wanted List <span class="badge-danger" style="background: #ff0000; color: #fff; padding: 1px 4px; font-size: 9px; float: right;">FBI</span></h3>
+                                </div>
+                                <div class="panel-body" style="padding: 8px;">
+                                    <p style="color: #666; font-size: 11px; margin: 0;">No wanted IPs ATM</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Content Column -->
+                        <div class="col-md-6">
+                            <!-- Round Info -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Round Info <span style="background: #333; color: #888; padding: 1px 4px; font-size: 9px; float: right;">Round 64</span></h3>
+                                </div>
+                                <div class="panel-body" style="padding: 8px;">
+                                    <table style="width: 100%; font-size: 11px;">
+                                        <tr>
+                                            <td style="color: #888; padding: 3px;">Name</td>
+                                            <td style="color: #00ff00; padding: 3px;">ROUND-64</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color: #888; padding: 3px;">Started</td>
+                                            <td style="color: #c0c0c0; padding: 3px;">2025-09-06</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="color: #888; padding: 3px;">Age</td>
+                                            <td style="color: #c0c0c0; padding: 3px;">8 days</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Top 7 Users -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Top 7 users <a href="#" style="float: right; font-size: 10px; color: #888;">View ranking</a></h3>
+                                </div>
+                                <div class="panel-body" style="padding: 0;">
+                                    <table class="ranking-table" style="width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="padding: 4px 8px;">#</th>
+                                                <th style="padding: 4px 8px;">User</th>
+                                                <th style="padding: 4px 8px; text-align: right;">Reputation</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style="padding: 4px 8px; color: #ff0000; font-weight: bold;">1</td>
+                                                <td style="padding: 4px 8px;"><a href="#" class="username">BlackSaber</a></td>
+                                                <td style="padding: 4px 8px; text-align: right; color: #00ff00;">450,804</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 8px; color: #ff0000; font-weight: bold;">2</td>
+                                                <td style="padding: 4px 8px;"><a href="#" class="username">r_0_b_3_3</a></td>
+                                                <td style="padding: 4px 8px; text-align: right; color: #00ff00;">350,963</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 8px; color: #ff0000; font-weight: bold;">3</td>
+                                                <td style="padding: 4px 8px;"><a href="#" class="username">LordOfThePings</a></td>
+                                                <td style="padding: 4px 8px; text-align: right; color: #00ff00;">341,124</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 8px; color: #ff0000; font-weight: bold;">4</td>
+                                                <td style="padding: 4px 8px;"><a href="#" class="username">batista4203</a></td>
+                                                <td style="padding: 4px 8px; text-align: right; color: #00ff00;">304,099</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 8px; color: #ff0000; font-weight: bold;">5</td>
+                                                <td style="padding: 4px 8px;"><a href="#" class="username">Hardcover2961</a></td>
+                                                <td style="padding: 4px 8px; text-align: right; color: #00ff00;">271,715</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 8px; color: #ff0000; font-weight: bold;">6</td>
+                                                <td style="padding: 4px 8px;"><a href="#" class="username">logak</a></td>
+                                                <td style="padding: 4px 8px; text-align: right; color: #00ff00;">250,647</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px 8px; color: #ff0000; font-weight: bold;">7</td>
+                                                <td style="padding: 4px 8px;"><a href="#" class="username">Tommym223</a></td>
+                                                <td style="padding: 4px 8px; text-align: right; color: #00ff00;">248,150</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Game News -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Game News & Announcements <a href="#" style="float: right; font-size: 10px; color: #888;">View all</a></h3>
+                                </div>
+                                <div class="panel-body" style="padding: 0;">
+                                    <table style="width: 100%; font-size: 10px;">
+                                        <thead>
+                                            <tr style="background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);">
+                                                <th style="padding: 4px; border: 1px solid #333; color: #00ff00;">Date</th>
+                                                <th style="padding: 4px; border: 1px solid #333; color: #00ff00;">Title</th>
+                                                <th style="padding: 4px; border: 1px solid #333; color: #00ff00;">Author</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style="padding: 4px; border: 1px solid #222; color: #666;">2025-03-25 10:46</td>
+                                                <td style="padding: 4px; border: 1px solid #222;"><a href="#" style="color: #888;">Round 59/60 Changes</a></td>
+                                                <td style="padding: 4px; border: 1px solid #222; color: #888;">HW Dev Team</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px; border: 1px solid #222; color: #666;">2022-12-11 09:34</td>
+                                                <td style="padding: 4px; border: 1px solid #222;"><a href="#" style="color: #888;">Round 35 - Hardware Price Balance</a></td>
+                                                <td style="padding: 4px; border: 1px solid #222; color: #888;">HW Dev Team</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 4px; border: 1px solid #222; color: #666;">2022-11-06 05:33</td>
+                                                <td style="padding: 4px; border: 1px solid #222;"><a href="#" style="color: #888;">Round 34 - Game Balancing</a></td>
+                                                <td style="padding: 4px; border: 1px solid #222; color: #888;">HW Dev Team</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other pages would go here -->
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <a href="#">Terms of Service and Use</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Discord</a>
+            <a href="#">Stats</a>
+            <br>
+            <span style="color: #666;">2025 - NetHeist • Powered by Evolushost • </span><a href="#">Credits</a>
+        </div>
+    </div>
+
+    <script>
+        function loadPage(page) {
+            $('.page-content').hide();
+            $('#' + page + '-page').show();
+            $('#main-nav a').removeClass('active');
+            $('#main-nav a[onclick*="' + page + '"]').addClass('active');
+        }
+
+        function changePassword() {
+            alert('Password change feature');
+        }
+
+        $(document).ready(function() {
+            loadPage('home');
+        });
+    </script>
+</body>
+</html>

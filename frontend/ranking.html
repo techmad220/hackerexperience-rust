@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Ranking - NetHeist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/he-matrix.css" />
+    <style>
+        body {
+            padding-top: 92px;
+            background: #0a0a0a;
+            color: #c0c0c0;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin: 0;
+        }
+        
+        /* Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+        }
+        
+        #header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        #header h1 a {
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            text-decoration: none;
+        }
+        
+        /* User nav bar */
+        #user-nav {
+            position: fixed;
+            top: 51px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 0;
+        }
+        
+        #user-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        
+        #user-nav li {
+            border-right: 1px solid #333;
+        }
+        
+        #user-nav .btn {
+            display: block;
+            padding: 8px 15px;
+            color: #888;
+            text-decoration: none;
+            background: transparent;
+            border: none;
+            font-size: 11px;
+        }
+        
+        #user-nav .btn:hover {
+            background: #222;
+            color: #00ff00;
+        }
+        
+        /* Sidebar */
+        #sidebar {
+            z-index: 998;
+            position: fixed;
+            left: 0;
+            top: 92px;
+            width: 200px;
+            background: linear-gradient(to right, #1a1a1a, #222222);
+            border-right: 1px solid #00ff00;
+            height: calc(100vh - 92px);
+            overflow-y: auto;
+        }
+        
+        #sidebar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #sidebar li {
+            border-bottom: 1px solid #0a0a0a;
+        }
+        
+        #sidebar a {
+            display: block;
+            padding: 10px 15px;
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        
+        #sidebar li.active a,
+        #sidebar a:hover {
+            background: #0a0a0a;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            border-left: 3px solid #00ff00;
+        }
+        
+        /* Content */
+        #content {
+            margin-left: 200px;
+            padding: 0;
+        }
+        
+        #content-header {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+            position: relative;
+        }
+        
+        #content-header h1 {
+            margin: 0;
+            font-size: 14px;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            display: inline-block;
+        }
+        
+        .header-ip {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+        
+        .header-ip-show {
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 14px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .header-info {
+            font-size: 10px;
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .header-info .small {
+            color: #888;
+        }
+        
+        .header-info .green {
+            color: #00ff00;
+        }
+        
+        /* Breadcrumb */
+        #breadcrumb {
+            background: #0a0a0a;
+            border-bottom: 1px solid #333;
+            padding: 5px 20px;
+            font-size: 11px;
+        }
+        
+        #breadcrumb a {
+            color: #888;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        
+        #breadcrumb a:hover {
+            color: #00ff00;
+        }
+        
+        /* Container */
+        .container-fluid {
+            padding: 20px;
+        }
+        
+        .row-fluid {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .span12 {
+            width: 100%;
+        }
+        
+        /* Widget boxes */
+        .widget-box {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+        }
+        
+        .widget-title {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 0;
+            position: relative;
+        }
+        
+        .widget-content {
+            padding: 15px;
+            background: #0a0a0a;
+        }
+        
+        .widget-content.padding {
+            padding: 15px;
+        }
+        
+        .widget-content.noborder {
+            border: none;
+        }
+        
+        .widget-content.center {
+            text-align: center;
+        }
+        
+        /* Nav tabs */
+        .nav-tabs {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            border-bottom: none;
+        }
+        
+        .nav-tabs li {
+            margin-right: 10px;
+        }
+        
+        .nav-tabs a {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-bottom: none;
+            color: #888 !important;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        
+        .nav-tabs li.active a {
+            background: #1a1a1a;
+            border-color: #00ff00;
+            color: #00ff00 !important;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Tables */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #0a0a0a;
+            margin: 0;
+        }
+        
+        .table thead th {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            color: #00ff00;
+            text-shadow: 0 0 3px #00ff00;
+            padding: 10px 8px;
+            border: 1px solid #333;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
+        .table tbody td {
+            padding: 8px;
+            border: 1px solid #333;
+            color: #c0c0c0;
+            font-size: 11px;
+        }
+        
+        .table-bordered {
+            border: 1px solid #333;
+        }
+        
+        .table-striped tbody tr:nth-child(odd) {
+            background: #111;
+        }
+        
+        .table-striped tbody tr:nth-child(even) {
+            background: #0a0a0a;
+        }
+        
+        .table-hover tbody tr:hover {
+            background: #1a1a1a;
+        }
+        
+        .table a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+        
+        .table a:hover {
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .table center {
+            text-align: center;
+        }
+        
+        /* Online and premium indicators */
+        .r-online {
+            background: #00ff00;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 5px;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        
+        .r-premium {
+            color: #ffd700;
+            margin-left: 3px;
+        }
+        
+        .r-premium::after {
+            content: "★";
+        }
+        
+        /* Pagination */
+        .pagination {
+            margin: 20px 0;
+        }
+        
+        .pagination ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .pagination li {
+            background: #0a0a0a;
+            border: 1px solid #333;
+        }
+        
+        .pagination li a {
+            display: block;
+            padding: 8px 12px;
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        
+        .pagination li:hover {
+            background: #1a1a1a;
+        }
+        
+        .pagination li:hover a {
+            color: #00ff00;
+        }
+        
+        .pagination li.active {
+            background: #00ff00;
+        }
+        
+        .pagination li.active a {
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .pagination li.disabled {
+            background: #0a0a0a;
+            opacity: 0.5;
+        }
+        
+        .pagination li.disabled a {
+            color: #555;
+        }
+        
+        /* Hide phone elements on desktop */
+        .hide-phone {
+            display: inline;
+        }
+        
+        .visible-phone {
+            display: none;
+        }
+        
+        /* Tab icons */
+        .he16-rank_user::before { content: "👤"; margin-right: 5px; }
+        .he16-rank_clan::before { content: "👥"; margin-right: 5px; }
+        .he16-rank_software::before { content: "💿"; margin-right: 5px; }
+        .he16-rank_ddos::before { content: "⚡"; margin-right: 5px; }
+        .he16-time::before { content: "🕒"; margin-right: 3px; }
+        .he16-online::before { content: "🟢"; margin-right: 3px; }
+        .icon-tab {
+            margin-right: 5px;
+        }
+        
+        /* Footer breadcrumb */
+        .center {
+            text-align: center;
+        }
+        
+        #breadcrumb.center {
+            background: #0a0a0a;
+            border-top: 1px solid #333;
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 10px;
+        }
+        
+        #breadcrumb.center a {
+            color: #888;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        #breadcrumb.center a:hover {
+            color: #00ff00;
+        }
+        
+        .pull-left {
+            float: left;
+        }
+        
+        .pull-right {
+            float: right;
+        }
+    </style>
+</head>
+<body class="ranking r-user">
+    <div id="header">
+        <h1><a href="#">NetHeist</a></h1>
+    </div>
+    
+    <div id="user-nav">
+        <ul>
+            <li class="btn"><a href="profile.html"><i class="fa fa-user"></i> <span class="text">Techmad</span></a></li>
+            <li class="btn"><a href="mail.html"><i class="fa fa-envelope"></i> <span class="text">E-Mail</span></a></li>
+            <li class="btn"><a href="settings.html"><i class="fa fa-wrench"></i> <span class="text">Settings</span></a></li>
+            <li class="btn"><a href="logout"><i class="fa fa-power-off"></i> <span class="text">Logout</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="sidebar">
+        <ul>
+            <li><a href="index.html"><i class="fa fa-home"></i> <span>Home</span></a></li>
+            <li><a href="task_manager.html"><i class="fa fa-tasks"></i> <span>Task Manager</span></a></li>
+            <li><a href="software.html"><i class="fa fa-folder-open"></i> <span>Software</span></a></li>
+            <li><a href="internet.html"><i class="fa fa-globe"></i> <span>Internet</span></a></li>
+            <li><a href="log.html"><i class="fa fa-book"></i> <span>Log File</span></a></li>
+            <li><a href="hardware.html"><i class="fa fa-desktop"></i> <span>Hardware</span></a></li>
+            <li><a href="university.html"><i class="fa fa-flask"></i> <span>University</span></a></li>
+            <li><a href="finances.html"><i class="fa fa-briefcase"></i> <span>Finances</span></a></li>
+            <li><a href="hacked_database.html"><i class="fa fa-terminal"></i> <span>Hacked Database</span></a></li>
+            <li><a href="missions.html"><i class="fa fa-building"></i> <span>Missions</span></a></li>
+            <li><a href="utilities.html"><i class="fa fa-cogs"></i> <span>Utilities</span></a></li>
+            <li><a href="clan.html"><i class="fa fa-users"></i> <span>Clan</span></a></li>
+            <li class="active"><a href="ranking.html"><i class="fa fa-bars"></i> <span>Ranking</span></a></li>
+            <li><a href="fame.html"><i class="fa fa-star"></i> <span>Hall of Fame</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="content">
+        <div id="content-header">
+            <h1>Ranking</h1>
+            <div class="header-ip hide-phone">
+                <div style="text-align: right;">
+                    <span class="header-ip-show">59.35.236.56</span>
+                </div>
+                <div class="header-info">
+                    <div class="pull-right">
+                        <span class="icon-tab he16-time" title="Server Time"></span> <span class="small nomargin" style="margin-right: 7px;">2025-09-14 13:42</span>
+                        <span class="online"><span class="he16-online" title="Online Players"></span> <span class="small nomargin">30</span></span>
+                        <div class="reputation-info" style="display: inline-block;">
+                            <span class="small nomargin item" title="Reputation">1</span>
+                            <span class="small nomargin" title="Ranking">(#128)</span>
+                        </div>
+                        <div class="finance-info" style="display: inline-block; margin-left: 10px;">
+                            <span class="small nomargin green header-finances" title="Finances">$500</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="breadcrumb">
+            <a href="index.html" title="Go to Home"><i class="fa fa-home"></i> Home</a>
+        </div>
+        
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span12">
+                    <div class="widget-box">
+                        <div class="widget-title">
+                            <ul class="nav-tabs">
+                                <li class="link active"><a href="ranking.html"><span class="icon-tab he16-rank_user"></span><span class="hide-phone">User ranking</span></a></li>
+                                <li class="link"><a href="?show=clan"><span class="icon-tab he16-rank_clan"></span><span class="hide-phone">Clan ranking</span></a></li>
+                                <li class="link"><a href="?show=software"><span class="icon-tab he16-rank_software"></span><span class="hide-phone">Software ranking</span></a></li>
+                                <li class="link"><a href="?show=ddos"><span class="icon-tab he16-rank_ddos"></span><span class="hide-phone">DDoS Ranking</span></a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="widget-content padding noborder center">
+                            <table class="table table-cozy table-bordered table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>User</th>
+                                        <th>Reputation</th>
+                                        <th>Hacked Database IPs</th>
+                                        <th>Clan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><center>1</center></td>
+                                        <td><a href="profile?id=38157">BlackSaber</a><span class="r-online"></span></td>
+                                        <td><center>450804</center></td>
+                                        <td><center>120</center></td>
+                                        <td><a href="clan?id=1">[TMN] The Monarchs</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><center>2</center></td>
+                                        <td><a href="profile?id=37973">r_0_b_3_3</a><span class="r-online"></span></td>
+                                        <td><center>355028</center></td>
+                                        <td><center>100</center></td>
+                                        <td><a href="clan?id=1694">[ONE] ONE</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><center>3</center></td>
+                                        <td><a href="profile?id=38122">LordOfThePings</a><span class="r-online"></span></td>
+                                        <td><center>341124</center></td>
+                                        <td><center>79</center></td>
+                                        <td><a href="clan?id=1688">[ATO] The Tax Man</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><center>4</center></td>
+                                        <td><a href="profile?id=1672">batista4203</a><span class="r-online"></span><span class="r-premium"></span></td>
+                                        <td><center>304245</center></td>
+                                        <td><center>50</center></td>
+                                        <td><a href="clan?id=1477">[NGG] Never gonna give you up</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><center>5</center></td>
+                                        <td><a href="profile?id=37987">Hardcover2961</a><span class="r-online"></span></td>
+                                        <td><center>272125</center></td>
+                                        <td><center>76</center></td>
+                                        <td><a href="clan?id=1680">[fsc] fsociety.</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><center>6</center></td>
+                                        <td><a href="profile?id=38004">swifty09</a><span class="r-online"></span></td>
+                                        <td><center>262700</center></td>
+                                        <td><center>77</center></td>
+                                        <td><a href="clan?id=1692">[KOH] Killers of Hardware</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><center>7</center></td>
+                                        <td><a href="profile?id=38147">Tommym223</a><span class="r-online"></span></td>
+                                        <td><center>258969</center></td>
+                                        <td><center>59</center></td>
+                                        <td><a href="clan?id=1692">[KOH] Killers of Hardware</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><center>8</center></td>
+                                        <td><a href="profile?id=37556">logak</a></td>
+                                        <td><center>250647</center></td>
+                                        <td><center>97</center></td>
+                                        <td><a href="clan?id=1695">[NJS] NODE-JS</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><center>9</center></td>
+                                        <td><a href="profile?id=45">M47Z</a></td>
+                                        <td><center>203402</center></td>
+                                        <td><center>94</center></td>
+                                        <td><a href="clan?id=1">[TMN] The Monarchs</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td><center>10</center></td>
+                                        <td><a href="profile?id=16733">NotOnline</a><span class="r-premium"></span></td>
+                                        <td><center>172719</center></td>
+                                        <td><center>99</center></td>
+                                        <td><a href="clan?id=1593">[CTY] Chemicality</a></td>
+                                    </tr>
+                                    <!-- Additional rows truncated for brevity -->
+                                    <tr>
+                                        <td><center>128</center></td>
+                                        <td><a href="profile?id=15179">Techmad</a><span class="r-online"></span></td>
+                                        <td><center>1</center></td>
+                                        <td><center>0</center></td>
+                                        <td><a href="clan.html?id=967">[tek] techmad</a></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            
+                            <div class="pagination alternate">
+                                <ul>
+                                    <li class="disabled"><a href="#" class="prevnext">Previous</a></li>
+                                    <li class="active"><a href="#">1</a></li>
+                                    <li><a href="?page=2">2</a></li>
+                                    <li><a href="?page=3">3</a></li>
+                                    <li><a href="?page=4">4</a></li>
+                                    <li><a href="?page=5">5</a></li>
+                                    <li><a href="?page=13">13</a></li>
+                                    <li><a href="?page=2">Next</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="breadcrumb" class="center">
+            <span class="pull-left hide-phone" style="margin-left: 10px;"><a href="TOS" target="_blank">Terms of Service and Use</a></span>
+            <span class="pull-left hide-phone"><a href="privacy" target="_blank">Privacy Policy</a></span>
+            <span class="pull-left hide-phone"><a href="https://discordapp.com/invite/8qXvhHR" target="_blank">Discord</a></span>
+            <span class="pull-left hide-phone"><a href="stats">Stats</a></span>
+            
+            <span class="center">2025 - <b>NetHeist</b><a target="_blank" href="https://evolushost.com/?ref=hackerwars">Powered by Evolushost</a></span>
+
+            <span class="pull-right hide-phone"><a href="">v1.0.0</a></span>
+            <span class="pull-right hide-phone"><a href="premium">Premium</a></span>
+            <span class="pull-right hide-phone"><a href="/report" target="_blank">Report Player</a></span>
+            <span class="pull-right hide-phone"><a href="https://github.com/hackerwars-io/issue-tracker" target="_blank">Report Bug</a></span>
+            <span class="pull-right hide-phone"><a>Credits</a></span>
+        </div>
+    </div>
+</body>
+</html>

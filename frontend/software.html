@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Software - NetHeist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="/css/he-matrix.css" />
+    <style>
+        body {
+            padding-top: 92px;
+            background: #0a0a0a;
+            color: #c0c0c0;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin: 0;
+        }
+        
+        /* Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+        }
+        
+        #header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        
+        #header h1 a {
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            text-decoration: none;
+        }
+        
+        /* User nav bar */
+        #user-nav {
+            position: fixed;
+            top: 51px;
+            left: 0;
+            right: 0;
+            z-index: 999;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 0;
+        }
+        
+        #user-nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        
+        #user-nav li {
+            border-right: 1px solid #333;
+        }
+        
+        #user-nav .btn {
+            display: block;
+            padding: 8px 15px;
+            color: #888;
+            text-decoration: none;
+            background: transparent;
+            border: none;
+            font-size: 11px;
+        }
+        
+        #user-nav .btn:hover {
+            background: #222;
+            color: #00ff00;
+        }
+        
+        /* Sidebar */
+        #sidebar {
+            z-index: 998;
+            position: fixed;
+            left: 0;
+            top: 92px;
+            width: 200px;
+            background: linear-gradient(to right, #1a1a1a, #222222);
+            border-right: 1px solid #00ff00;
+            height: calc(100vh - 92px);
+            overflow-y: auto;
+        }
+        
+        #sidebar ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        #sidebar li {
+            border-bottom: 1px solid #0a0a0a;
+        }
+        
+        #sidebar a {
+            display: block;
+            padding: 10px 15px;
+            color: #888;
+            text-decoration: none;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        
+        #sidebar li.active a,
+        #sidebar a:hover {
+            background: #0a0a0a;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            border-left: 3px solid #00ff00;
+        }
+        
+        /* Content */
+        #content {
+            margin-left: 200px;
+            padding: 0;
+        }
+        
+        #content-header {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 10px 20px;
+            position: relative;
+        }
+        
+        #content-header h1 {
+            margin: 0;
+            font-size: 14px;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+            display: inline-block;
+        }
+        
+        .header-ip {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+        
+        .header-ip-show {
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 14px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Container */
+        .container-fluid {
+            padding: 20px;
+        }
+        
+        /* Nav tabs */
+        .nav-tabs {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            border-bottom: 1px solid #333;
+        }
+        
+        .nav-tabs li {
+            margin-right: 10px;
+        }
+        
+        .nav-tabs a {
+            display: inline-block;
+            padding: 8px 15px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-bottom: none;
+            color: #888 !important;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        
+        .nav-tabs li.active a {
+            background: #1a1a1a;
+            border-color: #00ff00;
+            color: #00ff00 !important;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        /* Widget boxes */
+        .widget-box {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+        }
+        
+        .widget-title {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border-bottom: 1px solid #00ff00;
+            padding: 8px 10px;
+        }
+        
+        .widget-content {
+            padding: 10px;
+            background: #0a0a0a;
+        }
+        
+        /* Table */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #0a0a0a;
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border: 1px solid #333;
+            padding: 6px;
+            text-align: left;
+            color: #00ff00;
+            font-size: 11px;
+        }
+        
+        .table td {
+            border: 1px solid #222;
+            padding: 6px;
+            color: #888;
+            font-size: 11px;
+        }
+        
+        .table tr:hover {
+            background: #1a1a1a;
+        }
+        
+        /* HDD Usage */
+        .hd-usage {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .chart {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            border: 2px solid #00ff00;
+            border-radius: 50%;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        #downmeplz {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        
+        .hd-usage-text {
+            color: #00ff00;
+            font-size: 12px;
+            margin: 10px 0 5px;
+        }
+        
+        /* Software buttons */
+        .soft-but {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        
+        .soft-but li {
+            margin-bottom: 10px;
+        }
+        
+        .soft-but a {
+            display: block;
+            padding: 10px;
+            background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+            border: 1px solid #333;
+            color: #888 !important;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .soft-but a:hover {
+            background: linear-gradient(to bottom, #333, #222);
+            border-color: #00ff00;
+            color: #00ff00 !important;
+            text-shadow: 0 0 3px #00ff00;
+        }
+        
+        .row-fluid {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .span9 {
+            flex: 0 0 75%;
+        }
+        
+        .span3 {
+            flex: 0 0 25%;
+        }
+        
+        .small {
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .green {
+            color: #00ff00 !important;
+        }
+        
+        .red {
+            color: #ff0000 !important;
+        }
+        
+        .center {
+            text-align: center;
+        }
+        
+        .label {
+            background: #333;
+            color: #888;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 2px;
+            margin-left: 10px;
+        }
+        
+        .label-info {
+            background: #333 !important;
+            color: #00ff00 !important;
+        }
+    </style>
+</head>
+<body class="software">
+    <div id="header">
+        <h1><a href="#">NetHeist</a></h1>
+    </div>
+    
+    <div id="user-nav">
+        <ul>
+            <li class="btn"><a href="profile.html"><i class="fa fa-user"></i> <span class="text">Techmad</span></a></li>
+            <li class="btn"><a href="mail.html"><i class="fa fa-envelope"></i> <span class="text">E-Mail</span></a></li>
+            <li class="btn"><a href="settings.html"><i class="fa fa-wrench"></i> <span class="text">Settings</span></a></li>
+            <li class="btn"><a href="logout"><i class="fa fa-power-off"></i> <span class="text">Logout</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="sidebar">
+        <ul>
+            <li><a href="index.html"><i class="fa fa-home"></i> <span>Home</span></a></li>
+            <li><a href="task_manager.html"><i class="fa fa-tasks"></i> <span>Task Manager</span></a></li>
+            <li class="active"><a href="software.html"><i class="fa fa-folder-open"></i> <span>Software</span></a></li>
+            <li><a href="internet.html"><i class="fa fa-globe"></i> <span>Internet</span></a></li>
+            <li><a href="log.html"><i class="fa fa-book"></i> <span>Log File</span></a></li>
+            <li><a href="hardware.html"><i class="fa fa-desktop"></i> <span>Hardware</span></a></li>
+            <li><a href="university.html"><i class="fa fa-flask"></i> <span>University</span></a></li>
+            <li><a href="finances.html"><i class="fa fa-briefcase"></i> <span>Finances</span></a></li>
+            <li><a href="hacked_database.html"><i class="fa fa-terminal"></i> <span>Hacked Database</span></a></li>
+            <li><a href="missions.html"><i class="fa fa-building"></i> <span>Missions</span></a></li>
+            <li><a href="utilities.html"><i class="fa fa-cogs"></i> <span>Utilities</span></a></li>
+            <li><a href="clan.html"><i class="fa fa-users"></i> <span>Clan</span></a></li>
+            <li><a href="ranking.html"><i class="fa fa-bars"></i> <span>Ranking</span></a></li>
+            <li><a href="fame.html"><i class="fa fa-star"></i> <span>Hall of Fame</span></a></li>
+        </ul>
+    </div>
+    
+    <div id="content">
+        <div id="content-header">
+            <h1>Software</h1>
+            <div class="header-ip">
+                <div style="text-align: right;">
+                    <span class="header-ip-show">59.35.236.56</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="container-fluid">
+            <div class="widget-box">
+                <div class="widget-title">
+                    <ul class="nav-tabs">
+                        <li class="active"><a href="software.html?page=local">💾 Software</a></li>
+                        <li><a href="software.html?page=external">💿 External HD</a></li>
+                        <a href="#" target="_blank"><span class="label label-info">Help</span></a>
+                    </ul>
+                </div>
+                <div class="widget-content">
+                    <!-- Local Software Content -->
+                    <div id="local-content" class="row-fluid" style="display: block;">
+                        <div class="span9">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th width="20"></th>
+                                        <th>Software name</th>
+                                        <th>Version</th>
+                                        <th>Size</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: center;">🔥</td>
+                                        <td style="color: #00ff00;">Firewall</td>
+                                        <td>1.0</td>
+                                        <td>10 MB</td>
+                                        <td>
+                                            <a href="#" style="color: #888;">Install</a> | 
+                                            <a href="#" style="color: #ff0000;">Delete</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;">🔓</td>
+                                        <td style="color: #00ff00;">Cracker</td>
+                                        <td>1.0</td>
+                                        <td>5 MB</td>
+                                        <td>
+                                            <a href="#" style="color: #888;">Install</a> | 
+                                            <a href="#" style="color: #ff0000;">Delete</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;">🔍</td>
+                                        <td style="color: #00ff00;">Seeker</td>
+                                        <td>1.0</td>
+                                        <td>3 MB</td>
+                                        <td>
+                                            <a href="#" style="color: #888;">Install</a> | 
+                                            <a href="#" style="color: #ff0000;">Delete</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="span3">
+                            <div class="hd-usage">
+                                <div class="chart">
+                                    <div id="downmeplz"><span>18%</span></div>
+                                </div>
+                                <div class="hd-usage-text">HDD Usage</div>
+                                <span class="small">
+                                    <span class="green">18 MB</span> / <span class="red">100 MB</span>
+                                </span>
+                            </div>
+                            
+                            <ul class="soft-but">
+                                <li>
+                                    <a href="#">
+                                        📝 New text file
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        📁 Create folder
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" style="border-color: #ff0000; color: #ff0000 !important;">
+                                        ⚠️ Format HD
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- External HD Content -->
+                    <div id="external-content" class="row-fluid" style="display: none;">
+                        <div class="span9">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th width="20"></th>
+                                        <th>Software name</th>
+                                        <th>Version</th>
+                                        <th>Size</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: center;">💾</td>
+                                        <td style="color: #ffaa00;">Backup Firewall</td>
+                                        <td>0.9</td>
+                                        <td>8 MB</td>
+                                        <td>
+                                            <a href="#" style="color: #888;">Install</a> | 
+                                            <a href="#" style="color: #ff0000;">Delete</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;">🗄️</td>
+                                        <td style="color: #ffaa00;">Database Dump</td>
+                                        <td>-</td>
+                                        <td>25 MB</td>
+                                        <td>
+                                            <a href="#" style="color: #888;">View</a> | 
+                                            <a href="#" style="color: #ff0000;">Delete</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center;">🔧</td>
+                                        <td style="color: #ffaa00;">System Tools</td>
+                                        <td>2.1</td>
+                                        <td>12 MB</td>
+                                        <td>
+                                            <a href="#" style="color: #888;">Install</a> | 
+                                            <a href="#" style="color: #ff0000;">Delete</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="span3">
+                            <div class="hd-usage">
+                                <div class="chart">
+                                    <div id="externalhd" style="background: linear-gradient(to top, #ffaa00, #ff6600); height: 45%;"><span>45%</span></div>
+                                </div>
+                                <div class="hd-usage-text">External HD Usage</div>
+                                <span class="small">
+                                    <span class="green">45 MB</span> / <span class="red">100 MB</span>
+                                </span>
+                            </div>
+                            
+                            <ul class="soft-but">
+                                <li>
+                                    <a href="#">
+                                        💿 Mount External HD
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        🔌 Unmount External HD
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" style="border-color: #ff0000; color: #ff0000 !important;">
+                                        ⚠️ Format External HD
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching functionality
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param) || 'local';
+        }
+        
+        function updateTabContent() {
+            const page = getQueryParam('page');
+            const tabs = document.querySelectorAll('.nav-tabs li');
+            const localContent = document.getElementById('local-content');
+            const externalContent = document.getElementById('external-content');
+            
+            // Hide all content
+            if (localContent) localContent.style.display = 'none';
+            if (externalContent) externalContent.style.display = 'none';
+            
+            // Show selected content and update active tab
+            tabs.forEach(tab => {
+                const link = tab.querySelector('a');
+                if (link) {
+                    const href = link.getAttribute('href');
+                    tab.classList.remove('active');
+                    
+                    if (page === 'external' && href && href.includes('page=external')) {
+                        tab.classList.add('active');
+                        if (externalContent) externalContent.style.display = 'flex';
+                    } else if (page === 'local' && href && href.includes('page=local')) {
+                        tab.classList.add('active');
+                        if (localContent) localContent.style.display = 'flex';
+                    }
+                }
+            });
+            
+            // Default to local if no match
+            if (page !== 'external' && page !== 'local') {
+                if (localContent) localContent.style.display = 'flex';
+                tabs.forEach(tab => {
+                    const link = tab.querySelector('a');
+                    if (link && link.getAttribute('href') && link.getAttribute('href').includes('page=local')) {
+                        tab.classList.add('active');
+                    }
+                });
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', updateTabContent);
+    </script>
+</body>
+</html>

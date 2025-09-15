@@ -12,6 +12,25 @@ class APIClient {
         if (this.authToken) {
             this.defaultHeaders['Authorization'] = `Bearer ${this.authToken}`;
         }
+        
+        // Retry configuration
+        this.maxRetries = 3;
+        this.retryDelay = 1000;
+        this.retryableStatusCodes = [500, 502, 503, 504, 408, 429];
+        
+        // Request queue for offline scenarios
+        this.requestQueue = [];
+        this.isOnline = navigator.onLine;
+        
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            this.isOnline = true;
+            this.processRequestQueue();
+        });
+        
+        window.addEventListener('offline', () => {
+            this.isOnline = false;
+        });
     }
 
     getBaseUrl() {
@@ -37,11 +56,12 @@ class APIClient {
         sessionStorage.removeItem('auth_token');
     }
 
-    async request(endpoint, options = {}) {
+    async request(endpoint, options = {}, retryCount = 0) {
         const url = `${this.baseUrl}${endpoint}`;
         const config = {
             method: 'GET',
             headers: { ...this.defaultHeaders },
+            timeout: 30000, // 30 second timeout
             ...options
         };
 
@@ -50,9 +70,23 @@ class APIClient {
             config.headers['Authorization'] = `Bearer ${this.authToken}`;
         }
 
+        // Check if offline and queue request
+        if (!this.isOnline && config.method !== 'GET') {
+            return this.queueRequest(endpoint, options);
+        }
+
         try {
-            console.log(`API Request: ${config.method} ${url}`);
-            const response = await fetch(url, config);
+            console.log(`API Request: ${config.method} ${url} (attempt ${retryCount + 1})`);
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), config.timeout);
+            
+            const response = await fetch(url, {
+                ...config,
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
             
             // Handle different response types
             const contentType = response.headers.get('content-type');
@@ -68,7 +102,24 @@ class APIClient {
                 const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
                 error.status = response.status;
                 error.data = data;
+                
+                // Check if we should retry
+                if (this.shouldRetry(error.status, retryCount)) {
+                    return this.retryRequest(endpoint, options, retryCount);
+                }
+                
                 throw error;
+            }
+
+            // Handle API response format
+            if (data && typeof data === 'object' && data.hasOwnProperty('success')) {
+                if (!data.success) {
+                    const error = new Error(data.error || 'API request failed');
+                    error.apiError = true;
+                    error.data = data;
+                    throw error;
+                }
+                return data; // Return the full response object
             }
 
             return data;
@@ -77,12 +128,84 @@ class APIClient {
             
             // Handle specific error cases
             if (error.status === 401) {
-                this.clearAuthToken();
-                // Optionally redirect to login
-                // window.location.href = '/login.php';
+                this.handleAuthError();
+            } else if (error.name === 'AbortError') {
+                error.message = 'Request timeout';
+            } else if (!this.isOnline) {
+                error.message = 'No internet connection';
+            }
+            
+            // Check if we should retry
+            if (this.shouldRetry(error.status, retryCount) || (error.name === 'TypeError' && retryCount < this.maxRetries)) {
+                return this.retryRequest(endpoint, options, retryCount);
             }
             
             throw error;
+        }
+    }
+
+    shouldRetry(status, retryCount) {
+        return retryCount < this.maxRetries && 
+               (this.retryableStatusCodes.includes(status) || !status);
+    }
+
+    async retryRequest(endpoint, options, retryCount) {
+        const delay = this.retryDelay * Math.pow(2, retryCount); // Exponential backoff
+        console.log(`Retrying request in ${delay}ms...`);
+        
+        await this.sleep(delay);
+        return this.request(endpoint, options, retryCount + 1);
+    }
+
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    handleAuthError() {
+        this.clearAuthToken();
+        
+        // Show notification
+        if (window.WebSocketManager) {
+            window.WebSocketManager.showNotification(
+                'Session Expired', 
+                'Please log in again', 
+                'warning'
+            );
+        }
+        
+        // Redirect to login after a short delay
+        setTimeout(() => {
+            if (window.gameInstance) {
+                window.gameInstance.showLoginForm();
+            }
+        }, 1000);
+    }
+
+    queueRequest(endpoint, options) {
+        return new Promise((resolve, reject) => {
+            this.requestQueue.push({
+                endpoint,
+                options,
+                resolve,
+                reject,
+                timestamp: Date.now()
+            });
+        });
+    }
+
+    async processRequestQueue() {
+        console.log(`Processing ${this.requestQueue.length} queued requests...`);
+        
+        const queue = [...this.requestQueue];
+        this.requestQueue = [];
+        
+        for (const item of queue) {
+            try {
+                const result = await this.request(item.endpoint, item.options);
+                item.resolve(result);
+            } catch (error) {
+                item.reject(error);
+            }
         }
     }
 
@@ -92,12 +215,22 @@ class APIClient {
         return this.request(url);
     }
 
+    // Safe version of get method
+    async safeGet(endpoint, params = {}) {
+        return this.safeCall(this.get, endpoint, params);
+    }
+
     async post(endpoint, data = {}, options = {}) {
         return this.request(endpoint, {
             method: 'POST',
             body: JSON.stringify(data),
             ...options
         });
+    }
+
+    // Safe version of post method
+    async safePost(endpoint, data = {}, options = {}) {
+        return this.safeCall(this.post, endpoint, data, options);
     }
 
     async put(endpoint, data = {}) {
@@ -128,8 +261,13 @@ class APIClient {
     // Authentication endpoints
     async login(username, password) {
         const response = await this.post('/auth/login', { username, password });
-        if (response.token) {
-            this.setAuthToken(response.token);
+        if (response.success && response.data && response.data.token) {
+            this.setAuthToken(response.data.token);
+            // Store user data
+            if (response.data.user) {
+                localStorage.setItem('user_data', JSON.stringify(response.data.user));
+                localStorage.setItem('player_id', response.data.user.id.toString());
+            }
         }
         return response;
     }
@@ -141,184 +279,179 @@ class APIClient {
             console.warn('Logout API call failed:', error);
         } finally {
             this.clearAuthToken();
+            localStorage.removeItem('user_data');
+            localStorage.removeItem('player_id');
         }
     }
 
-    async register(userData) {
-        return this.post('/auth/register', userData);
+    async register(username, email, password) {
+        return this.post('/auth/register', { username, email, password });
     }
 
-    // Player endpoints
+    async getCurrentUser() {
+        return this.get('/auth/me');
+    }
+
+    // User/Player endpoints
     async getPlayerInfo() {
-        return this.get('/player/info');
+        return this.get('/user/profile');
     }
 
     async updatePlayer(data) {
-        return this.put('/player/info', data);
+        return this.put('/user/update', data);
     }
 
     async getPlayerStats() {
-        return this.get('/player/stats');
+        return this.get('/user/stats');
     }
 
     // Process endpoints
     async getProcesses() {
-        return this.get('/processes');
+        return this.get('/processes/active');
     }
 
-    async startProcess(processData) {
-        return this.post('/processes', processData);
+    async startProcess(action, targetIp, softwareId = null) {
+        return this.post('/processes/start', { action, target_ip: targetIp, software_id: softwareId });
     }
 
-    async pauseProcess(processId) {
-        return this.put(`/processes/${processId}/pause`);
+    async killProcess(processId) {
+        return this.post(`/processes/${processId}/kill`);
     }
 
-    async cancelProcess(processId) {
-        return this.delete(`/processes/${processId}`);
+    async killAllProcesses() {
+        return this.post('/processes/kill-all');
     }
 
-    async getProcessStatus(processId) {
+    async getProcessDetails(processId) {
         return this.get(`/processes/${processId}`);
     }
 
     // Software endpoints
     async getSoftware() {
-        return this.get('/software');
+        return this.get('/software/installed');
     }
 
-    async installSoftware(softwareData) {
-        return this.post('/software', softwareData);
+    async startSoftware(softwareId) {
+        return this.post(`/software/${softwareId}/start`);
     }
 
-    async upgradeSoftware(softwareId) {
-        return this.put(`/software/${softwareId}/upgrade`);
+    async stopSoftware(softwareId) {
+        return this.post(`/software/${softwareId}/stop`);
     }
 
-    async removeSoftware(softwareId) {
-        return this.delete(`/software/${softwareId}`);
+    async uninstallSoftware(softwareId) {
+        return this.post(`/software/${softwareId}/uninstall`);
     }
 
-    async getSoftwareInfo(softwareType) {
-        return this.get(`/software/info/${softwareType}`);
+    // Store endpoints
+    async getSoftwareStore() {
+        return this.get('/store/software');
+    }
+
+    async purchaseSoftware(softwareId) {
+        return this.post('/store/purchase-software', { software_id: softwareId });
     }
 
     // Hardware endpoints
     async getHardware() {
-        return this.get('/hardware');
+        return this.get('/hardware/owned');
     }
 
-    async buyHardware(hardwareData) {
-        return this.post('/hardware', hardwareData);
+    async upgradeHardware(hardwareId, newSpecValue) {
+        return this.post('/hardware/upgrade', { hardware_id: hardwareId, new_spec_value: newSpecValue });
     }
 
-    async upgradeHardware(hardwareId) {
-        return this.put(`/hardware/${hardwareId}/upgrade`);
+    async getHardwareStore() {
+        return this.get('/store/hardware');
+    }
+
+    async purchaseHardware(hardwareType, specValue, price) {
+        return this.post('/store/purchase-hardware', { hardware_type: hardwareType, spec_value: specValue, price: price });
     }
 
     // Server/Network endpoints
-    async scanNetwork(network = '192.168.1') {
-        return this.post('/network/scan', { network });
+    async scanNetwork() {
+        return this.post('/network/scan');
+    }
+
+    async traceRoute(targetIp) {
+        return this.post('/network/trace', { target_ip: targetIp });
     }
 
     async connectToServer(ip) {
-        return this.post('/network/connect', { ip });
+        return this.post('/servers/connect', { ip });
     }
 
-    async disconnectFromServer() {
-        return this.post('/network/disconnect');
+    async getAvailableServers() {
+        return this.get('/servers/available');
     }
 
-    async hackServer(ip, hackType = 'password') {
-        return this.post('/network/hack', { ip, type: hackType });
+    async getOwnedServers() {
+        return this.get('/servers/owned');
     }
 
-    async uploadFile(ip, filename, content) {
-        return this.post('/network/upload', { ip, filename, content });
+    async getServerDetails(serverId) {
+        return this.get(`/servers/${serverId}`);
     }
 
-    async downloadFile(ip, filename) {
-        return this.post('/network/download', { ip, filename });
+    async getServerFiles(serverId) {
+        return this.get(`/servers/${serverId}/files`);
+    }
+
+    async getServerLogs(serverId) {
+        return this.get(`/servers/${serverId}/logs`);
     }
 
     // Log endpoints
-    async getLogs(serverId = null) {
-        return this.get('/logs', serverId ? { server_id: serverId } : {});
+    async getLogs() {
+        return this.get('/logs/recent');
     }
 
-    async deleteLog(logId) {
-        return this.delete(`/logs/${logId}`);
+    async clearLogs() {
+        return this.post('/logs/clear');
     }
 
-    async hideLog(logId) {
-        return this.put(`/logs/${logId}/hide`);
+    // File endpoints
+    async getFiles() {
+        return this.get('/files/list');
     }
 
-    async editLog(logId, newMessage) {
-        return this.put(`/logs/${logId}`, { message: newMessage });
+    async createFile(name, fileType, size, path, isHidden = false) {
+        return this.post('/files/create', { name, file_type: fileType, size, path, is_hidden: isHidden });
     }
 
-    async clearLogs(serverId = null) {
-        return this.delete('/logs', serverId ? { server_id: serverId } : {});
+    async deleteFile(fileId) {
+        return this.delete(`/files/${fileId}/delete`);
     }
 
-    // Mail endpoints
-    async getMail(folder = 'inbox') {
-        return this.get('/mail', { folder });
-    }
-
-    async sendMail(to, subject, message) {
-        return this.post('/mail', { to, subject, message });
-    }
-
-    async deleteMail(mailId) {
-        return this.delete(`/mail/${mailId}`);
-    }
-
-    async markMailRead(mailId) {
-        return this.put(`/mail/${mailId}/read`);
-    }
-
-    async replyToMail(originalId, message) {
-        return this.post('/mail/reply', { original_id: originalId, message });
+    async downloadFile(fileId) {
+        return this.get(`/files/${fileId}/download`);
     }
 
     // Clan endpoints
-    async getClanInfo(clanId = null) {
-        return this.get(clanId ? `/clan/${clanId}` : '/clan');
+    async getClanInfo() {
+        return this.get('/clan/info');
     }
 
-    async createClan(name, description) {
-        return this.post('/clan', { name, description });
+    async createClan(name, tag, description) {
+        return this.post('/clan/create', { name, tag, description });
     }
 
     async joinClan(clanId) {
-        return this.post(`/clan/${clanId}/join`);
+        return this.post('/clan/join', { clan_id: clanId });
     }
 
     async leaveClan() {
         return this.post('/clan/leave');
     }
 
-    async inviteToClan(username) {
-        return this.post('/clan/invite', { username });
-    }
-
-    async getClanMembers(clanId = null) {
-        return this.get(clanId ? `/clan/${clanId}/members` : '/clan/members');
-    }
-
-    async getClanWars(clanId = null) {
-        return this.get(clanId ? `/clan/${clanId}/wars` : '/clan/wars');
+    async getClanMembers() {
+        return this.get('/clan/members');
     }
 
     // Mission endpoints
-    async getMissions(difficulty = 'all', type = 'all') {
-        return this.get('/missions', { difficulty, type });
-    }
-
-    async acceptMission(missionId) {
-        return this.post(`/missions/${missionId}/accept`);
+    async getMissions() {
+        return this.get('/missions/active');
     }
 
     async completeMission(missionId) {
@@ -329,38 +462,22 @@ class APIClient {
         return this.post(`/missions/${missionId}/abandon`);
     }
 
-    async getMissionProgress(missionId) {
-        return this.get(`/missions/${missionId}/progress`);
+    // Ranking endpoints
+    async getTopRankings() {
+        return this.get('/rankings/top');
     }
 
-    // Financial endpoints
-    async getBankAccounts() {
-        return this.get('/bank/accounts');
+    async getClanRankings() {
+        return this.get('/rankings/clans');
     }
 
-    async createBankAccount(bank, accountType = 'checking') {
-        return this.post('/bank/accounts', { bank, type: accountType });
+    // Chat endpoints
+    async getChatHistory(limit = 50, offset = 0) {
+        return this.get('/chat/history', { limit, offset });
     }
 
-    async getAccountBalance(accountNumber) {
-        return this.get(`/bank/accounts/${accountNumber}/balance`);
-    }
-
-    async bankTransfer(amount, fromAccount, toAccount) {
-        return this.post('/bank/transfer', { amount, from: fromAccount, to: toAccount });
-    }
-
-    async getTransactionHistory(accountNumber, limit = 50) {
-        return this.get(`/bank/accounts/${accountNumber}/transactions`, { limit });
-    }
-
-    // Premium endpoints
-    async getPremiumStatus() {
-        return this.get('/premium/status');
-    }
-
-    async purchasePremium(packageId) {
-        return this.post('/premium/purchase', { package_id: packageId });
+    async sendChatMessage(message) {
+        return this.post('/chat/send', { message });
     }
 
     // File upload endpoint
@@ -370,27 +487,87 @@ class APIClient {
         return this.postForm('/upload-image', formData);
     }
 
-    // AJAX endpoint (for legacy compatibility)
-    async ajax(func, params = {}) {
-        const formData = new FormData();
-        formData.append('func', func);
-        
-        Object.entries(params).forEach(([key, value]) => {
-            formData.append(key, value);
-        });
+    // Game mechanics endpoints
+    async getGameStats() {
+        return this.get('/game/stats');
+    }
 
-        return this.postForm('/ajax', formData);
+    async gameTick() {
+        return this.post('/game/tick');
+    }
+
+    // Utility methods
+    getUserData() {
+        const userData = localStorage.getItem('user_data');
+        return userData ? JSON.parse(userData) : null;
+    }
+
+    isAuthenticated() {
+        return !!this.authToken && !!this.getUserData();
+    }
+
+    // Enhanced error handling helpers
+    handleError(error, context = '') {
+        console.error(`API Error ${context}:`, error);
+        
+        let userMessage = 'An error occurred';
+        
+        if (error.apiError && error.data && error.data.error) {
+            userMessage = error.data.error;
+        } else if (error.message === 'Request timeout') {
+            userMessage = 'Request timed out. Please try again.';
+        } else if (error.message === 'No internet connection') {
+            userMessage = 'No internet connection. Request will be retried when online.';
+        } else if (error.status >= 500) {
+            userMessage = 'Server error. Please try again later.';
+        } else if (error.status === 404) {
+            userMessage = 'Resource not found.';
+        } else if (error.status === 403) {
+            userMessage = 'Access denied.';
+        }
+        
+        // Show notification if available
+        if (window.WebSocketManager) {
+            window.WebSocketManager.showNotification(
+                'Error', 
+                userMessage, 
+                'error'
+            );
+        }
+        
+        return userMessage;
+    }
+
+    // Safe API call wrapper
+    async safeCall(apiMethod, ...args) {
+        try {
+            const result = await apiMethod.apply(this, args);
+            return { success: true, data: result };
+        } catch (error) {
+            const message = this.handleError(error, apiMethod.name);
+            return { success: false, error, message };
+        }
     }
 
     // Initialize method
     async initialize() {
         try {
-            // Test connection
-            await this.get('/health');
-            console.log('API connection established');
+            // If we have a token, verify it's still valid
+            if (this.authToken) {
+                const result = await this.safeCall(this.getCurrentUser);
+                if (result.success && result.data && result.data.success) {
+                    console.log('API connection established with authenticated user');
+                    return true;
+                } else {
+                    // Token expired or invalid
+                    this.clearAuthToken();
+                }
+            }
+            
+            console.log('API connection established (not authenticated)');
             return true;
         } catch (error) {
-            console.warn('API connection failed:', error);
+            console.warn('API initialization failed:', error);
             return false;
         }
     }

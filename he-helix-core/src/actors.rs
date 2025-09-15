@@ -5,11 +5,9 @@
 
 use crate::{HelixError, HelixResult, ProcessId, RequestId};
 use async_trait::async_trait;
-use serde::{Deserialize, Serialize};
 use std::any::Any;
 use std::fmt::Debug;
 use tokio::sync::{mpsc, oneshot};
-use uuid::Uuid;
 
 /// Base trait for all actor messages
 pub trait Message: Send + Sync + Debug + 'static {
@@ -83,7 +81,7 @@ impl ActorContext {
 }
 
 /// Address for sending messages to an actor
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ActorAddress {
     tx: mpsc::UnboundedSender<Box<dyn ActorMessage>>,
 }
@@ -145,7 +143,7 @@ struct MessageEnvelope<M: Message> {
 }
 
 impl<M: Message + 'static> ActorMessage for MessageEnvelope<M> {
-    fn handle(&mut self, actor: &mut dyn Any, ctx: &mut ActorContext) -> HelixResult<()> {
+    fn handle(&mut self, _actor: &mut dyn Any, _ctx: &mut ActorContext) -> HelixResult<()> {
         // This is a simplified implementation - in practice, we'd need more sophisticated
         // message handling with proper type erasure and downcasting
         Ok(())

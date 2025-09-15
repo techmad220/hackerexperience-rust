@@ -85,7 +85,7 @@ impl ChildInfo {
         }
     }
 
-    fn should_restart(&self, config: &SupervisorConfig) -> bool {
+    fn should_restart(&self, _config: &SupervisorConfig) -> bool {
         match &self.restart_strategy {
             RestartStrategy::Never => false,
             RestartStrategy::Always => true,

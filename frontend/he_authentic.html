@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel - Hacker Experience</title>
+    <link href="/css/he-matrix.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header clearfix">
+            <h2>Control Panel</h2>
+            <span class="ip-address" style="color: #00ff00; text-shadow: 0 0 5px #00ff00;">59.35.236.56</span>
+        </div>
+        
+        <div class="row">
+            <!-- Left Sidebar -->
+            <div class="col-md-3">
+                <!-- System Info -->
+                <div class="panel">
+                    <div class="panel-body">
+                        <div class="uptime">Uptime: <span id="uptime">8 days and 4 hours</span></div>
+                        <div style="margin-top: 10px;">
+                            <span id="password-display" style="color: #00ff00;">bmLik4tG</span>
+                            <a href="#" onclick="changePassword()" style="font-size: 11px; margin-left: 5px; color: #888;">[ change ]</a>
+                            <span style="float: right; color: #00ff00; font-weight: bold; text-shadow: 0 0 3px #00ff00;">31</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu -->
+                <div class="panel">
+                    <div class="panel-body" style="padding: 0;">
+                        <ul class="nav-menu">
+                            <li><a href="#" class="active" onclick="loadPage('home')">▶ Home</a></li>
+                            <li><a href="#" onclick="loadPage('software')">▶ Software</a></li>
+                            <li><a href="#" onclick="loadPage('internet')">▶ Internet</a></li>
+                            <li><a href="#" onclick="loadPage('slaves')">▶ Slaves</a></li>
+                            <li><a href="#" onclick="loadPage('hardware')">▶ Hardware</a></li>
+                            <li><a href="#" onclick="loadPage('university')">▶ University</a></li>
+                            <li><a href="#" onclick="loadPage('processes')">▶ Task Manager</a></li>
+                            <li><a href="#" onclick="loadPage('logs')">▶ Log File</a></li>
+                            <li><a href="#" onclick="loadPage('finances')">▶ Finances</a></li>
+                            <li><a href="#" onclick="loadPage('ranking')">▶ Ranking</a></li>
+                            <li><a href="#" onclick="loadPage('missions')">▶ Missions</a></li>
+                            <li><a href="#" onclick="loadPage('clan')">▶ Clan</a></li>
+                            <li><a href="#" onclick="loadPage('mail')">▶ Mail</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Hardware Info -->
+                <div class="panel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Hardware Information</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="hardware-item">
+                            <span class="name">Processor</span>
+                            <span class="spec">0.5 GHz</span>
+                        </div>
+                        <div class="hardware-item">
+                            <span class="name">Hard Drive</span>
+                            <span class="spec">100 MB</span>
+                        </div>
+                        <div class="hardware-item">
+                            <span class="name">Memory</span>
+                            <span class="spec">256 MB</span>
+                        </div>
+                        <div class="hardware-item">
+                            <span class="name">Internet</span>
+                            <span class="spec">1 Mbit/s</span>
+                        </div>
+                        <div class="hardware-item">
+                            <span class="name">External HD</span>
+                            <span class="spec">None</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-md-9">
+                <!-- Home Page Content -->
+                <div id="home-page" class="page-content">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- General Info -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">General Info <span class="badge">Basic</span></h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="info-block">
+                                        <span class="label">Reputation</span>
+                                        <span class="value">0 <span class="text-muted">Ranked #165</span></span>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="label">Running tasks</span>
+                                        <span class="value">0</span>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="label">Connected to</span>
+                                        <span class="value">No one</span>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="label">Mission</span>
+                                        <span class="value">None</span>
+                                    </div>
+                                    <div class="info-block">
+                                        <span class="label">Clan</span>
+                                        <span class="value"><span class="clan-tag">[tek]</span> techmad <span class="badge badge-success">Master</span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- News -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">News <a href="#" class="pull-right" style="font-size: 11px;">View all</a></h3>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="news-item">
+                                        <span class="date">2025-09-06 06:38:30</span>
+                                        <a href="#" class="title">Round #64 started</a>
+                                    </div>
+                                    <div class="news-item">
+                                        <span class="date">2025-09-05 04:22:24</span>
+                                        <a href="#" class="title">Doom disabled</a>
+                                    </div>
+                                    <div class="news-item">
+                                        <span class="date">2025-09-05 01:45:03</span>
+                                        <a href="#" class="title">TOXIK seized FBI suspect known as Dead_Puffin</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FBI Wanted List -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">FBI Wanted List <span class="badge badge-danger">FBI</span></h3>
+                                </div>
+                                <div class="panel-body">
+                                    <p class="text-muted">No wanted IPs ATM</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <!-- Round Info -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Round Info <span class="badge badge-info">Round 64</span></h3>
+                                </div>
+                                <div class="panel-body">
+                                    <table class="table">
+                                        <tr>
+                                            <td>Name</td>
+                                            <td><strong>ROUND-64</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Started</td>
+                                            <td>2025-09-06</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Age</td>
+                                            <td>8 days</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Top 7 Users -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Top 7 users <a href="#" class="pull-right" style="font-size: 11px;">View ranking</a></h3>
+                                </div>
+                                <div class="panel-body">
+                                    <table class="ranking-table">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>User</th>
+                                                <th>Reputation</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="rank">1</td>
+                                                <td><a href="#" class="username">BlackSaber</a></td>
+                                                <td class="reputation">450,804</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="rank">2</td>
+                                                <td><a href="#" class="username">r_0_b_3_3</a></td>
+                                                <td class="reputation">350,963</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="rank">3</td>
+                                                <td><a href="#" class="username">LordOfThePings</a></td>
+                                                <td class="reputation">341,124</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="rank">4</td>
+                                                <td><a href="#" class="username">batista4203</a></td>
+                                                <td class="reputation">304,099</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="rank">5</td>
+                                                <td><a href="#" class="username">Hardcover2961</a></td>
+                                                <td class="reputation">271,715</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="rank">6</td>
+                                                <td><a href="#" class="username">logak</a></td>
+                                                <td class="reputation">250,647</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="rank">7</td>
+                                                <td><a href="#" class="username">Tommym223</a></td>
+                                                <td class="reputation">248,150</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Game News -->
+                            <div class="panel">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Game News & Announcements <a href="#" class="pull-right" style="font-size: 11px;">View all</a></h3>
+                                </div>
+                                <div class="panel-body">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Title</th>
+                                                <th>Author</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-muted">2025-03-25 10:46</td>
+                                                <td><a href="#">Round 59/60 Changes - Bulk Research, Puzzle Trail Improvements & Bug Fixes</a></td>
+                                                <td>NetHeist Development Team</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">2022-12-11 09:34</td>
+                                                <td><a href="#">Round 35 - Hardware Price Balance</a></td>
+                                                <td>NetHeist Development Team</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-muted">2022-11-06 05:33</td>
+                                                <td><a href="#">Round 34 - Game Balancing, Clan Rework, Anti-Cheat & Alt Prevention</a></td>
+                                                <td>NetHeist Development Team</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Software Page (hidden by default) -->
+                <div id="software-page" class="page-content" style="display: none;">
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Software Management</h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Software</th>
+                                        <th>Version</th>
+                                        <th>Size</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Cracker</td>
+                                        <td>1.0</td>
+                                        <td>5 MB</td>
+                                        <td>
+                                            <button class="btn btn-xs btn-primary">Install</button>
+                                            <button class="btn btn-xs btn-danger">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Port Scanner</td>
+                                        <td>2.1</td>
+                                        <td>3 MB</td>
+                                        <td>
+                                            <button class="btn btn-xs btn-primary">Install</button>
+                                            <button class="btn btn-xs btn-danger">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Exploit</td>
+                                        <td>1.5</td>
+                                        <td>8 MB</td>
+                                        <td>
+                                            <button class="btn btn-xs btn-primary">Install</button>
+                                            <button class="btn btn-xs btn-danger">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Firewall</td>
+                                        <td>3.0</td>
+                                        <td>12 MB</td>
+                                        <td>
+                                            <button class="btn btn-xs btn-success">Running</button>
+                                            <button class="btn btn-xs btn-warning">Stop</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Antivirus</td>
+                                        <td>2.5</td>
+                                        <td>15 MB</td>
+                                        <td>
+                                            <button class="btn btn-xs btn-success">Running</button>
+                                            <button class="btn btn-xs btn-warning">Stop</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Internet Page (hidden by default) -->
+                <div id="internet-page" class="page-content" style="display: none;">
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Internet Browser</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div style="margin-bottom: 20px;">
+                                <input type="text" id="ip-input" placeholder="Enter IP address (e.g., 192.168.1.1)" style="width: 300px; display: inline-block;">
+                                <button class="btn btn-primary" onclick="connectToIP()">Connect</button>
+                                <button class="btn btn-default" onclick="scanPorts()">Port Scan</button>
+                            </div>
+                            
+                            <div id="connection-result"></div>
+                            
+                            <div class="panel" style="margin-top: 20px;">
+                                <div class="panel-heading">
+                                    <h3 class="panel-title">Known IPs</h3>
+                                </div>
+                                <div class="panel-body">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>IP Address</th>
+                                                <th>Name</th>
+                                                <th>Status</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="ip-display">192.168.1.50</td>
+                                                <td>Bank Server</td>
+                                                <td><span class="badge badge-success">Online</span></td>
+                                                <td>
+                                                    <button class="btn btn-xs btn-primary" onclick="hackTarget('192.168.1.50')">Hack</button>
+                                                    <button class="btn btn-xs btn-default" onclick="scanPorts('192.168.1.50')">Scan</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ip-display">10.0.0.25</td>
+                                                <td>Corporate Network</td>
+                                                <td><span class="badge badge-success">Online</span></td>
+                                                <td>
+                                                    <button class="btn btn-xs btn-primary" onclick="hackTarget('10.0.0.25')">Hack</button>
+                                                    <button class="btn btn-xs btn-default" onclick="scanPorts('10.0.0.25')">Scan</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="ip-display">172.16.0.100</td>
+                                                <td>Government Server</td>
+                                                <td><span class="badge badge-warning">Protected</span></td>
+                                                <td>
+                                                    <button class="btn btn-xs btn-primary" onclick="hackTarget('172.16.0.100')">Hack</button>
+                                                    <button class="btn btn-xs btn-default" onclick="scanPorts('172.16.0.100')">Scan</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <a href="#">Terms of Service and Use</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Discord</a>
+            <a href="#">Stats</a>
+            <br>
+            2025 - NetHeist • Powered by Evolushost • <a href="#">Credits</a>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        var gameState = {
+            reputation: 0,
+            money: 1000,
+            bitcoins: 0,
+            level: 1,
+            currentPage: 'home',
+            software: {
+                cracker: { version: 1.0, installed: false },
+                exploit: { version: 1.5, installed: false },
+                portScanner: { version: 2.1, installed: false },
+                firewall: { version: 3.0, installed: true, running: true },
+                antivirus: { version: 2.5, installed: true, running: true }
+            }
+        };
+
+        // Page navigation
+        function loadPage(page) {
+            $('.page-content').hide();
+            $('#' + page + '-page').show();
+            $('.nav-menu a').removeClass('active');
+            $('.nav-menu a[onclick*="' + page + '"]').addClass('active');
+            gameState.currentPage = page;
+        }
+
+        // Hacking functions
+        function hackTarget(ip) {
+            if (!gameState.software.cracker.installed && !gameState.software.exploit.installed) {
+                alert('You need a Cracker or Exploit software to hack targets!');
+                return;
+            }
+            
+            alert('Starting hack attempt on ' + ip + '...\nUsing Cracker v' + gameState.software.cracker.version);
+            
+            setTimeout(function() {
+                alert('Hack successful! You now have access to ' + ip);
+                gameState.reputation += 10;
+                updateDisplay();
+            }, 2000);
+        }
+
+        function scanPorts(ip) {
+            if (!gameState.software.portScanner.installed) {
+                alert('You need Port Scanner software to scan targets!');
+                return;
+            }
+            
+            ip = ip || document.getElementById('ip-input').value;
+            if (!ip) {
+                alert('Please enter an IP address');
+                return;
+            }
+            
+            var result = '<div class="alert alert-info">Scanning ' + ip + '...</div>';
+            result += '<div class="terminal" style="margin-top: 10px;">';
+            result += '<div class="terminal-line">Starting port scan on ' + ip + '</div>';
+            result += '<div class="terminal-line">Port 22 (SSH): OPEN</div>';
+            result += '<div class="terminal-line">Port 80 (HTTP): OPEN</div>';
+            result += '<div class="terminal-line">Port 443 (HTTPS): CLOSED</div>';
+            result += '<div class="terminal-line">Port 3306 (MySQL): OPEN</div>';
+            result += '<div class="terminal-line">Scan complete. Found 3 open ports.</div>';
+            result += '</div>';
+            
+            document.getElementById('connection-result').innerHTML = result;
+        }
+
+        function connectToIP() {
+            var ip = document.getElementById('ip-input').value;
+            if (!ip) {
+                alert('Please enter an IP address');
+                return;
+            }
+            
+            hackTarget(ip);
+        }
+
+        function changePassword() {
+            var newPass = prompt('Enter new password (8 characters):');
+            if (newPass && newPass.length >= 8) {
+                document.getElementById('password-display').textContent = newPass;
+                alert('Password changed successfully!');
+            }
+        }
+
+        function updateDisplay() {
+            // Update UI with current game state
+            // This would be connected to the backend in a real implementation
+        }
+
+        // Initialize
+        $(document).ready(function() {
+            loadPage('home');
+        });
+    </script>
+</body>
+</html>

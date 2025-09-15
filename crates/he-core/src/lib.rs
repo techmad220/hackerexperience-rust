@@ -3,6 +3,8 @@
 pub mod entities;
 pub mod error;
 pub mod types;
+pub mod id;
+pub mod entity_core;
 
 // Infrastructure modules (Priority 1)
 pub mod database;
@@ -18,6 +20,8 @@ pub mod external;
 pub use entities::*;
 pub use error::*;
 pub use types::*;
+pub use id::*;
+pub use entity_core::*;
 
 // Re-export infrastructure modules
 pub use database::*;
