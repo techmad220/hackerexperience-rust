@@ -5,8 +5,7 @@
 ### Repository URLs
 - **Our Rust Port**: https://github.com/techmad220/hackerexperience-rust
 - **Legacy PHP**: https://github.com/HackerExperience/legacy (97 files)
-- **Helix Elixir**: https://github.com/HackerExperience/Helix (912 files)
-- **Total Original Files**: 1,009 files
+- **Total Original Files**: 97 files
 
 ## 📊 What We Actually Have
 

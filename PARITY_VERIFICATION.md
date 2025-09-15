@@ -4,8 +4,7 @@
 
 ### Source Repositories
 1. **Legacy PHP**: https://github.com/HackerExperience/legacy
-2. **Helix Elixir**: https://github.com/HackerExperience/Helix
-3. **Our Rust Port**: https://github.com/techmad220/hackerexperience-rust
+2. **Our Rust Port**: https://github.com/techmad220/hackerexperience-rust
 
 ## ✅ Legacy PHP Repository Comparison
 

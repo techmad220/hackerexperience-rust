@@ -4,7 +4,6 @@
 
 - **Our Repository**: https://github.com/techmad220/hackerexperience-rust
 - **Legacy Source**: https://github.com/HackerExperience/legacy
-- **Helix Source**: https://github.com/HackerExperience/Helix
 
 ## ✅ Legacy PHP Pages (51 files) - Status: 27/51 PORTED
 
@@ -140,15 +139,11 @@ Located in `hackerexperience-helix/lib/`:
 ## 📝 Verification Commands
 
 ```bash
-# Clone original repositories for comparison
+# Clone original repository for comparison
 git clone https://github.com/HackerExperience/legacy.git
-git clone https://github.com/HackerExperience/Helix.git
 
 # Count PHP files in Legacy
 find legacy -name "*.php" | wc -l
-
-# Count Elixir modules in Helix
-find Helix/lib -name "*.ex" | wc -l
 
 # Compare our implementations
 diff -r hackerexperience-rust/crates/he-legacy-compat/src/pages/ legacy/
