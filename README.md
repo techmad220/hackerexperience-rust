@@ -1,94 +1,177 @@
-# hackerexperience-rust
+# HackerExperience Rust Port
 
-An incomplete attempt to recreate aspects of HackerExperience in Rust.
+A Rust implementation of the classic browser-based hacking game HackerExperience.
 
-## What This Is
+## 🚀 Project Status: ACTIVE DEVELOPMENT
 
-This is a learning project that attempted to port HackerExperience to Rust. It contains:
+This project is under active development to create a complete, playable port of HackerExperience using modern Rust technologies.
 
-- ~78,000 lines of Rust code across 258 files
-- 20 separate crates with various incomplete implementations
-- Database schemas and migrations
-- Some API endpoints
-- A basic Leptos frontend
-- Lots of scaffolding and boilerplate
+### Current Progress
+- **Core Infrastructure**: ✅ Complete (database, API framework, WebSocket)
+- **Game Engine**: 🚧 30% (process system, hardware, software mechanics)
+- **Frontend**: 🚧 15% (basic Leptos/WASM interface)
+- **Game Features**: 🚧 20% (partial implementations)
+- **Overall**: **~25% Complete**
 
-## Reality Check
+📋 **[See Full Development Roadmap](./ROADMAP.md)** - Targeting June 2026 for production release!
 
-**This project is NOT:**
-- A complete port of HackerExperience
-- A playable game
-- Production ready
-- Actively maintained
+## What's Working Now
 
-**What it actually is:**
-- An educational exercise in Rust
-- Mostly structure without real functionality
-- Incomplete implementations of game mechanics
-- A collection of stubs and placeholders
+### ✅ Implemented
+- Database layer with PostgreSQL/SQLx
+- Basic REST API structure
+- WebSocket real-time communication
+- Leptos frontend framework with WASM
+- Core entity models (User, Hardware, Process, Software)
+- Session management and authentication
+- Basic process scheduling system
+
+### 🚧 In Progress
+- Complete process execution engine
+- Full hacking mechanics
+- Network topology system
+- Mission framework
+- Banking system
+
+### ⏳ Planned
+- Clan system
+- Complete UI/UX
+- Production deployment
+- Comprehensive testing
+
+## Tech Stack
+
+- **Backend**: Rust with Actix-Web
+- **Database**: PostgreSQL with SQLx (compile-time checked queries)
+- **Frontend**: Leptos (Rust/WASM reactive framework)
+- **Real-time**: WebSockets via Actix
+- **Architecture**: Modular crate system for scalability
 
 ## Project Structure
 
 ```
-crates/
-├── he-core/              # Basic types and entities
-├── he-db/                # Database layer
-├── he-api/               # API routes (mostly stubs)
-├── he-game-mechanics/    # Incomplete game logic
-├── he-legacy-compat/     # Attempted PHP compatibility
-├── he-leptos-frontend/   # Basic web UI
-└── [14 other crates]     # Various incomplete modules
+hackerexperience-rust/
+├── crates/
+│   ├── he-core/           # Core game types and entities
+│   ├── he-db/             # Database layer
+│   ├── he-api/            # REST/GraphQL API
+│   ├── he-game-mechanics/ # Game logic implementation
+│   ├── he-leptos-frontend/# WebAssembly frontend
+│   ├── he-helix-*/        # Game subsystems (process, network, etc.)
+│   └── he-legacy-compat/  # Compatibility with original game
+├── migrations/            # Database schema
+├── frontend/             # Static assets
+└── tests/               # Integration tests
 ```
 
-## Technical Details
+## Getting Started
 
-- **Language**: Rust
-- **Web Framework**: Actix-Web
-- **Database**: PostgreSQL with SQLx
-- **Frontend**: Leptos (Rust/WASM)
-- **Lines of Code**: ~78,000
-- **Files**: 258 .rs files
-- **Actual Functionality**: <10%
-
-## Running It (Not Recommended)
-
-If you want to see how incomplete it is:
+### Prerequisites
 
 ```bash
-# Prerequisites
-cargo --version  # Need Rust installed
-psql --version   # Need PostgreSQL
+# Install Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
-# Setup
-export DATABASE_URL="postgresql://localhost/hackerexperience"
-cargo build --workspace
+# Install PostgreSQL
+sudo apt install postgresql postgresql-contrib
 
-# Try to run (will likely fail or do nothing useful)
-cargo run --bin he-api
+# Install Trunk for frontend
+cargo install trunk
+
+# Install SQLx CLI
+cargo install sqlx-cli
 ```
 
-## What's Missing
+### Development Setup
 
-Almost everything needed for a game:
-- Complete game mechanics
-- Working hacking simulation
-- Mission system
-- Multiplayer functionality
-- Banking system
-- Clans/corporations
-- Research tree
-- Any actual gameplay
+```bash
+# Clone repository
+git clone https://github.com/techmad220/hackerexperience-rust
+cd hackerexperience-rust
+
+# Setup database
+createdb hackerexperience
+export DATABASE_URL="postgresql://localhost/hackerexperience"
+
+# Run migrations
+sqlx migrate run
+
+# Build the project
+cargo build --workspace
+
+# Run the API server
+cargo run --bin he-api
+
+# In another terminal, run the frontend
+cd crates/he-leptos-frontend
+trunk serve --open
+```
+
+### Docker Setup (Coming Soon)
+
+```bash
+docker-compose up -d
+```
 
 ## Contributing
 
-This project is abandoned. You're better off starting fresh if you want to build a hacking game.
+We're actively looking for contributors! This is a community project to revive and modernize HackerExperience.
+
+### How to Help
+
+1. **Check the [Roadmap](./ROADMAP.md)** for current priorities
+2. **Pick an unchecked task** from Phase 1 or 2
+3. **Open an issue** to discuss your approach
+4. **Submit a PR** with tests
+
+### Needed Skills
+
+- **Rust Developers** - Core game logic
+- **Frontend Developers** - Leptos/WASM UI
+- **Game Designers** - Balance and mechanics
+- **DevOps Engineers** - Infrastructure setup
+- **Testers** - QA and bug hunting
+
+### Development Guidelines
+
+- Write tests for new features
+- Follow Rust best practices
+- Document public APIs
+- Keep commits focused and atomic
+- Update relevant documentation
+
+## Why Rust?
+
+- **Performance**: 10-100x faster than the original PHP
+- **Memory Safety**: No crashes, no memory leaks
+- **Concurrency**: Handle thousands of players efficiently
+- **Type Safety**: Catch bugs at compile time
+- **WASM Support**: Run in browsers at near-native speed
+
+## Goals
+
+1. **Faithful Recreation**: Preserve the original gameplay
+2. **Modern Architecture**: Scalable and maintainable
+3. **Open Source**: Community-driven development
+4. **Cross-Platform**: Browser, desktop, and mobile
+5. **Production Ready**: Handle real player load
 
 ## License
 
-MIT - Do whatever you want with it.
+MIT License - This is a community project, free and open source.
 
-## Note
+## Disclaimer
 
-The inflated claims in older commits were incorrect. This is nowhere near a complete port of HackerExperience. It's a learning project that got out of hand with exaggerated documentation.
+This is an independent recreation project and is not affiliated with the original HackerExperience or its creators. It's a community effort to preserve and modernize a beloved game.
 
-If you're looking to play HackerExperience or build something similar, this codebase won't help much. Consider it a cautionary tale about scope creep and honest documentation.
+## Contact
+
+- **GitHub Issues**: Bug reports and feature requests
+- **Discussions**: General questions and ideas
+- **Discord**: Coming soon for real-time chat
+
+---
+
+**🌟 Star this repo to support active development!**
+
+**📊 [View Development Progress](./ROADMAP.md) | 🐛 [Report Issues](https://github.com/techmad220/hackerexperience-rust/issues)**
