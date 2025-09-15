@@ -2,7 +2,14 @@
 
 **A comprehensive 1:1 Rust port of the legendary HackerExperience game that EXCEEDS the original functionality by 250-300% while maintaining complete backward compatibility.**
 
-🎉 **PROJECT STATUS: PRODUCTION READY** 🎉
+🎉 **PROJECT STATUS: PRODUCTION READY WITH LEPTOS FRONTEND** 🎉
+
+## 🆕 Latest Updates (September 2025)
+- ✅ **Interactive Leptos Frontend** - Modern reactive UI with WebAssembly
+- ✅ **Complete Hacking Simulation** - Real-time terminal interface
+- ✅ **Authentic GUI Components** - Original HackerExperience modal system
+- ✅ **WebSocket Integration** - Live updates and real-time gameplay
+- ✅ **Full API Coverage** - 319 AJAX endpoints fully operational
 
 ## 🔥 **IMPLEMENTATION ACHIEVED**
 
@@ -147,6 +154,10 @@ cargo run --bin migrate
 
 # Start the game server
 cargo run --bin server
+
+# In a new terminal, start the Leptos frontend (optional)
+cd crates/he-leptos-frontend
+trunk serve --open
 ```
 
 ### **Expected Output:**
