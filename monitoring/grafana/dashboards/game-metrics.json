@@ -1,0 +1,157 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "hackerexperience-main",
+    "title": "HackerExperience - Game Metrics",
+    "tags": ["hackerexperience", "game"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "title": "Active Players",
+        "targets": [
+          {
+            "expr": "hackerexperience_active_players",
+            "refId": "A",
+            "legendFormat": "Online Players"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "show": true},
+          {"format": "short", "show": false}
+        ]
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "graph",
+        "title": "Processes Running",
+        "targets": [
+          {
+            "expr": "hackerexperience_processes_active",
+            "refId": "A",
+            "legendFormat": "{{process_type}}"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+        "type": "stat",
+        "title": "Total Registered Users",
+        "targets": [
+          {
+            "expr": "hackerexperience_users_total",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "reduceOptions": {
+            "values": false,
+            "calcs": ["lastNotNull"]
+          }
+        }
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8},
+        "type": "stat",
+        "title": "Daily Active Users",
+        "targets": [
+          {
+            "expr": "hackerexperience_daily_active_users",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8},
+        "type": "gauge",
+        "title": "Server Load",
+        "targets": [
+          {
+            "expr": "rate(process_cpu_seconds_total[5m]) * 100",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "max": 100,
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "red", "value": 90}
+              ]
+            },
+            "unit": "percent"
+          }
+        }
+      },
+      {
+        "id": 6,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "type": "graph",
+        "title": "API Response Times",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, hackerexperience_http_request_duration_seconds_bucket)",
+            "refId": "A",
+            "legendFormat": "95th percentile"
+          },
+          {
+            "expr": "histogram_quantile(0.50, hackerexperience_http_request_duration_seconds_bucket)",
+            "refId": "B",
+            "legendFormat": "Median"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "show": true},
+          {"format": "short", "show": false}
+        ]
+      },
+      {
+        "id": 7,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "type": "graph",
+        "title": "Game Economy",
+        "targets": [
+          {
+            "expr": "hackerexperience_total_money_circulation",
+            "refId": "A",
+            "legendFormat": "Total Money"
+          },
+          {
+            "expr": "hackerexperience_total_bitcoin_circulation",
+            "refId": "B",
+            "legendFormat": "Total Bitcoin"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24},
+        "type": "table",
+        "title": "Top Clans",
+        "targets": [
+          {
+            "expr": "topk(10, hackerexperience_clan_reputation)",
+            "refId": "A",
+            "format": "table"
+          }
+        ]
+      }
+    ]
+  }
+}
