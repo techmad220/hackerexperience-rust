@@ -1,0 +1,34 @@
+use leptos::*;
+use crate::components::*;
+
+pub mod control_panel;
+pub mod task_manager;
+pub mod dashboard;
+pub mod processes;
+pub mod hardware;
+pub mod software;  
+pub mod internet;
+pub mod connections;
+pub mod missions;
+pub mod logs;
+pub mod university;
+pub mod finances;
+pub mod clan;
+pub mod ranking;
+pub mod utilities;
+
+pub use control_panel::*;
+pub use task_manager::*;
+pub use dashboard::*;
+pub use processes::*;
+pub use hardware::*;
+pub use software::*;
+pub use internet::*;
+pub use connections::*;
+pub use missions::*;
+pub use logs::*;
+pub use university::*;
+pub use finances::*;
+pub use clan::*;
+pub use ranking::*;
+pub use utilities::*;

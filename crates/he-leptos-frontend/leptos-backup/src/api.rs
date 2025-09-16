@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use leptos::*;
 
-const API_BASE_URL: &str = "/api";
+const API_BASE_URL: &str = "http://127.0.0.1:8080";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserProfile {
