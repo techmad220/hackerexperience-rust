@@ -1,0 +1,73 @@
+/* HackerExperience Default Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #0a0a0a;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+a {
+    color: #00ff00;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+    text-shadow: 0 0 5px #00ff00;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.error {
+    color: #ff0000;
+    border: 1px solid #ff0000;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.success {
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+button {
+    background: #1a1a1a;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    padding: 5px 15px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+button:hover {
+    background: #00ff00;
+    color: #000;
+}
+
+input, textarea, select {
+    background: #1a1a1a;
+    color: #00ff00;
+    border: 1px solid #333;
+    padding: 5px;
+    font-family: inherit;
+}
+
+input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #00ff00;
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+}

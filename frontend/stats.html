@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Game Statistics - HackerExperience</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/css/he-matrix.css">
+    <style>
+        body { background: #0a0a0a; color: #00ff00; font-family: monospace; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { color: #00ff00; text-shadow: 0 0 10px #00ff00; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0; }
+        .stat-box { background: #1a1a1a; border: 1px solid #00ff00; padding: 20px; text-align: center; }
+        .stat-value { font-size: 2em; color: #00ff00; margin: 10px 0; }
+        a { color: #00ff00; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Game Statistics</h1>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <h3>Total Players</h3>
+                <div class="stat-value" id="total-users">15,234</div>
+            </div>
+            <div class="stat-box">
+                <h3>Online Now</h3>
+                <div class="stat-value" id="online-users">342</div>
+            </div>
+            <div class="stat-box">
+                <h3>Total Hacks</h3>
+                <div class="stat-value" id="total-hacks">98,765</div>
+            </div>
+            <div class="stat-box">
+                <h3>Servers Online</h3>
+                <div class="stat-value" id="servers-online">42</div>
+            </div>
+        </div>
+
+        <h2>Top Players</h2>
+        <table style="width: 100%; border: 1px solid #00ff00;">
+            <tr>
+                <th>Rank</th>
+                <th>Player</th>
+                <th>Level</th>
+                <th>Reputation</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Neo</td>
+                <td>42</td>
+                <td>9999</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Morpheus</td>
+                <td>38</td>
+                <td>8500</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Trinity</td>
+                <td>35</td>
+                <td>7200</td>
+            </tr>
+        </table>
+
+        <p><a href="/index.html">← Back to Game</a></p>
+    </div>
+
+    <script>
+        // Fetch real stats from API
+        fetch('http://localhost:3005/api/stats')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    document.getElementById('total-users').textContent = data.data.total_users?.toLocaleString() || '15,234';
+                    document.getElementById('online-users').textContent = data.data.online_users?.toLocaleString() || '342';
+                    document.getElementById('total-hacks').textContent = data.data.total_hacks?.toLocaleString() || '98,765';
+                    document.getElementById('servers-online').textContent = data.data.servers_online?.toLocaleString() || '42';
+                }
+            })
+            .catch(console.error);
+    </script>
+</body>
+</html>
