@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use serde_json::Value;
 use tokio;
+use actix_web::{test, web, App};
 
 mod common;
 use common::{TestDb, TestFixtures, MockHttpClient, assert_json_contains};
