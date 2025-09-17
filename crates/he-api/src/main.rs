@@ -62,8 +62,8 @@ async fn main() -> std::io::Result<()> {
 
     tracing::info!("✅ Connected to database");
 
-    // Run migrations
-    sqlx::migrate!("./migrations")
+    // Run PostgreSQL migrations
+    sqlx::migrate!("../../migrations-postgres")
         .run(&pool)
         .await
         .expect("Failed to run migrations");

@@ -1,0 +1,52 @@
+# Backend Dockerfile for HackerExperience Rust
+FROM rust:1.75-slim AS builder
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy workspace files
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+COPY he-* ./
+
+# Build in release mode
+RUN cargo build --release --bin he-api
+
+# Runtime stage
+FROM debian:bookworm-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    libssl3 \
+    libpq5 \
+    ca-certificates \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy binary and migrations
+COPY --from=builder /app/target/release/he-api /app/he-api
+COPY migrations-postgres /app/migrations-postgres
+
+# Create non-root user
+RUN useradd -m -u 1000 heuser && chown -R heuser:heuser /app
+USER heuser
+
+# Environment defaults
+ENV RUST_LOG=info
+ENV PORT=3005
+
+EXPOSE 3005
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3005/health || exit 1
+
+CMD ["/app/he-api"]
