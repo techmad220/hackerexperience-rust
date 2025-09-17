@@ -4,12 +4,21 @@ use actix_web::{middleware, web, App, HttpResponse, HttpServer, Result};
 use actix_cors::Cors;
 use sqlx::PgPool;
 use std::env;
+use std::net::IpAddr;
 use tracing_subscriber::{fmt, EnvFilter};
 
 // Import our safety modules
 use he_helix_core::units::{Units, ResourceCaps, allocate};
 use he_helix_core::process_cancel;
 use he_helix_http::auth::{AuthedUser, issue_jwt, verify_password};
+
+// Import security modules
+use he_helix_security::{
+    AuditLogger, SecurityEvent,
+    IntrusionDetector, ThreatLevel,
+    DDoSProtection, ConnectionThrottle,
+    TransparentEncryption,
+};
 
 // Local modules
 mod game_server_v2;
@@ -20,6 +29,10 @@ mod safe_resources;
 pub struct AppState {
     pub pool: PgPool,
     pub jwt_secret: String,
+    pub audit_logger: web::Data<AuditLogger>,
+    pub intrusion_detector: web::Data<IntrusionDetector>,
+    pub ddos_protection: web::Data<DDoSProtection>,
+    pub encryption: web::Data<TransparentEncryption>,
 }
 
 #[actix_web::main]
@@ -57,9 +70,34 @@ async fn main() -> std::io::Result<()> {
 
     tracing::info!("✅ Migrations complete");
 
+    // Initialize security components
+    let audit_logger = web::Data::new(
+        AuditLogger::new(pool.clone()).await
+            .expect("Failed to initialize audit logger")
+    );
+
+    let intrusion_detector = web::Data::new(IntrusionDetector::new());
+    let ddos_protection = web::Data::new(DDoSProtection::new(Default::default()));
+
+    // Get encryption key from environment or generate
+    let encryption_key = env::var("ENCRYPTION_KEY")
+        .unwrap_or_else(|_| {
+            tracing::warn!("ENCRYPTION_KEY not set, using default (CHANGE IN PRODUCTION!)");
+            "change_me_to_32_byte_secure_key!".to_string()
+        });
+
+    let encryption = web::Data::new(
+        TransparentEncryption::new(encryption_key.as_bytes())
+            .expect("Failed to initialize encryption")
+    );
+
     let app_state = web::Data::new(AppState {
         pool: pool.clone(),
         jwt_secret: jwt_secret.clone(),
+        audit_logger: audit_logger.clone(),
+        intrusion_detector: intrusion_detector.clone(),
+        ddos_protection: ddos_protection.clone(),
+        encryption: encryption.clone(),
     });
 
     // Start server with production middleware stack
@@ -139,11 +177,16 @@ async fn health_check(data: web::Data<AppState>) -> Result<HttpResponse> {
     }
 }
 
-// Login endpoint with rate limiting
+// Login endpoint with rate limiting and audit logging
 async fn login(
     data: web::Data<AppState>,
     credentials: web::Json<LoginRequest>,
+    req: actix_web::HttpRequest,
 ) -> Result<HttpResponse> {
+    // Extract IP for security tracking
+    let ip = req.peer_addr()
+        .map(|addr| addr.ip())
+        .unwrap_or(IpAddr::from([127, 0, 0, 1]));
     // Get user from database
     let user = sqlx::query!(
         "SELECT id, username, password_hash FROM users WHERE username = $1",
@@ -157,6 +200,14 @@ async fn login(
         Some(u) => {
             // Verify password
             if verify_password(&u.password_hash, &credentials.password).is_ok() {
+                // Log successful login
+                data.audit_logger.log_event(SecurityEvent::LoginSuccess {
+                    user_id: u.id,
+                    username: u.username.clone(),
+                    ip,
+                    session_id: uuid::Uuid::new_v4().to_string(),
+                }).await;
+
                 // Issue JWT
                 let token = issue_jwt(u.id, &data.jwt_secret, 3600)
                     .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
@@ -170,6 +221,19 @@ async fn login(
                     }
                 })))
             } else {
+                // Log failed login
+                let attempt_count = data.audit_logger.get_failed_login_attempts(ip, 5).await.unwrap_or(0);
+
+                data.audit_logger.log_event(SecurityEvent::LoginFailure {
+                    username: credentials.username.clone(),
+                    ip,
+                    reason: "Invalid password".to_string(),
+                    attempt_count: attempt_count + 1,
+                }).await;
+
+                // Report to intrusion detector
+                data.intrusion_detector.report_failed_login(ip, &credentials.username);
+
                 Ok(HttpResponse::Unauthorized().json(serde_json::json!({
                     "success": false,
                     "error": "Invalid credentials"
@@ -264,12 +328,20 @@ async fn start_process_safe(
     }
 }
 
-// Safe idempotent cancel
+// Safe idempotent cancel with audit logging
 async fn cancel_process_safe(
     data: web::Data<AppState>,
     user: AuthedUser,
     request: web::Json<CancelProcessRequest>,
 ) -> Result<HttpResponse> {
+    // Log the cancellation attempt
+    data.audit_logger.log_event(SecurityEvent::ProcessManipulation {
+        user_id: user.id,
+        process_id: request.process_id,
+        action: "cancel".to_string(),
+        suspicious: false,
+    }).await;
+
     // Use our idempotent cancel function
     match process_cancel::cancel_process(&data.pool, request.process_id, user.id).await {
         Ok(()) => {

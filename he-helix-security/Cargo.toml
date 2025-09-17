@@ -1,0 +1,37 @@
+[package]
+name = "he-helix-security"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+tokio = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+
+# Database for audit logs
+sqlx = { workspace = true }
+
+# Encryption
+aes-gcm = "0.10"
+chacha20poly1305 = "0.10"
+argon2 = "0.5"
+rand = "0.8"
+base64 = "0.21"
+
+# Rate limiting and DDoS
+governor = "0.6"
+nonzero_ext = "0.3"
+
+# Pattern detection
+regex = { workspace = true }
+dashmap = "5.5"
+
+# Metrics for anomaly detection
+prometheus = "0.13"

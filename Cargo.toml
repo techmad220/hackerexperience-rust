@@ -41,6 +41,7 @@ members = [
     "he-helix-id",
     "he-helix-hell",
     "he-helix-balance",
+    "he-helix-security",
 ]
 
 [workspace.package]
