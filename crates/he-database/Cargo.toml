@@ -13,3 +13,4 @@ uuid = { version = "1", features = ["v4", "serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 tracing = "0.1"
 argon2 = "0.5"
+bincode = "1.3"

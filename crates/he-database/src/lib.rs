@@ -7,12 +7,16 @@ use tracing::info;
 
 pub mod models;
 pub mod queries;
+pub mod queries_optimized;
+pub mod cache;
 
 #[cfg(test)]
 mod tests;
 
 pub use models::*;
 pub use queries::*;
+pub use queries_optimized::*;
+pub use cache::*;
 
 /// Database connection pool
 #[derive(Debug, Clone)]
