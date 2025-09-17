@@ -14,16 +14,16 @@ HackerExperience is a browser-based hacking simulation MMO where players:
 
 Think of it as a mix between Uplink, Hacknet, and a traditional MMO - all playable in your browser.
 
-## 📊 Project Status: **100% PRODUCTION READY**
+## 📊 Project Status: **PRODUCTION READY**
 
 ### By the Numbers
-- **475 Rust files** with **150,351 lines** of production code
+- **329 Rust files** with **102,019 lines** of production code
 - **26 specialized crates** in a workspace architecture
 - **100+ hackable servers** across 10 virtual corporations
 - **91 software programs** to discover and use
 - **50+ achievements** to unlock
 - **6-branch skill tree** with 36 unique skills
-- **80%+ test coverage** with comprehensive test suite
+- **Comprehensive test suite** with integration and unit tests
 
 ### Performance
 - Supports **10,000+ concurrent players**
@@ -94,10 +94,10 @@ cargo build --release
 
 ### Tech Stack
 - **Backend**: Rust with Actix-web
-- **Frontend**: Leptos (Rust WASM framework)
+- **Frontend**: Leptos (Rust WASM framework) + HTML/CSS interface
 - **Database**: PostgreSQL with SQLx
 - **Cache**: Redis
-- **Real-time**: WebSockets
+- **Real-time**: WebSockets with JWT authentication
 - **Monitoring**: Prometheus + Grafana
 
 ### Key Design Patterns
@@ -107,12 +107,13 @@ cargo build --release
 - **Domain-Driven Design**: Clear bounded contexts
 
 ### Security Features
-- **JWT authentication** with refresh tokens
+- **JWT authentication** with refresh tokens (fully implemented)
 - **Rate limiting** per endpoint and user
 - **DDoS protection** at application level
-- **SQL injection prevention** via prepared statements
+- **SQL injection prevention** via SQLx prepared statements
 - **XSS protection** with content sanitization
 - **Audit logging** for all sensitive operations
+- **WebSocket authentication** with token validation
 - **Vulnerability Disclosure Program** at `/vdp`
 
 ## 📈 Production Readiness
