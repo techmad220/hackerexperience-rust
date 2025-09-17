@@ -2,6 +2,7 @@
 
 pub mod join;
 pub mod request;
+pub mod session;  // WebSocket session with bounded queue
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;

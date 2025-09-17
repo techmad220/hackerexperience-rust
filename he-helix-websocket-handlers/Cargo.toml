@@ -14,3 +14,9 @@ serde_json = { workspace = true }
 uuid = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
+
+# WebSocket dependencies
+actix = "0.13"
+actix-web = "4"
+actix-web-actors = "4"
+futures-util = "0.3"

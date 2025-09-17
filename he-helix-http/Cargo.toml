@@ -13,3 +13,16 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
+
+# Auth dependencies
+argon2 = "0.5"
+jsonwebtoken = "9"
+time = "0.3"
+anyhow = "1.0"
+
+# Web framework for handlers
+actix-web = "4"
+sqlx = { workspace = true }
+
+# For middleware
+futures-util = "0.3"
