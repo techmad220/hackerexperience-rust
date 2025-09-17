@@ -1,318 +1,239 @@
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use uuid::Uuid;
+//! WebSocket event types for game updates
 
-/// Types of events that can be sent through WebSocket channels
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+/// Game events that can be sent via WebSocket
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "event", content = "payload")]
+#[serde(tag = "type", content = "data")]
 pub enum GameEvent {
-    /// Process-related events
+    // Process events
     ProcessStarted {
-        process_id: Uuid,
+        pid: i64,
         process_type: String,
-        target_id: Option<String>,
-        estimated_completion: i64,
+        estimated_time: u64,
     },
     ProcessCompleted {
-        process_id: Uuid,
-        result: ProcessResult,
+        pid: i64,
+        process_type: String,
+        result: String,
     },
-    ProcessFailed {
-        process_id: Uuid,
-        error: String,
+    ProcessCancelled {
+        pid: i64,
     },
     ProcessProgress {
-        process_id: Uuid,
+        pid: i64,
         progress: f32,
-        remaining_time: i64,
+        remaining_time: u64,
     },
 
-    /// Network/Server events
-    ServerConnected {
-        server_id: String,
-        hostname: String,
+    // Hardware events
+    HardwareUpgraded {
+        component: String,
+        old_level: u32,
+        new_level: u32,
+    },
+    HardwareOverloaded {
+        load_percentage: f32,
+    },
+
+    // Bank events
+    MoneyReceived {
+        amount: i64,
+        from: String,
+    },
+    MoneySent {
+        amount: i64,
+        to: String,
+    },
+    BankHacked {
+        hacker: String,
+        amount: i64,
+    },
+
+    // Mission events
+    MissionCompleted {
+        mission_id: i64,
+        reward_money: i64,
+        reward_xp: i32,
+    },
+    MissionFailed {
+        mission_id: i64,
+        reason: String,
+    },
+    MissionProgress {
+        mission_id: i64,
+        progress: i32,
+        total: i32,
+    },
+
+    // Attack events
+    UnderAttack {
+        attacker: String,
+        attack_type: String,
+    },
+    AttackBlocked {
+        attacker: String,
+    },
+    SystemCompromised {
+        attacker: String,
+        damage: String,
+    },
+
+    // Log events
+    LogCreated {
+        log_type: String,
+        message: String,
         ip: String,
     },
-    ServerDisconnected {
-        server_id: String,
-        reason: String,
-    },
-    NetworkScanResult {
-        target_ip: String,
-        open_ports: Vec<u16>,
-        services: HashMap<u16, String>,
+    LogDeleted {
+        count: usize,
     },
 
-    /// Log events
-    LogEntryAdded {
-        server_id: String,
-        log_id: Uuid,
-        log_type: String,
+    // Virus events
+    VirusInstalled {
+        target_pc: String,
+        virus_type: String,
+    },
+    VirusDetected {
+        virus_type: String,
+    },
+    VirusRemoved {
+        virus_type: String,
+    },
+
+    // Chat/Message events
+    MessageReceived {
+        from: String,
+        content: String,
+        timestamp: String,
+    },
+    ClanMessage {
+        from: String,
+        content: String,
+        clan: String,
+    },
+
+    // System events
+    ServerRestart {
+        time_until: u64,
+    },
+    MaintenanceMode {
+        enabled: bool,
         message: String,
-        timestamp: i64,
     },
-    LogCleared {
-        server_id: String,
-        log_type: String,
-    },
-
-    /// File system events
-    FileCreated {
-        server_id: String,
-        path: String,
-        file_type: String,
-        size: u64,
-    },
-    FileDeleted {
-        server_id: String,
-        path: String,
-    },
-    FileModified {
-        server_id: String,
-        path: String,
-        new_size: u64,
-    },
-    DirectoryListed {
-        server_id: String,
-        path: String,
-        contents: Vec<FileInfo>,
-    },
-
-    /// Mission/Campaign events
-    MissionStarted {
-        mission_id: Uuid,
+    Announcement {
         title: String,
-        objectives: Vec<String>,
-    },
-    MissionCompleted {
-        mission_id: Uuid,
-        rewards: MissionRewards,
-    },
-    ObjectiveCompleted {
-        mission_id: Uuid,
-        objective_id: String,
+        content: String,
+        priority: String,
     },
 
-    /// Player/Account events
-    ExperienceGained {
-        skill: String,
-        amount: u32,
-        new_level: Option<u32>,
-    },
-    MoneyChanged {
-        old_amount: u64,
-        new_amount: u64,
-        reason: String,
-    },
-    NotificationReceived {
-        notification_id: Uuid,
-        title: String,
-        message: String,
-        notification_type: String,
-        expires_at: Option<i64>,
-    },
-
-    /// System events
-    SystemStatus {
-        cpu_usage: f32,
-        memory_usage: f32,
-        active_processes: u32,
-        uptime: u64,
-    },
-    Maintenance {
-        message: String,
-        scheduled_time: i64,
-        duration: u64,
-    },
-
-    /// Chat/Social events
-    ChatMessage {
-        channel: String,
-        sender: String,
-        message: String,
-        timestamp: i64,
-    },
+    // Connection events
     UserOnline {
         username: String,
     },
     UserOffline {
         username: String,
     },
+
+    // Custom event
+    Custom {
+        event_name: String,
+        payload: Value,
+    },
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProcessResult {
-    pub success: bool,
-    pub data: Option<serde_json::Value>,
-    pub error: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct FileInfo {
-    pub name: String,
-    pub file_type: String,
-    pub size: u64,
-    pub modified: i64,
-    pub permissions: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct MissionRewards {
-    pub experience: HashMap<String, u32>,
-    pub money: u64,
-    pub items: Vec<String>,
-}
-
-/// WebSocket message structure similar to Phoenix channels
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct WebSocketMessage {
-    pub topic: String,
-    pub event: String,
-    pub payload: serde_json::Value,
-    pub ref_id: Option<String>,
-}
-
-/// Channel events for managing subscriptions
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ChannelEvent {
-    Join { topic: String },
-    Leave { topic: String },
-    HeartBeat,
-    HeartBeatReply,
-    Error { reason: String },
-    Close { reason: String },
-}
-
-/// Response types for channel operations
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChannelResponse {
-    pub status: ChannelStatus,
-    pub response: serde_json::Value,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum ChannelStatus {
-    Ok,
-    Error,
-    Timeout,
-}
-
-/// Topic patterns for organizing channels
-pub mod topics {
-    use uuid::Uuid;
-
-    /// User-specific topics
-    pub fn user_channel(user_id: Uuid) -> String {
-        format!("user:{}", user_id)
-    }
-
-    /// Server-specific topics
-    pub fn server_channel(server_id: &str) -> String {
-        format!("server:{}", server_id)
-    }
-
-    /// Process-specific topics
-    pub fn process_channel(process_id: Uuid) -> String {
-        format!("process:{}", process_id)
-    }
-
-    /// Mission-specific topics
-    pub fn mission_channel(mission_id: Uuid) -> String {
-        format!("mission:{}", mission_id)
-    }
-
-    /// Global channels
-    pub const LOBBY: &str = "lobby:global";
-    pub const SYSTEM: &str = "system:announcements";
-    
-    /// Chat channels
-    pub fn chat_channel(channel_name: &str) -> String {
-        format!("chat:{}", channel_name)
-    }
-
-    /// Network/faction channels
-    pub fn network_channel(network_id: &str) -> String {
-        format!("network:{}", network_id)
-    }
-}
-
-impl WebSocketMessage {
-    pub fn new(topic: String, event: String, payload: serde_json::Value) -> Self {
-        Self {
-            topic,
-            event,
-            payload,
-            ref_id: None,
+impl GameEvent {
+    /// Convert to ServerMessage format
+    pub fn to_server_message(&self) -> crate::ServerMessage {
+        crate::ServerMessage {
+            event_type: self.event_type(),
+            data: serde_json::to_value(self).unwrap_or(serde_json::json!({})),
         }
     }
 
-    pub fn with_ref(mut self, ref_id: String) -> Self {
-        self.ref_id = Some(ref_id);
-        self
-    }
-
-    pub fn from_game_event(topic: String, event: GameEvent) -> Result<Self, serde_json::Error> {
-        let payload = serde_json::to_value(event.clone())?;
-        let event_name = match event {
+    /// Get the event type as string
+    pub fn event_type(&self) -> String {
+        match self {
             GameEvent::ProcessStarted { .. } => "process_started",
             GameEvent::ProcessCompleted { .. } => "process_completed",
-            GameEvent::ProcessFailed { .. } => "process_failed",
+            GameEvent::ProcessCancelled { .. } => "process_cancelled",
             GameEvent::ProcessProgress { .. } => "process_progress",
-            GameEvent::ServerConnected { .. } => "server_connected",
-            GameEvent::ServerDisconnected { .. } => "server_disconnected",
-            GameEvent::NetworkScanResult { .. } => "network_scan_result",
-            GameEvent::LogEntryAdded { .. } => "log_entry_added",
-            GameEvent::LogCleared { .. } => "log_cleared",
-            GameEvent::FileCreated { .. } => "file_created",
-            GameEvent::FileDeleted { .. } => "file_deleted",
-            GameEvent::FileModified { .. } => "file_modified",
-            GameEvent::DirectoryListed { .. } => "directory_listed",
-            GameEvent::MissionStarted { .. } => "mission_started",
+            GameEvent::HardwareUpgraded { .. } => "hardware_upgraded",
+            GameEvent::HardwareOverloaded { .. } => "hardware_overloaded",
+            GameEvent::MoneyReceived { .. } => "money_received",
+            GameEvent::MoneySent { .. } => "money_sent",
+            GameEvent::BankHacked { .. } => "bank_hacked",
             GameEvent::MissionCompleted { .. } => "mission_completed",
-            GameEvent::ObjectiveCompleted { .. } => "objective_completed",
-            GameEvent::ExperienceGained { .. } => "experience_gained",
-            GameEvent::MoneyChanged { .. } => "money_changed",
-            GameEvent::NotificationReceived { .. } => "notification_received",
-            GameEvent::SystemStatus { .. } => "system_status",
-            GameEvent::Maintenance { .. } => "maintenance",
-            GameEvent::ChatMessage { .. } => "chat_message",
+            GameEvent::MissionFailed { .. } => "mission_failed",
+            GameEvent::MissionProgress { .. } => "mission_progress",
+            GameEvent::UnderAttack { .. } => "under_attack",
+            GameEvent::AttackBlocked { .. } => "attack_blocked",
+            GameEvent::SystemCompromised { .. } => "system_compromised",
+            GameEvent::LogCreated { .. } => "log_created",
+            GameEvent::LogDeleted { .. } => "log_deleted",
+            GameEvent::VirusInstalled { .. } => "virus_installed",
+            GameEvent::VirusDetected { .. } => "virus_detected",
+            GameEvent::VirusRemoved { .. } => "virus_removed",
+            GameEvent::MessageReceived { .. } => "message_received",
+            GameEvent::ClanMessage { .. } => "clan_message",
+            GameEvent::ServerRestart { .. } => "server_restart",
+            GameEvent::MaintenanceMode { .. } => "maintenance_mode",
+            GameEvent::Announcement { .. } => "announcement",
             GameEvent::UserOnline { .. } => "user_online",
             GameEvent::UserOffline { .. } => "user_offline",
-        };
+            GameEvent::Custom { event_name, .. } => event_name,
+        }
+        .to_string()
+    }
 
-        Ok(Self::new(topic, event_name.to_string(), payload))
+    /// Check if event should be broadcast to all users
+    pub fn is_broadcast(&self) -> bool {
+        matches!(
+            self,
+            GameEvent::ServerRestart { .. }
+                | GameEvent::MaintenanceMode { .. }
+                | GameEvent::Announcement { .. }
+        )
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+/// Event builder for convenient event creation
+pub struct EventBuilder;
 
-    #[test]
-    fn test_websocket_message_creation() {
-        let event = GameEvent::ProcessStarted {
-            process_id: Uuid::new_v4(),
-            process_type: "hack".to_string(),
-            target_id: Some("192.168.1.1".to_string()),
-            estimated_completion: 1234567890,
-        };
-
-        let message = WebSocketMessage::from_game_event(
-            topics::user_channel(Uuid::new_v4()),
-            event,
-        ).unwrap();
-
-        assert_eq!(message.event, "process_started");
-        assert!(message.topic.starts_with("user:"));
+impl EventBuilder {
+    pub fn process_started(pid: i64, process_type: String, estimated_time: u64) -> GameEvent {
+        GameEvent::ProcessStarted {
+            pid,
+            process_type,
+            estimated_time,
+        }
     }
 
-    #[test]
-    fn test_topic_generation() {
-        let user_id = Uuid::new_v4();
-        let topic = topics::user_channel(user_id);
-        assert_eq!(topic, format!("user:{}", user_id));
+    pub fn process_completed(pid: i64, process_type: String, result: String) -> GameEvent {
+        GameEvent::ProcessCompleted {
+            pid,
+            process_type,
+            result,
+        }
+    }
 
-        let server_topic = topics::server_channel("test-server");
-        assert_eq!(server_topic, "server:test-server");
+    pub fn money_received(amount: i64, from: String) -> GameEvent {
+        GameEvent::MoneyReceived { amount, from }
+    }
+
+    pub fn under_attack(attacker: String, attack_type: String) -> GameEvent {
+        GameEvent::UnderAttack {
+            attacker,
+            attack_type,
+        }
+    }
+
+    pub fn announcement(title: String, content: String, priority: String) -> GameEvent {
+        GameEvent::Announcement {
+            title,
+            content,
+            priority,
+        }
     }
 }

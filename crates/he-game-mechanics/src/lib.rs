@@ -28,6 +28,10 @@ pub mod missions;
 pub mod missions_safe;  // Safe, original mission system - no AGPL content
 pub mod clans;
 pub mod config;
+pub mod extended;
+
+#[cfg(test)]
+mod tests;
 
 // The complete game engine!
 pub mod engine;

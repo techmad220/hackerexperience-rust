@@ -1,0 +1,19 @@
+[package]
+name = "he-game-world"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.4", features = ["v4", "serde"] }
+rand = "0.8"
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid"] }
+tokio = { version = "1.32", features = ["full"] }
+anyhow = "1.0"
+tracing = "0.1"
+faker_rand = "0.1"
+ipnetwork = "0.20"
+he-game-mechanics = { path = "../he-game-mechanics" }
+he-database = { path = "../he-database" }

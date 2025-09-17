@@ -3,6 +3,11 @@
 use leptos::*;
 use serde::{Deserialize, Serialize};
 
+use crate::api::progression::{
+    get_progression, get_statistics, get_achievements,
+    PlayerProgression, PlayerStatistics, AchievementProgress,
+};
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct UserProfile {
     pub username: String,
@@ -21,20 +26,21 @@ pub struct UserProfile {
 
 #[component]
 pub fn ProfilePage() -> impl IntoView {
-    let (profile, set_profile) = create_signal(UserProfile {
-        username: "Neo".to_string(),
-        email: "neo@matrix.com".to_string(),
-        level: 42,
-        experience: 98500,
-        reputation: 1337,
-        clan: Some("The Architects".to_string()),
-        created_at: "2024-01-01".to_string(),
-        last_login: "2025-09-17".to_string(),
-        total_hacks: 523,
-        successful_hacks: 489,
-        money_earned: 12500000,
-        viruses_created: 67,
-    });
+    // Load progression data from backend
+    let progression = create_resource(
+        || (),
+        |_| async move { get_progression().await },
+    );
+
+    let statistics = create_resource(
+        || (),
+        |_| async move { get_statistics().await },
+    );
+
+    let achievements = create_resource(
+        || (),
+        |_| async move { get_achievements().await },
+    );
 
     let (edit_mode, set_edit_mode) = create_signal(false);
     let (settings_tab, set_settings_tab) = create_signal("profile");
@@ -106,27 +112,54 @@ pub fn ProfilePage() -> impl IntoView {
                                 }}
                             </div>
 
-                            <div class="info-group">
-                                <label>"Level"</label>
-                                <p>{profile.get().level}</p>
-                            </div>
+                            <Suspense fallback=move || view! { <div>"Loading..."</div> }>
+                                {move || {
+                                    progression.get().map(|result| {
+                                        match result {
+                                            Ok(prog) => view! {
+                                                <>
+                                                    <div class="info-group">
+                                                        <label>"Level"</label>
+                                                        <p>{prog.level_info.level}</p>
+                                                    </div>
 
-                            <div class="info-group">
-                                <label>"Experience"</label>
-                                <div class="progress">
-                                    <div
-                                        class="progress-bar"
-                                        style=format!("width: {}%", profile.get().experience % 1000 / 10)
-                                    >
-                                        {profile.get().experience}" XP"
-                                    </div>
-                                </div>
-                            </div>
+                                                    <div class="info-group">
+                                                        <label>"Experience"</label>
+                                                        <div class="progress">
+                                                            <div
+                                                                class="progress-bar"
+                                                                style=move || format!("width: {}%",
+                                                                    (prog.level_info.current_experience as f32 /
+                                                                     prog.level_info.experience_to_next as f32 * 100.0) as u32)
+                                                            >
+                                                                {prog.level_info.current_experience}" / "{prog.level_info.experience_to_next}" XP"
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
-                            <div class="info-group">
-                                <label>"Reputation"</label>
-                                <p class="reputation">{profile.get().reputation}</p>
-                            </div>
+                                                    <div class="info-group">
+                                                        <label>"Total Reputation"</label>
+                                                        <p class="reputation">{prog.reputation.total_reputation}</p>
+                                                    </div>
+
+                                                    <div class="info-group">
+                                                        <label>"Skill Points Available"</label>
+                                                        <p>{prog.skill_tree.skill_points_available}</p>
+                                                    </div>
+
+                                                    <div class="info-group">
+                                                        <label>"Achievements"</label>
+                                                        <p>{prog.achievements.unlocked_achievements.len()}" unlocked"</p>
+                                                    </div>
+                                                </>
+                                            },
+                                            Err(_) => view! {
+                                                <div class="error">"Failed to load progression data"</div>
+                                            },
+                                        }
+                                    })
+                                }}
+                            </Suspense>
 
                             <div class="info-group">
                                 <label>"Clan"</label>
@@ -135,51 +168,70 @@ pub fn ProfilePage() -> impl IntoView {
                         </div>
                     },
                     "statistics" => view! {
-                        <div class="statistics-grid">
-                            <div class="stat-card">
-                                <h3>"Hacking Stats"</h3>
-                                <div class="stat-item">
-                                    <span>"Total Hacks:"</span>
-                                    <strong>{profile.get().total_hacks}</strong>
-                                </div>
-                                <div class="stat-item">
-                                    <span>"Successful:"</span>
-                                    <strong>{profile.get().successful_hacks}</strong>
-                                </div>
-                                <div class="stat-item">
-                                    <span>"Success Rate:"</span>
-                                    <strong>
-                                        {format!("{}%",
-                                            profile.get().successful_hacks * 100 / profile.get().total_hacks.max(1)
-                                        )}
-                                    </strong>
-                                </div>
-                            </div>
+                        <Suspense fallback=move || view! { <div>"Loading statistics..."</div> }>
+                            {move || {
+                                statistics.get().map(|result| {
+                                    match result {
+                                        Ok(stats) => view! {
+                                            <div class="statistics-grid">
+                                                <div class="stat-card">
+                                                    <h3>"Hacking Stats"</h3>
+                                                    <div class="stat-item">
+                                                        <span>"Servers Hacked:"</span>
+                                                        <strong>{stats.servers_hacked}</strong>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <span>"Missions Completed:"</span>
+                                                        <strong>{stats.missions_completed}</strong>
+                                                    </div>
+                                                </div>
 
-                            <div class="stat-card">
-                                <h3>"Financial Stats"</h3>
-                                <div class="stat-item">
-                                    <span>"Money Earned:"</span>
-                                    <strong>"$"{profile.get().money_earned}</strong>
-                                </div>
-                                <div class="stat-item">
-                                    <span>"Viruses Created:"</span>
-                                    <strong>{profile.get().viruses_created}</strong>
-                                </div>
-                            </div>
+                                                <div class="stat-card">
+                                                    <h3>"Financial Stats"</h3>
+                                                    <div class="stat-item">
+                                                        <span>"Money Earned:"</span>
+                                                        <strong>"$"{stats.money_earned}</strong>
+                                                    </div>
+                                                </div>
 
-                            <div class="stat-card">
-                                <h3>"Account Info"</h3>
-                                <div class="stat-item">
-                                    <span>"Member Since:"</span>
-                                    <strong>{profile.get().created_at}</strong>
-                                </div>
-                                <div class="stat-item">
-                                    <span>"Last Login:"</span>
-                                    <strong>{profile.get().last_login}</strong>
-                                </div>
-                            </div>
-                        </div>
+                                                <div class="stat-card">
+                                                    <h3>"PvP Stats"</h3>
+                                                    <div class="stat-item">
+                                                        <span>"Wins:"</span>
+                                                        <strong>{stats.pvp_wins}</strong>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <span>"Losses:"</span>
+                                                        <strong>{stats.pvp_losses}</strong>
+                                                    </div>
+                                                    <div class="stat-item">
+                                                        <span>"Win Rate:"</span>
+                                                        <strong>
+                                                            {format!("{}%",
+                                                                if stats.pvp_wins + stats.pvp_losses > 0 {
+                                                                    stats.pvp_wins * 100 / (stats.pvp_wins + stats.pvp_losses)
+                                                                } else { 0 }
+                                                            )}
+                                                        </strong>
+                                                    </div>
+                                                </div>
+
+                                                <div class="stat-card">
+                                                    <h3>"Playtime"</h3>
+                                                    <div class="stat-item">
+                                                        <span>"Time Played:"</span>
+                                                        <strong>{format_time(stats.time_played_seconds)}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        },
+                                        Err(_) => view! {
+                                            <div class="error">"Failed to load statistics"</div>
+                                        },
+                                    }
+                                })
+                            }}
+                        </Suspense>
                     },
                     "security" => view! {
                         <div class="security-settings">
@@ -236,5 +288,16 @@ pub fn ProfilePage() -> impl IntoView {
                 }}
             </div>
         </div>
+    }
+}
+
+fn format_time(seconds: u64) -> String {
+    let hours = seconds / 3600;
+    let minutes = (seconds % 3600) / 60;
+
+    if hours > 0 {
+        format!("{}h {}m", hours, minutes)
+    } else {
+        format!("{}m", minutes)
     }
 }

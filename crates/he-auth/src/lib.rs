@@ -18,6 +18,9 @@ use uuid::Uuid;
 
 pub mod jwt;
 pub mod session;
+
+#[cfg(test)]
+mod tests;
 pub mod rbac;
 pub mod rate_limit;
 pub mod mfa;

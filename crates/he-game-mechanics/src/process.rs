@@ -1,6 +1,5 @@
 //! Process system mechanics - Time calculations, resource management, scheduling
 
-use crate::{PlayerState, TargetInfo, ResourceUsage};
 use crate::config::ProcessConfig;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
@@ -512,7 +511,15 @@ impl ProcessScheduler {
 }
 
 /// Calculate process duration based on type, player stats, and target
-pub fn calculate_duration(process_type: &str, player: &PlayerState, target: &TargetInfo, config: &ProcessConfig) -> i32 {
+pub fn calculate_duration(process_type: &str, player: &crate::PlayerState, target: &crate::TargetInfo, config: &ProcessConfig) -> i32 {
+    // Convert to extended versions for full calculation support
+    let extended_player = crate::extended::extend_player_state(player);
+    let extended_target = crate::extended::extend_target_info(target);
+    calculate_duration_extended(process_type, &extended_player, &extended_target, config)
+}
+
+/// Calculate process duration with extended data structures
+pub fn calculate_duration_extended(process_type: &str, player: &crate::extended::ExtendedPlayerState, target: &crate::extended::ExtendedTargetInfo, config: &ProcessConfig) -> i32 {
     let p_type = ProcessType::from_str(process_type);
     let base_complexity = p_type.base_complexity();
     
@@ -593,7 +600,13 @@ pub fn calculate_duration(process_type: &str, player: &PlayerState, target: &Tar
 }
 
 /// Calculate resource usage for a process
-pub fn calculate_resource_usage(process_type: &str, target: &TargetInfo, config: &ProcessConfig) -> ResourceUsage {
+pub fn calculate_resource_usage(process_type: &str, target: &crate::TargetInfo, config: &ProcessConfig) -> crate::ResourceUsage {
+    let extended_target = crate::extended::extend_target_info(target);
+    calculate_resource_usage_extended(process_type, &extended_target, config)
+}
+
+/// Calculate resource usage with extended target info
+pub fn calculate_resource_usage_extended(process_type: &str, target: &crate::extended::ExtendedTargetInfo, config: &ProcessConfig) -> crate::ResourceUsage {
     let p_type = ProcessType::from_str(process_type);
     let base_complexity = p_type.base_complexity();
     
@@ -687,7 +700,7 @@ pub fn calculate_resource_usage(process_type: &str, target: &TargetInfo, config:
         }
     };
     
-    ResourceUsage {
+    crate::ResourceUsage {
         cpu_usage: cpu.max(1).min(100),
         ram_usage: ram.max(64),
         net_usage: net.max(0).min(1000),
@@ -696,7 +709,7 @@ pub fn calculate_resource_usage(process_type: &str, target: &TargetInfo, config:
 }
 
 /// Calculate skill modifier based on player stats and process type
-pub fn calculate_skill_modifier(player: &PlayerState, process_type: &ProcessType) -> f32 {
+pub fn calculate_skill_modifier(player: &crate::extended::ExtendedPlayerState, process_type: &ProcessType) -> f32 {
     let base_skill = match process_type {
         ProcessType::Crack | ProcessType::BruteForce => {
             player.hacking_skill.unwrap_or(1) as f32 / 100.0
@@ -726,7 +739,7 @@ pub fn calculate_skill_modifier(player: &PlayerState, process_type: &ProcessType
 }
 
 /// Process completion handler
-pub fn handle_process_completion(process: &Process, player: &mut PlayerState, config: &ProcessConfig) -> Result<String, String> {
+pub fn handle_process_completion(process: &Process, player: &mut crate::extended::ExtendedPlayerState, config: &ProcessConfig) -> Result<String, String> {
     match &process.process_type {
         ProcessType::Download => {
             if let Some(file_id) = process.file_id {
@@ -799,8 +812,8 @@ pub fn handle_process_completion(process: &Process, player: &mut PlayerState, co
 /// Calculate process success chance
 pub fn calculate_success_chance(
     process_type: &ProcessType,
-    player: &PlayerState,
-    target: &TargetInfo,
+    player: &crate::extended::ExtendedPlayerState,
+    target: &crate::extended::ExtendedTargetInfo,
     config: &ProcessConfig
 ) -> f32 {
     let base_chance = match process_type {
@@ -837,15 +850,15 @@ pub fn calculate_success_chance(
 /// Process chaining - create dependent processes
 pub fn create_process_chain(
     initial_type: ProcessType,
-    player: &PlayerState,
-    target: &TargetInfo,
+    player: &crate::extended::ExtendedPlayerState,
+    target: &crate::extended::ExtendedTargetInfo,
     config: &ProcessConfig
 ) -> Vec<Process> {
     let mut chain = Vec::new();
     
     // Create initial process
-    let duration = calculate_duration(&format!("{:?}", initial_type), player, target, config);
-    let resources = calculate_resource_usage(&format!("{:?}", initial_type), target, config);
+    let duration = calculate_duration_extended(&format!("{:?}", initial_type), player, target, config);
+    let resources = calculate_resource_usage_extended(&format!("{:?}", initial_type), target, config);
     let mut parent = Process::new(
         initial_type.clone(),
         player.player_id,
@@ -866,8 +879,8 @@ pub fn create_process_chain(
     match initial_type {
         ProcessType::Crack => {
             // After cracking, scan the system
-            let scan_duration = calculate_duration("system_scan", player, target, config);
-            let scan_resources = calculate_resource_usage("system_scan", target, config);
+            let scan_duration = calculate_duration_extended("system_scan", player, target, config);
+            let scan_resources = calculate_resource_usage_extended("system_scan", target, config);
             let mut scan = Process::new(
                 ProcessType::SystemScan,
                 player.player_id,
@@ -879,8 +892,8 @@ pub fn create_process_chain(
         },
         ProcessType::Download => {
             // After download, scan for viruses
-            let scan_duration = calculate_duration("virus_scan", player, target, config);
-            let scan_resources = calculate_resource_usage("virus_scan", target, config);
+            let scan_duration = calculate_duration_extended("virus_scan", player, target, config);
+            let scan_resources = calculate_resource_usage_extended("virus_scan", target, config);
             let mut scan = Process::new(
                 ProcessType::VirusScan,
                 player.player_id,
@@ -892,8 +905,8 @@ pub fn create_process_chain(
         },
         ProcessType::SystemScan => {
             // After system scan, hide logs
-            let hide_duration = calculate_duration("hide_log", player, target, config);
-            let hide_resources = calculate_resource_usage("hide_log", target, config);
+            let hide_duration = calculate_duration_extended("hide_log", player, target, config);
+            let hide_resources = calculate_resource_usage_extended("hide_log", target, config);
             let mut hide = Process::new(
                 ProcessType::HideLog,
                 player.player_id,
@@ -999,43 +1012,43 @@ mod tests {
     
     #[test]
     fn test_duration_calculation() {
-        let mut player = PlayerState::default();
+        let mut player = crate::extended::ExtendedPlayerState::default();
         player.cpu_mhz = 3000;
         player.ram_mb = 8192;
         player.internet_speed = 100;
         player.hacking_skill = Some(75);
-        
-        let mut target = TargetInfo::default();
+
+        let mut target = crate::extended::ExtendedTargetInfo::default();
         target.security_level = Some(50);
         target.file_size = Some(10 * 1024 * 1024); // 10MB
-        
+
         let config = ProcessConfig::default();
-        
-        let crack_duration = calculate_duration("crack", &player, &target, &config);
+
+        let crack_duration = calculate_duration_extended("crack", &player, &target, &config);
         assert!(crack_duration > 0);
         assert!(crack_duration < config.max_process_time);
-        
-        let download_duration = calculate_duration("download", &player, &target, &config);
+
+        let download_duration = calculate_duration_extended("download", &player, &target, &config);
         assert!(download_duration > 0);
         assert!(download_duration < config.max_process_time);
     }
     
     #[test]
     fn test_success_chance_calculation() {
-        let mut player = PlayerState::default();
+        let mut player = crate::extended::ExtendedPlayerState::default();
         player.hacking_skill = Some(80);
         player.cpu_mhz = 4000;
-        
-        let mut target = TargetInfo::default();
+
+        let mut target = crate::extended::ExtendedTargetInfo::default();
         target.security_level = Some(60);
         target.password_strength = Some(100);
-        
+
         let config = ProcessConfig::default();
-        
+
         let crack_chance = calculate_success_chance(&ProcessType::Crack, &player, &target, &config);
         assert!(crack_chance > 0.0);
         assert!(crack_chance <= 100.0);
-        
+
         let brute_chance = calculate_success_chance(&ProcessType::BruteForce, &player, &target, &config);
         assert!(brute_chance > 0.0);
         assert!(brute_chance <= 100.0);
@@ -1043,10 +1056,10 @@ mod tests {
     
     #[test]
     fn test_process_chaining() {
-        let player = PlayerState::default();
-        let target = TargetInfo::default();
+        let player = crate::extended::ExtendedPlayerState::default();
+        let target = crate::extended::ExtendedTargetInfo::default();
         let config = ProcessConfig::default();
-        
+
         let chain = create_process_chain(ProcessType::Crack, &player, &target, &config);
         assert_eq!(chain.len(), 2); // Crack + SystemScan
         assert_eq!(chain[0].process_type, ProcessType::Crack);

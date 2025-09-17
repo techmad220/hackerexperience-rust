@@ -24,6 +24,10 @@ he-helix-core = { path = "../../he-helix-core" }
 he-helix-http = { path = "../../he-helix-http" }
 he-helix-websocket-handlers = { path = "../../he-helix-websocket-handlers" }
 he-helix-security = { path = "../../he-helix-security" }
+he-database = { path = "../he-database" }
+he-auth = { path = "../he-auth" }
+he-game-mechanics = { path = "../he-game-mechanics" }
+he-vdp = { path = "../he-vdp" }
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }

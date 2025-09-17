@@ -24,6 +24,7 @@ use he_helix_security::{
 mod game_server_v2;
 mod middleware_stack;
 mod safe_resources;
+mod handlers;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -126,6 +127,15 @@ async fn main() -> std::io::Result<()> {
             .route("/api/login", web::post().to(login))
             .route("/api/register", web::post().to(register))
 
+            // Monitoring endpoints
+            .route("/metrics", web::get().to(handlers::monitoring::metrics))
+            .route("/health/detailed", web::get().to(handlers::monitoring::health))
+            .route("/ready", web::get().to(handlers::monitoring::ready))
+            .route("/live", web::get().to(handlers::monitoring::live))
+
+            // VDP and Security endpoints
+            .service(he_vdp::create_vdp_router())
+
             // Protected game APIs (auth required)
             .service(
                 web::scope("/api")
@@ -134,6 +144,19 @@ async fn main() -> std::io::Result<()> {
                     .route("/processes/start", web::post().to(start_process_safe))
                     .route("/processes/cancel", web::post().to(cancel_process_safe))
                     .route("/hardware", web::get().to(get_hardware))
+
+                    // Progression API endpoints
+                    .route("/progression", web::get().to(handlers::progression::get_progression))
+                    .route("/progression/experience", web::post().to(handlers::progression::add_experience))
+                    .route("/progression/skills/invest", web::post().to(handlers::progression::invest_skill))
+                    .route("/progression/skills/reset", web::post().to(handlers::progression::reset_skills))
+                    .route("/progression/achievements", web::get().to(handlers::progression::get_achievements))
+                    .route("/progression/unlockables", web::get().to(handlers::progression::get_unlockables))
+                    .route("/progression/reputation", web::get().to(handlers::progression::get_reputation))
+                    .route("/progression/reputation/modify", web::post().to(handlers::progression::modify_reputation))
+                    .route("/progression/statistics", web::get().to(handlers::progression::get_statistics))
+                    .route("/progression/action", web::post().to(handlers::progression::complete_action))
+                    .route("/progression/leaderboard", web::get().to(handlers::progression::get_leaderboard))
             )
 
             // WebSocket with limits

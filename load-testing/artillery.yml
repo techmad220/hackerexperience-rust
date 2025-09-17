@@ -1,0 +1,263 @@
+# Artillery.io Load Testing Configuration
+# Install: npm install -g artillery
+# Run: artillery run artillery.yml
+
+config:
+  target: "http://localhost:3005"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up"
+    - duration: 300
+      arrivalRate: 50
+      name: "Sustained load"
+    - duration: 120
+      arrivalRate: 100
+      name: "Peak load"
+    - duration: 60
+      arrivalRate: 200
+      name: "Stress test"
+
+  processor: "./processor.js"
+
+  variables:
+    usernames:
+      - "testuser1"
+      - "testuser2"
+      - "testuser3"
+      - "testuser4"
+      - "testuser5"
+
+    server_ips:
+      - "192.168.1.1"
+      - "10.0.0.1"
+      - "172.16.0.1"
+      - "203.0.113.0"
+      - "198.51.100.0"
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  # Scenario 1: User Registration and Login
+  - name: "New User Journey"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/register"
+          json:
+            username: "{{ $randomString() }}"
+            email: "{{ $randomString() }}@test.com"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+
+      - think: 2
+
+      - get:
+          url: "/api/state"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+  # Scenario 2: Authenticated User Actions
+  - name: "Active Player"
+    weight: 40
+    flow:
+      - post:
+          url: "/api/login"
+          json:
+            username: "{{ usernames }}"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+
+      - think: 1
+
+      # Get player state
+      - get:
+          url: "/api/state"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      # Scan a server
+      - post:
+          url: "/api/internet/scan"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            target_ip: "{{ server_ips }}"
+
+      - think: 3
+
+      # Check processes
+      - get:
+          url: "/api/processes"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      # Get missions
+      - get:
+          url: "/api/missions"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - think: 2
+
+      # Hack attempt
+      - post:
+          url: "/api/internet/hack"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            target_ip: "{{ server_ips }}"
+            crack_method: "password_cracker"
+
+  # Scenario 3: PvP Combat
+  - name: "PvP Player"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/login"
+          json:
+            username: "{{ usernames }}"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+
+      - get:
+          url: "/api/pvp/matchmaking"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - think: 2
+
+      - post:
+          url: "/api/pvp/join-queue"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            stakes:
+              money: 1000
+              ranked: true
+
+      - think: 5
+
+      - get:
+          url: "/api/pvp/active-match"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+  # Scenario 4: Chat and Social
+  - name: "Social Player"
+    weight: 15
+    flow:
+      - post:
+          url: "/api/login"
+          json:
+            username: "{{ usernames }}"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+
+      # Join global chat
+      - post:
+          url: "/api/chat/join"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            room: "global"
+
+      - think: 1
+
+      # Send message
+      - post:
+          url: "/api/chat/send"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            room: "global"
+            message: "Hello from load test!"
+
+      # Get recent messages
+      - get:
+          url: "/api/chat/messages/global"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - think: 3
+
+      # Check clan
+      - get:
+          url: "/api/clan/my-clan"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+  # Scenario 5: Trading and Market
+  - name: "Trader"
+    weight: 15
+    flow:
+      - post:
+          url: "/api/login"
+          json:
+            username: "{{ usernames }}"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+
+      # Browse market
+      - get:
+          url: "/api/market/listings?category=software"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+      - think: 2
+
+      # Create listing
+      - post:
+          url: "/api/market/create-listing"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            item_type: "software"
+            item_id: "password_cracker_v2"
+            price: 5000
+            quantity: 1
+
+      - think: 3
+
+      # Check trades
+      - get:
+          url: "/api/trades/active"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+# WebSocket Load Test (separate scenario)
+  - name: "WebSocket User"
+    weight: 100
+    engine: "ws"
+    flow:
+      - send:
+          json:
+            type: "auth"
+            token: "{{ authToken }}"
+
+      - think: 1
+
+      - send:
+          json:
+            type: "subscribe"
+            channels: ["processes", "chat", "notifications"]
+
+      - think: 10
+
+      - send:
+          json:
+            type: "ping"
+
+      - think: 5

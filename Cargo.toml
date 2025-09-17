@@ -2,11 +2,12 @@
 resolver = "2"
 members = [
     "crates/he-admin",
-    "crates/he-api", 
+    "crates/he-api",
     "crates/he-auth",
     "crates/he-cli",
     "crates/he-core",
     "crates/he-cron",
+    "crates/he-database",
     "crates/he-db",
     "crates/he-demo-server",
     "crates/he-leptos-frontend",
@@ -19,10 +20,11 @@ members = [
     "crates/he-legacy-compat",
     "crates/he-processes",
     "crates/he-realtime",
+    "crates/he-websocket",
     # Game mechanics engine
     "crates/he-game-mechanics",
+    "crates/he-game-world",
     "he-helix-core",
-    "he-database",
     "he-events",
     # New Helix modules
     "he-helix-log",
@@ -42,6 +44,8 @@ members = [
     "he-helix-hell",
     "he-helix-balance",
     "he-helix-security",
+    # VDP and Security
+    "crates/he-vdp",
 ]
 
 [workspace.package]

@@ -1,0 +1,263 @@
+# HackerExperience Game Balance Configuration
+# All game balance parameters in one place for easy tuning
+
+[economy]
+# Starting resources
+starting_money = 5000
+starting_disk_space = 50  # MB
+starting_bandwidth = 10   # Mbps
+
+# Money generation rates
+hack_base_reward = 100
+hack_tier_multiplier = [1.0, 2.5, 5.0, 10.0, 25.0]  # Per tier
+mission_reward_multiplier = 1.5
+pvp_win_base_reward = 500
+
+# Money sinks
+software_price_multiplier = 1.0
+hardware_upgrade_cost_curve = 1.8  # Exponential factor
+server_maintenance_cost = 100  # Per day
+clan_tax_rate = 0.05  # 5% of earnings
+
+# Economy targets
+target_money_per_hour = 10000  # For average player
+target_millionaire_days = 30   # Days to reach 1M
+inflation_rate = 0.02  # 2% per month
+
+[progression]
+# Experience rates
+base_exp_per_level = 100
+exp_curve_exponent = 1.5  # Level 2 = 100 * 2^1.5
+max_level = 100
+
+# Experience sources
+hack_exp_base = 50
+hack_exp_tier_bonus = [0, 50, 150, 400, 1000]
+mission_exp_multiplier = 1.5
+pvp_exp_base = 300
+first_time_bonus = 3.0
+daily_login_bonus = 100
+
+# Level up rewards
+skill_points_per_level = 1
+bonus_points_levels = [10, 25, 50, 75, 100]  # Extra point at these levels
+bonus_points_amount = 3
+
+# Time to max level (target)
+casual_player_days = 365    # 1 year
+hardcore_player_days = 90   # 3 months
+
+[combat]
+# PvP Balance
+base_health = 100
+damage_variance = 0.2  # ±20% damage randomization
+level_difference_factor = 0.1  # 10% advantage per level
+hardware_impact = 0.3  # 30% of combat power from hardware
+
+# Matchmaking
+rating_range_initial = 200
+rating_range_expansion = 50  # Per 30 seconds in queue
+rating_change_base = 25
+rating_change_streak_bonus = 5
+
+# Combat duration
+min_match_duration = 60  # seconds
+max_match_duration = 600  # 10 minutes
+average_round_time = 15  # seconds
+
+[skills]
+# Skill tree balance
+max_skill_level = 10
+points_to_max_skill = 55  # Total points needed
+reset_cost_base = 10000
+reset_cost_multiplier = 2.0  # Doubles each reset
+
+# Skill effectiveness
+skill_bonus_per_level = 0.05  # 5% per level
+diminishing_returns_start = 7  # After level 7
+diminishing_returns_factor = 0.5
+
+# Skill categories weight
+hacking_weight = 0.3
+defense_weight = 0.2
+stealth_weight = 0.15
+hardware_weight = 0.15
+software_weight = 0.1
+networking_weight = 0.1
+
+[hacking]
+# Process times (seconds)
+scan_base_time = 5
+scan_time_per_tier = 3
+crack_base_time = 30
+crack_time_per_tier = 15
+exploit_base_time = 60
+exploit_time_per_tier = 30
+
+# Success rates
+base_success_rate = 0.7  # 70%
+level_difference_impact = 0.05  # 5% per level
+software_quality_bonus = 0.1
+hardware_speed_bonus = 0.15
+
+# Detection and trace
+base_detection_chance = 0.2
+stealth_software_reduction = 0.5
+log_deletion_time = 30
+trace_time_base = 300  # 5 minutes
+
+[servers]
+# Server distribution by tier
+tier_distribution = [0.4, 0.3, 0.2, 0.08, 0.02]  # T1-T5
+total_world_servers = 10000
+
+# Server respawn
+respawn_time_minutes = 60
+file_regeneration_time = 120
+money_regeneration_rate = 0.1  # 10% per hour
+
+# Server difficulty
+firewall_base = 10
+firewall_per_tier = 15
+encryption_base = 5
+encryption_per_tier = 10
+
+[missions]
+# Mission generation
+missions_per_day = 5
+mission_refresh_hours = 6
+simultaneous_missions = 3
+
+# Mission difficulty distribution
+easy_weight = 0.4
+medium_weight = 0.35
+hard_weight = 0.2
+expert_weight = 0.05
+
+# Mission rewards
+reward_variance = 0.25  # ±25%
+bonus_objective_multiplier = 1.5
+time_bonus_threshold = 0.5  # Complete in half the time
+time_bonus_multiplier = 2.0
+
+[clans]
+# Clan settings
+initial_member_limit = 50
+member_limit_per_level = 5
+max_clan_level = 20
+
+# Clan progression
+exp_per_member_action = 10
+exp_to_level_base = 1000
+exp_to_level_multiplier = 1.5
+
+# Clan wars
+war_preparation_hours = 24
+war_duration_hours = 48
+minimum_participants = 10
+territory_capture_points = 1000
+war_exhaustion_per_loss = 0.1
+
+[trading]
+# Market fees
+listing_fee = 0.01  # 1% of price
+transaction_fee = 0.05  # 5% on completion
+escrow_fee = 0.02  # 2% for escrow service
+
+# Trade limits
+max_active_listings = 20
+max_active_trades = 10
+trade_timeout_hours = 24
+
+# Price limits
+min_price = 1
+max_price = 1000000000  # 1 billion
+price_history_days = 30
+
+[events]
+# Event frequency
+daily_event_chance = 0.3
+weekly_event_guaranteed = true
+special_event_days = ["2024-12-25", "2024-01-01", "2024-07-04"]
+
+# Event rewards
+participation_reward_base = 1000
+top_10_multiplier = 10
+winner_multiplier = 100
+
+# Event duration
+min_event_hours = 2
+max_event_hours = 72
+weekend_event_extension = 24
+
+[reputation]
+# Faction standing
+reputation_gain_base = 10
+reputation_loss_multiplier = 2.0  # Lose twice as fast
+reputation_decay_daily = 1
+max_reputation = 10000
+min_reputation = -5000
+
+# Reputation rewards
+friendly_discount = 0.05
+honored_discount = 0.10
+revered_discount = 0.15
+exalted_discount = 0.20
+
+[performance]
+# Server limits
+max_concurrent_players = 10000
+max_processes_per_player = 10
+max_chat_messages_cached = 1000
+max_market_listings_shown = 100
+
+# Rate limits (per minute)
+api_calls_per_user = 60
+chat_messages_per_user = 30
+market_actions_per_user = 10
+pvp_matches_per_user = 5
+
+# Cache TTL (seconds)
+user_profile_cache = 300
+server_info_cache = 600
+leaderboard_cache = 900
+market_cache = 60
+
+[ai]
+# NPC behavior
+npc_hack_back_chance = 0.1
+npc_clan_activity = 0.3
+npc_market_participation = 0.2
+npc_pvp_queue_ratio = 0.1  # 10% of PvP opponents are NPCs
+
+# Difficulty scaling
+npc_level_variance = 0.2  # ±20% of player level
+npc_skill_distribution = "normal"  # normal, uniform, exponential
+npc_reaction_time = 5  # seconds
+
+[anti_cheat]
+# Detection thresholds
+max_actions_per_second = 10
+impossible_money_threshold = 1000000000
+impossible_exp_per_hour = 100000
+suspicious_win_rate = 0.95
+
+# Penalties
+first_offense_ban_hours = 24
+second_offense_ban_days = 7
+third_offense_permanent = true
+
+[new_player]
+# Tutorial
+tutorial_completion_reward = 10000
+tutorial_skip_level = 5
+
+# Protection
+pvp_protection_hours = 72
+pvp_protection_level = 10
+beginner_server_tier_limit = 2
+
+# Catch-up mechanics
+exp_boost_under_level = 20
+exp_boost_multiplier = 1.5
+returning_player_boost_days = 7
