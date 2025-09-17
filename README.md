@@ -4,7 +4,7 @@
 
 ## 🎮 What is NetHeist?
 
-NetHeist (formerly HackerExperience Rust) is a browser-based hacking simulation MMO where players:
+NetHeist is a browser-based hacking simulation MMO where players:
 - Hack into virtual servers and corporations
 - Develop and deploy malware
 - Engage in cyber warfare with other players
@@ -207,7 +207,6 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Mobile app (React Native)
 - Advanced AI NPCs
 - Seasonal events
-- Mod support
 - Blockchain integration
 
 ## 📝 License
