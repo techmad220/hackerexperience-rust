@@ -61,9 +61,27 @@ impl WebSocketSession {
 
     /// Handle authentication
     async fn authenticate(&mut self, token: &str) -> Result<i64, String> {
-        // TODO: Validate JWT and get user_id
-        // For now, return mock user_id
-        Ok(1)
+        // Validate JWT and extract user_id
+        use he_auth::jwt::{JwtManager, JwtConfig};
+
+        // Get JWT secret from environment or use default for development
+        let jwt_secret = std::env::var("JWT_SECRET")
+            .unwrap_or_else(|_| "change_me_in_production_to_random_string".to_string());
+
+        let mut config = JwtConfig::default();
+        config.secret = jwt_secret;
+
+        let jwt_manager = JwtManager::new(config)
+            .map_err(|e| format!("Failed to initialize JWT manager: {}", e))?;
+
+        let claims = jwt_manager.validate_token(token)
+            .map_err(|e| format!("Authentication failed: {}", e))?;
+
+        // Convert UUID to i64 for compatibility (use last 8 bytes)
+        let user_id = claims.user_id.as_u128() as i64;
+
+        debug!("WebSocket authenticated for user: {}", claims.user_id);
+        Ok(user_id)
     }
 }
 
