@@ -52,8 +52,8 @@ members = [
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-authors = ["HackerExperience Team"]
-repository = "https://github.com/hackerexperience/helix-rust"
+authors = ["NetHeist Team"]
+repository = "https://github.com/techmad220/NetHeist"
 
 [workspace.dependencies]
 # Async runtime and utilities

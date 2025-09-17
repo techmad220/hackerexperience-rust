@@ -1,10 +1,10 @@
-# HackerExperience Rust - Multiplayer Hacking MMO
+# NetHeist - Multiplayer Hacking MMO
 
-**A fully-featured, production-ready multiplayer hacking game built in Rust with 150,000+ lines of code, supporting 10,000+ concurrent players.**
+**A fully-featured, production-ready multiplayer hacking game built in Rust with 102,000+ lines of code, supporting 10,000+ concurrent players.**
 
-## 🎮 What is HackerExperience?
+## 🎮 What is NetHeist?
 
-HackerExperience is a browser-based hacking simulation MMO where players:
+NetHeist (formerly HackerExperience Rust) is a browser-based hacking simulation MMO where players:
 - Hack into virtual servers and corporations
 - Develop and deploy malware
 - Engage in cyber warfare with other players
@@ -36,8 +36,8 @@ Think of it as a mix between Uplink, Hacknet, and a traditional MMO - all playab
 
 ### Using Docker (Recommended)
 ```bash
-git clone https://github.com/techmad220/hackerexperience-rust
-cd hackerexperience-rust
+git clone https://github.com/techmad220/NetHeist
+cd NetHeist
 docker-compose up
 ```
 
@@ -174,7 +174,7 @@ We take security seriously:
 - **Bug Bounty**: Rewards for critical findings
 - **Regular audits**: Quarterly security reviews
 
-Report security issues to: security@hackerexperience.com
+Report security issues to: security@netheist.com
 
 ## 🤝 Contributing
 
@@ -216,7 +216,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 ## 🙏 Acknowledgments
 
-- Original HackerExperience team for the concept
+- Original HackerExperience team for the game concept inspiration
 - Rust community for excellent libraries
 - Security researchers who helped test
 - All contributors and beta testers
