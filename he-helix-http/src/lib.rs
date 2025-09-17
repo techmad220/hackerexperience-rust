@@ -1,5 +1,8 @@
 //! Helix HTTP API handlers
 
+pub mod auth;  // Production auth module
+pub mod handlers;  // Request handlers
+
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 

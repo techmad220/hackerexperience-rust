@@ -11,9 +11,11 @@ pub mod genserver;
 pub mod hot_reload;
 pub mod listener;
 pub mod process;
+pub mod process_cancel;  // NEW: Idempotent cancellation
 pub mod supervisor;
 pub mod supervision;
 pub mod types;
+pub mod units;  // NEW: Safe resource arithmetic
 pub mod utils;
 
 // Re-export commonly used types
