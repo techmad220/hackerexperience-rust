@@ -37,3 +37,15 @@ pub use external::*;
 pub const VERSION: &str = "0.8";
 pub const VERSION_STATUS: &str = " BETA";
 pub const GAME_TITLE: &str = "Hacker Experience 0.8 BETA";
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_version_constants() {
+        assert_eq!(VERSION, "0.8");
+        assert_eq!(VERSION_STATUS, " BETA");
+        assert_eq!(GAME_TITLE, "Hacker Experience 0.8 BETA");
+    }
+}

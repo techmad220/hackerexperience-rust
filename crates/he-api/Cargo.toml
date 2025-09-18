@@ -14,7 +14,7 @@ actix-cors = "0.6"
 actix-web-actors = "4"
 
 # Async runtime
-tokio = { version = "1", features = ["full"] }
+tokio = { workspace = true }
 
 # Database
 sqlx = { workspace = true, features = ["migrate", "macros"] }
@@ -30,20 +30,20 @@ he-game-mechanics = { path = "../he-game-mechanics" }
 he-vdp = { path = "../he-vdp" }
 
 # Serialization
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+serde = { workspace = true }
+serde_json = { workspace = true }
 
 # Logging
-tracing = "0.1"
+tracing = { workspace = true }
 tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter", "json"] }
 env_logger = "0.10"
 
 # Security
 jsonwebtoken = "9"
 argon2 = "0.5"
-uuid = { version = "1", features = ["v4", "serde"] }
+uuid = { workspace = true }
 
 # Utils
 num_cpus = "1.16"
-anyhow = "1.0"
+anyhow = { workspace = true }
 futures-util = "0.3"

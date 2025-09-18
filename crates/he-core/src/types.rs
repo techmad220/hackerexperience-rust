@@ -130,3 +130,118 @@ impl Default for ProcessTimeConfig {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_process_action_from_i32() {
+        assert_eq!(ProcessAction::from_i32(1), Some(ProcessAction::Download));
+        assert_eq!(ProcessAction::from_i32(2), Some(ProcessAction::Upload));
+        assert_eq!(ProcessAction::from_i32(11), Some(ProcessAction::Hack));
+        assert_eq!(ProcessAction::from_i32(27), Some(ProcessAction::Ddos));
+        assert_eq!(ProcessAction::from_i32(999), None);
+        assert_eq!(ProcessAction::from_i32(-1), None);
+    }
+
+    #[test]
+    fn test_process_action_as_i32() {
+        assert_eq!(ProcessAction::Download.as_i32(), 1);
+        assert_eq!(ProcessAction::Upload.as_i32(), 2);
+        assert_eq!(ProcessAction::Hack.as_i32(), 11);
+        assert_eq!(ProcessAction::Ddos.as_i32(), 27);
+    }
+
+    #[test]
+    fn test_process_action_roundtrip() {
+        // Test that converting to i32 and back gives the same result
+        let actions = vec![
+            ProcessAction::Download,
+            ProcessAction::Upload,
+            ProcessAction::Hack,
+            ProcessAction::BankHack,
+            ProcessAction::Ddos,
+            ProcessAction::InstallWebserver,
+        ];
+
+        for action in actions {
+            let value = action.as_i32();
+            let converted = ProcessAction::from_i32(value);
+            assert_eq!(converted, Some(action));
+        }
+    }
+
+    #[test]
+    fn test_software_extension_from_type() {
+        assert_eq!(SoftwareExtension::from_type(1), Some(SoftwareExtension::Crc));
+        assert_eq!(SoftwareExtension::from_type(2), Some(SoftwareExtension::Crc));
+        assert_eq!(SoftwareExtension::from_type(3), Some(SoftwareExtension::Crc));
+        assert_eq!(SoftwareExtension::from_type(4), Some(SoftwareExtension::Fwl));
+        assert_eq!(SoftwareExtension::from_type(5), Some(SoftwareExtension::Hdr));
+        assert_eq!(SoftwareExtension::from_type(6), Some(SoftwareExtension::Skr));
+        assert_eq!(SoftwareExtension::from_type(999), None);
+    }
+
+    #[test]
+    fn test_software_extension_as_str() {
+        assert_eq!(SoftwareExtension::Crc.as_str(), "crc");
+        assert_eq!(SoftwareExtension::Exp.as_str(), "exp");
+        assert_eq!(SoftwareExtension::Fwl.as_str(), "fwl");
+        assert_eq!(SoftwareExtension::Hdr.as_str(), "hdr");
+    }
+
+    #[test]
+    fn test_software_type_from_i32() {
+        assert_eq!(SoftwareType::from_i32(1), Some(SoftwareType::Cracker));
+        assert_eq!(SoftwareType::from_i32(4), Some(SoftwareType::Firewall));
+        assert_eq!(SoftwareType::from_i32(10), Some(SoftwareType::Av));
+        assert_eq!(SoftwareType::from_i32(26), Some(SoftwareType::Doom));
+        assert_eq!(SoftwareType::from_i32(999), None);
+    }
+
+    #[test]
+    fn test_software_type_as_i32() {
+        assert_eq!(SoftwareType::Cracker.as_i32(), 1);
+        assert_eq!(SoftwareType::Firewall.as_i32(), 4);
+        assert_eq!(SoftwareType::Av.as_i32(), 10);
+        assert_eq!(SoftwareType::Doom.as_i32(), 26);
+    }
+
+    #[test]
+    fn test_process_timing_default() {
+        let timing = ProcessTiming::default();
+        assert_eq!(timing.hack_min, 10);
+        assert_eq!(timing.hack_max, 600);
+        assert_eq!(timing.download_min, 20);
+        assert_eq!(timing.download_max, 7200);
+        assert_eq!(timing.format_min, 1200);
+        assert_eq!(timing.format_max, 3600);
+    }
+
+    #[test]
+    fn test_type_aliases() {
+        // Test that type aliases compile and can be used
+        let _user_id: UserId = 123;
+        let _process_id: ProcessId = 456;
+        let _software_id: SoftwareId = 789;
+        let _ip: IpAddress = "192.168.1.1".to_string();
+    }
+
+    #[test]
+    fn test_process_action_serialization() {
+        // Test that ProcessAction can be serialized and deserialized
+        let action = ProcessAction::Hack;
+        let json = serde_json::to_string(&action).unwrap();
+        let deserialized: ProcessAction = serde_json::from_str(&json).unwrap();
+        assert_eq!(action, deserialized);
+    }
+
+    #[test]
+    fn test_software_type_serialization() {
+        let software = SoftwareType::Firewall;
+        let json = serde_json::to_string(&software).unwrap();
+        let deserialized: SoftwareType = serde_json::from_str(&json).unwrap();
+        assert_eq!(software, deserialized);
+    }
+}

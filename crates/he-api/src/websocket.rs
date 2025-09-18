@@ -5,6 +5,8 @@ use actix_web::{web, HttpRequest, HttpResponse, Error};
 use actix_web_actors::ws;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, Instant};
+use he_auth::jwt::{JwtManager, JwtClaims, JwtConfig};
+use std::sync::Arc;
 
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
@@ -64,16 +66,46 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketSession 
                         "auth" => {
                             // Authenticate WebSocket connection
                             if let Some(token) = msg.data.get("token").and_then(|v| v.as_str()) {
-                                // TODO: Validate token and set user_id
-                                self.user_id = Some(1); // Placeholder
+                                // Validate JWT token using he-auth crate
+                                match validate_jwt_token(token) {
+                                    Ok(claims) => {
+                                        // Set authenticated user_id from validated claims
+                                        self.user_id = Some(claims.user_id.to_string().parse::<i64>().unwrap_or(0));
 
+                                        let response = WSMessage {
+                                            event_type: "auth_success".to_string(),
+                                            data: serde_json::json!({
+                                                "message": "Authenticated successfully",
+                                                "user_id": claims.user_id.to_string(),
+                                                "email": claims.email
+                                            }),
+                                        };
+                                        ctx.text(serde_json::to_string(&response).unwrap());
+                                    }
+                                    Err(e) => {
+                                        // Authentication failed
+                                        let response = WSMessage {
+                                            event_type: "auth_failed".to_string(),
+                                            data: serde_json::json!({
+                                                "message": format!("Authentication failed: {}", e)
+                                            }),
+                                        };
+                                        ctx.text(serde_json::to_string(&response).unwrap());
+
+                                        // Close connection after failed auth
+                                        ctx.stop();
+                                    }
+                                }
+                            } else {
+                                // No token provided
                                 let response = WSMessage {
-                                    event_type: "auth_success".to_string(),
+                                    event_type: "auth_failed".to_string(),
                                     data: serde_json::json!({
-                                        "message": "Authenticated successfully"
+                                        "message": "No authentication token provided"
                                     }),
                                 };
                                 ctx.text(serde_json::to_string(&response).unwrap());
+                                ctx.stop();
                             }
                         }
                         "subscribe" => {
@@ -138,6 +170,20 @@ impl Handler<ProcessUpdate> for WebSocketSession {
             ctx.text(serde_json::to_string(&update).unwrap());
         }
     }
+}
+
+/// Validate JWT token for WebSocket authentication
+fn validate_jwt_token(token: &str) -> Result<JwtClaims, String> {
+    // Load JWT configuration from environment variables
+    let jwt_config = JwtConfig::from_env();
+
+    // Initialize JWT manager
+    let jwt_manager = JwtManager::new(jwt_config)
+        .map_err(|e| format!("Failed to initialize JWT manager: {}", e))?;
+
+    // Validate the token
+    jwt_manager.validate_token(token)
+        .map_err(|e| format!("Token validation failed: {}", e))
 }
 
 pub async fn websocket_handler(

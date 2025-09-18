@@ -228,32 +228,138 @@ impl HardwareQueries {
         hdd_size: Option<i64>,
         net_speed: Option<f64>,
     ) -> Result<()> {
-        let mut query = String::from("UPDATE hardware SET ");
-        let mut updates = Vec::new();
-
-        if let Some(cpu) = cpu_speed {
-            updates.push(format!("cpu_speed = {}", cpu));
-        }
-        if let Some(ram) = ram_size {
-            updates.push(format!("ram_size = {}", ram));
-        }
-        if let Some(hdd) = hdd_size {
-            updates.push(format!("hdd_size = {}", hdd));
-        }
-        if let Some(net) = net_speed {
-            updates.push(format!("net_speed = {}", net));
-        }
-
-        if updates.is_empty() {
+        // Use parameterized queries to prevent SQL injection
+        if cpu_speed.is_none() && ram_size.is_none() && hdd_size.is_none() && net_speed.is_none() {
             return Ok(());
         }
 
-        query.push_str(&updates.join(", "));
-        query.push_str(&format!(" WHERE pc_id = '{}'", pc_id));
-
-        sqlx::query(&query)
-            .execute(pool)
-            .await?;
+        // Build the query dynamically but safely with parameters
+        match (cpu_speed, ram_size, hdd_size, net_speed) {
+            (Some(cpu), Some(ram), Some(hdd), Some(net)) => {
+                sqlx::query!(
+                    "UPDATE hardware SET cpu_speed = $1, ram_size = $2, hdd_size = $3, net_speed = $4 WHERE pc_id = $5",
+                    cpu, ram, hdd, net, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (Some(cpu), Some(ram), Some(hdd), None) => {
+                sqlx::query!(
+                    "UPDATE hardware SET cpu_speed = $1, ram_size = $2, hdd_size = $3 WHERE pc_id = $4",
+                    cpu, ram, hdd, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (Some(cpu), Some(ram), None, Some(net)) => {
+                sqlx::query!(
+                    "UPDATE hardware SET cpu_speed = $1, ram_size = $2, net_speed = $3 WHERE pc_id = $4",
+                    cpu, ram, net, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (Some(cpu), None, Some(hdd), Some(net)) => {
+                sqlx::query!(
+                    "UPDATE hardware SET cpu_speed = $1, hdd_size = $2, net_speed = $3 WHERE pc_id = $4",
+                    cpu, hdd, net, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (None, Some(ram), Some(hdd), Some(net)) => {
+                sqlx::query!(
+                    "UPDATE hardware SET ram_size = $1, hdd_size = $2, net_speed = $3 WHERE pc_id = $4",
+                    ram, hdd, net, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (Some(cpu), Some(ram), None, None) => {
+                sqlx::query!(
+                    "UPDATE hardware SET cpu_speed = $1, ram_size = $2 WHERE pc_id = $3",
+                    cpu, ram, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (Some(cpu), None, Some(hdd), None) => {
+                sqlx::query!(
+                    "UPDATE hardware SET cpu_speed = $1, hdd_size = $2 WHERE pc_id = $3",
+                    cpu, hdd, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (Some(cpu), None, None, Some(net)) => {
+                sqlx::query!(
+                    "UPDATE hardware SET cpu_speed = $1, net_speed = $2 WHERE pc_id = $3",
+                    cpu, net, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (None, Some(ram), Some(hdd), None) => {
+                sqlx::query!(
+                    "UPDATE hardware SET ram_size = $1, hdd_size = $2 WHERE pc_id = $3",
+                    ram, hdd, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (None, Some(ram), None, Some(net)) => {
+                sqlx::query!(
+                    "UPDATE hardware SET ram_size = $1, net_speed = $2 WHERE pc_id = $3",
+                    ram, net, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (None, None, Some(hdd), Some(net)) => {
+                sqlx::query!(
+                    "UPDATE hardware SET hdd_size = $1, net_speed = $2 WHERE pc_id = $3",
+                    hdd, net, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (Some(cpu), None, None, None) => {
+                sqlx::query!(
+                    "UPDATE hardware SET cpu_speed = $1 WHERE pc_id = $2",
+                    cpu, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (None, Some(ram), None, None) => {
+                sqlx::query!(
+                    "UPDATE hardware SET ram_size = $1 WHERE pc_id = $2",
+                    ram, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (None, None, Some(hdd), None) => {
+                sqlx::query!(
+                    "UPDATE hardware SET hdd_size = $1 WHERE pc_id = $2",
+                    hdd, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (None, None, None, Some(net)) => {
+                sqlx::query!(
+                    "UPDATE hardware SET net_speed = $1 WHERE pc_id = $2",
+                    net, pc_id
+                )
+                .execute(pool)
+                .await?;
+            }
+            (None, None, None, None) => {
+                // Already checked above, but needed for exhaustive matching
+                return Ok(());
+            }
+        }
 
         Ok(())
     }

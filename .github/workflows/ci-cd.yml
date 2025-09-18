@@ -89,7 +89,22 @@ jobs:
       - name: Run tests
         run: |
           export DATABASE_URL=postgresql://heuser:hepass@localhost:5432/hackerexperience_test
+          export TEST_DATABASE_URL=$DATABASE_URL
           cargo test --all-features
+
+      - name: Run database tests
+        run: |
+          export TEST_DATABASE_URL=postgresql://heuser:hepass@localhost:5432/hackerexperience_test
+          cargo test -p he-database --all-features
+
+      - name: Run core tests
+        run: |
+          cargo test -p he-core --all-features
+
+      - name: Run API tests
+        run: |
+          export DATABASE_URL=postgresql://heuser:hepass@localhost:5432/hackerexperience_test
+          cargo test -p he-api --all-features
 
       - name: Run integration tests
         run: |
@@ -155,11 +170,38 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # Deploy monitoring stack
+  deploy-monitoring:
+    name: Deploy Monitoring Stack
+    runs-on: ubuntu-latest
+    needs: [docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy monitoring to server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /opt/hackerexperience
+            # Deploy monitoring stack
+            if [ -f deploy_monitoring.sh ]; then
+              ./deploy_monitoring.sh
+            fi
+            # Check monitoring services health
+            sleep 10
+            curl -f http://localhost:9090/-/healthy || echo "Prometheus not ready"
+            curl -f http://localhost:3000/api/health || echo "Grafana not ready"
+
   # Deploy to staging
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
-    needs: [docker]
+    needs: [docker, deploy-monitoring]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment: staging
 

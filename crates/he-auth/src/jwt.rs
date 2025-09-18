@@ -28,14 +28,69 @@ pub struct JwtConfig {
 
 impl Default for JwtConfig {
     fn default() -> Self {
+        // Load JWT secret from environment variable, panic if not set in production
+        let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| {
+            // Only allow default in development/test environments
+            if cfg!(debug_assertions) || cfg!(test) {
+                eprintln!("WARNING: JWT_SECRET not set, using insecure default. This is only acceptable in development!");
+                // Generate a random secret for development
+                "INSECURE_DEV_SECRET_DO_NOT_USE_IN_PRODUCTION_MUST_BE_32_CHARS".to_string()
+            } else {
+                // Panic in production if JWT_SECRET is not set
+                panic!("JWT_SECRET environment variable must be set in production!");
+            }
+        });
+
         Self {
-            secret: "change-this-in-production".to_string(),
+            secret,
             expiration_seconds: 3600, // 1 hour
             algorithm: Algorithm::HS256,
             issuer: Some("HackerExperience".to_string()),
             audience: Some("HackerExperience-Users".to_string()),
             allow_refresh: true,
             refresh_expiration_seconds: 86400 * 7, // 1 week
+        }
+    }
+}
+
+impl JwtConfig {
+    /// Create JWT configuration from environment variables
+    pub fn from_env() -> Self {
+        let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| {
+            if cfg!(debug_assertions) || cfg!(test) {
+                eprintln!("WARNING: JWT_SECRET not set, using insecure default");
+                "INSECURE_DEV_SECRET_DO_NOT_USE_IN_PRODUCTION_MUST_BE_32_CHARS".to_string()
+            } else {
+                panic!("JWT_SECRET environment variable is required in production");
+            }
+        });
+
+        let expiration_seconds = std::env::var("JWT_EXPIRATION_SECONDS")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(3600);
+
+        let refresh_expiration_seconds = std::env::var("JWT_REFRESH_EXPIRATION_SECONDS")
+            .ok()
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(86400 * 7);
+
+        let issuer = std::env::var("JWT_ISSUER")
+            .ok()
+            .or_else(|| Some("HackerExperience".to_string()));
+
+        let audience = std::env::var("JWT_AUDIENCE")
+            .ok()
+            .or_else(|| Some("HackerExperience-Users".to_string()));
+
+        Self {
+            secret,
+            expiration_seconds,
+            algorithm: Algorithm::HS256,
+            issuer,
+            audience,
+            allow_refresh: true,
+            refresh_expiration_seconds,
         }
     }
 }

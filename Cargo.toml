@@ -46,6 +46,8 @@ members = [
     "he-helix-security",
     # VDP and Security
     "crates/he-vdp",
+    # Monitoring and Observability
+    "crates/he-monitoring",
 ]
 
 [workspace.package]

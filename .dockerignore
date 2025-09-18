@@ -1,0 +1,77 @@
+# Rust build artifacts
+target/
+Cargo.lock
+*.rs.bk
+*.pdb
+
+# Git
+.git/
+.gitignore
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Documentation
+README.md
+ARCHITECTURE.md
+DEPLOYMENT.md
+docs/
+*.md
+
+# Development files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Cargo cache
+.cargo/registry
+.cargo/git
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.parcel-cache/
+frontend/coverage/
+
+# Test files
+tests/
+benches/
+*.test.rs
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Database files
+*.sql
+!migrations/*.sql
+database-backups/
+
+# Log files
+*.log
+logs/
+
+# Mac OS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+tmp/
+temp/
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Monitoring data
+monitoring/data/
