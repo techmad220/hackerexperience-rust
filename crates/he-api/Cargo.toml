@@ -39,7 +39,7 @@ tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter", "json"]
 env_logger = "0.10"
 
 # Security
-jsonwebtoken = "9"
+jsonwebtoken = { workspace = true }
 argon2 = "0.5"
 uuid = { workspace = true }
 
@@ -47,3 +47,10 @@ uuid = { workspace = true }
 num_cpus = "1.16"
 anyhow = { workspace = true }
 futures-util = "0.3"
+futures = "0.3"
+chrono = { workspace = true }
+rand = { workspace = true }
+sha2 = "0.10"
+base64 = "0.21"
+thiserror = { workspace = true }
+validator = { workspace = true }

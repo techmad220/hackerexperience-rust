@@ -16,7 +16,7 @@ tracing = { workspace = true }
 
 # Auth dependencies
 argon2 = "0.5"
-jsonwebtoken = "9"
+jsonwebtoken = { workspace = true }
 time = "0.3"
 anyhow = "1.0"
 

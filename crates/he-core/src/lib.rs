@@ -11,6 +11,7 @@ pub mod database;
 pub mod security;
 pub mod validation;
 pub mod pagination;
+pub mod cursor_pagination;
 
 // Utility modules (Priority 3)
 pub mod utils;
