@@ -32,6 +32,13 @@ Think of it as a mix between Uplink, Hacknet, and a traditional MMO - all playab
 - **92% cache hit rate** with Redis
 - Horizontally scalable architecture
 
+### 🔒 Recent Security Improvements (v2.0.0)
+- **Fixed critical SQL injection vulnerabilities** with parameterized queries
+- **Implemented secure WebSocket authentication** with JWT validation
+- **Removed hardcoded secrets** - all sensitive data now in environment variables
+- **Added comprehensive security monitoring** with real-time alerts
+- **Database performance optimized** with strategic indexing
+
 ## 🚀 Quick Start
 
 ### Using Docker (Recommended)
@@ -49,11 +56,20 @@ Access the game at: **http://localhost:8080**
 cargo build --release
 
 # Setup database
-./setup-database.sh
+./apply_migrations.sh
+
+# Deploy monitoring stack
+./deploy_monitoring.sh
 
 # Start the server
 ./start_production.sh
 ```
+
+### Monitoring Dashboard
+After deployment, access monitoring at:
+- **Grafana**: http://localhost:3000 (admin/hackerexp2024)
+- **Prometheus**: http://localhost:9090
+- **Alertmanager**: http://localhost:9093
 
 ## 🎯 Core Features
 
@@ -98,7 +114,7 @@ cargo build --release
 - **Database**: PostgreSQL with SQLx
 - **Cache**: Redis
 - **Real-time**: WebSockets with JWT authentication
-- **Monitoring**: Prometheus + Grafana
+- **Monitoring**: Prometheus + Grafana + Loki + Alertmanager
 
 ### Key Design Patterns
 - **Actor Model**: Concurrent game state management
@@ -122,9 +138,10 @@ cargo build --release
 - **Docker deployment** ready with compose files
 - **Load balancing** with Nginx
 - **Horizontal scaling** support
-- **Database migrations** automated
-- **Monitoring stack** with Grafana dashboards
+- **Database migrations** automated with apply_migrations.sh
+- **Full monitoring stack** with Prometheus, Grafana, Loki, and Alertmanager
 - **Automated backups** with point-in-time recovery
+- **CI/CD pipeline** with comprehensive testing and security audits
 
 ### Performance Optimizations
 - **30+ database indexes** for query performance
@@ -146,6 +163,15 @@ cargo build --release
 # Run all tests
 cargo test
 
+# Run database tests
+cargo test -p he-database --all-features
+
+# Run core tests
+cargo test -p he-core --all-features
+
+# Run API tests
+cargo test -p he-api --all-features
+
 # Run with coverage
 cargo tarpaulin --out Html
 
@@ -154,10 +180,10 @@ npm run artillery
 ```
 
 ### Test Coverage
-- **Unit tests**: Core game logic
-- **Integration tests**: API endpoints
+- **Unit tests**: Core game logic with comprehensive coverage
+- **Integration tests**: API endpoints and database operations
 - **Performance tests**: Load scenarios
-- **Security tests**: Penetration testing
+- **Security tests**: Penetration testing and vulnerability scanning
 
 ## 📚 Documentation
 
