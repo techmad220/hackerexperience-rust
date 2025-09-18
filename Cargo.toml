@@ -90,7 +90,7 @@ thiserror = "1.0"
 
 # Cryptography and security
 bcrypt = "0.15"
-jwt = "0.16"
+jsonwebtoken = "9.0"
 uuid = { version = "1.0", features = ["v4", "serde"] }
 
 # Time and date
@@ -128,7 +128,6 @@ pretty_assertions = "1.0"
 criterion = "0.5"
 
 # Benchmarking and additional utils
-jsonwebtoken = "9.0"
 toml = "0.8"
 serial_test = "3.0"
 

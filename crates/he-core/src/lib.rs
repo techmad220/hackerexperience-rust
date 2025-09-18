@@ -9,6 +9,8 @@ pub mod entity_core;
 // Infrastructure modules (Priority 1)
 pub mod database;
 pub mod security;
+pub mod validation;
+pub mod pagination;
 
 // Utility modules (Priority 3)
 pub mod utils;
@@ -26,6 +28,8 @@ pub use entity_core::*;
 // Re-export infrastructure modules
 pub use database::*;
 pub use security::*;
+pub use validation::*;
+pub use pagination::*;
 
 // Re-export utility modules
 pub use utils::*;

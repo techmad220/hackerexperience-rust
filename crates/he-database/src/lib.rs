@@ -9,6 +9,7 @@ pub mod models;
 pub mod queries;
 pub mod queries_optimized;
 pub mod cache;
+pub mod batch_queries;
 
 #[cfg(test)]
 mod tests;
@@ -17,6 +18,7 @@ pub use models::*;
 pub use queries::*;
 pub use queries_optimized::*;
 pub use cache::*;
+pub use batch_queries::*;
 
 /// Database connection pool
 #[derive(Debug, Clone)]
