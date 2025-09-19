@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -494,7 +495,7 @@ impl Facebook {
         
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_nanos();
         
         format!("fb_state_{}", timestamp)
@@ -636,7 +637,7 @@ mod tests {
             app_secret: "test_app_secret".to_string(),
             ..Default::default()
         };
-        let facebook = Facebook::new(config).unwrap();
+        let facebook = Facebook::new(config).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let state1 = facebook.generate_state();
         let state2 = facebook.generate_state();
@@ -653,7 +654,7 @@ mod tests {
             redirect_uri: "https://example.com/callback".to_string(),
             ..Default::default()
         };
-        let facebook = Facebook::new(config).unwrap();
+        let facebook = Facebook::new(config).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let login_url = facebook.get_login_url(None);
         
@@ -670,7 +671,7 @@ mod tests {
             app_secret: "secret123".to_string(),
             ..Default::default()
         };
-        let facebook = Facebook::new(config).unwrap();
+        let facebook = Facebook::new(config).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let app_token = facebook.get_app_access_token();
         assert_eq!(app_token, "123456789|secret123");
@@ -686,8 +687,8 @@ mod tests {
             scope: Some("public_profile,email".to_string()),
         };
 
-        let json = serde_json::to_string(&token).unwrap();
-        let deserialized: AccessToken = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&token).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let deserialized: AccessToken = serde_json::from_str(&json).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_eq!(token.token, deserialized.token);
         assert_eq!(token.token_type, deserialized.token_type);
@@ -733,10 +734,10 @@ mod tests {
             app_secret: "test_app_secret".to_string(),
             ..Default::default()
         };
-        let facebook = Facebook::new(config).unwrap();
+        let facebook = Facebook::new(config).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
-        assert!(facebook.validate_access_token("valid_token").unwrap());
-        assert!(!facebook.validate_access_token("invalid_token").unwrap());
-        assert!(!facebook.validate_access_token("").unwrap());
+        assert!(facebook.validate_access_token("valid_token").map_err(|e| anyhow::anyhow!("Error: {}", e))?);
+        assert!(!facebook.validate_access_token("invalid_token").map_err(|e| anyhow::anyhow!("Error: {}", e))?);
+        assert!(!facebook.validate_access_token("").map_err(|e| anyhow::anyhow!("Error: {}", e))?);
     }
 }

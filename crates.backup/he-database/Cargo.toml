@@ -1,0 +1,17 @@
+[package]
+name = "he-database"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "uuid", "chrono"] }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+tracing = { workspace = true }
+argon2 = "0.5"
+bincode = "1.3"
+lru = "0.12"  # Efficient O(1) LRU cache implementation

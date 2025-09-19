@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use sqlx::{MySql, Pool};
 use he_core::{User, UserStats, UserId, HeResult, HeError};
 use chrono::{DateTime, Utc};
@@ -56,7 +57,7 @@ impl UserRepository {
                 cur_round: 1, // TODO: Get from round system
                 clan_id: None, // TODO: Join with clan_members
                 created_at: Utc::now(), // TODO: Add to migration
-                last_login: Some(DateTime::from_timestamp(row.last_login.and_utc().timestamp(), 0).unwrap()),
+                last_login: Some(DateTime::from_timestamp(row.last_login.and_utc().timestamp(), 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?),
                 is_premium: row.premium != 0,
                 is_online: false, // TODO: Check sessions table
                 password_hash: row.password,
@@ -86,7 +87,7 @@ impl UserRepository {
                 cur_round: 1,
                 clan_id: None,
                 created_at: Utc::now(),
-                last_login: Some(DateTime::from_timestamp(row.last_login.and_utc().timestamp(), 0).unwrap()),
+                last_login: Some(DateTime::from_timestamp(row.last_login.and_utc().timestamp(), 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?),
                 is_premium: row.premium != 0,
                 is_online: false,
                 password_hash: row.password,

@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Comprehensive tests for authentication module
 
 #[cfg(test)]
@@ -26,7 +27,7 @@ mod tests {
             let result = auth.generate_token(user_id).await;
             assert!(result.is_ok());
 
-            let token = result.unwrap();
+            let token = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             assert!(!token.is_empty());
             assert!(token.contains('.'));
 
@@ -40,14 +41,14 @@ mod tests {
             let auth = create_test_auth_service();
             let user_id = create_test_user();
 
-            let token = auth.generate_token(user_id).await.unwrap();
+            let token = auth.generate_token(user_id).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             let validation_result = auth.validate_token(&token).await;
 
             assert!(validation_result.is_ok());
 
-            let claims = validation_result.unwrap();
+            let claims = validation_result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             assert!(claims.is_some());
-            assert_eq!(claims.unwrap().user_id, user_id);
+            assert_eq!(claims.map_err(|e| anyhow::anyhow!("Error: {}", e))?.user_id, user_id);
         }
 
         #[tokio::test]
@@ -76,7 +77,7 @@ mod tests {
                 &Header::default(),
                 &claims,
                 &EncodingKey::from_secret(auth.secret.as_ref()),
-            ).unwrap();
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             let result = auth.validate_token(&token).await;
             assert!(result.is_err());
@@ -87,7 +88,7 @@ mod tests {
             let auth = create_test_auth_service();
             let user_id = create_test_user();
 
-            let token = auth.generate_token(user_id).await.unwrap();
+            let token = auth.generate_token(user_id).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             // Create new auth service with different secret
             let auth2 = AuthService::new("different_secret".to_string());
@@ -101,15 +102,15 @@ mod tests {
             let auth = create_test_auth_service();
             let user_id = create_test_user();
 
-            let original_token = auth.generate_token(user_id).await.unwrap();
+            let original_token = auth.generate_token(user_id).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
 
             let refresh_result = auth.refresh_token(&original_token).await;
             assert!(refresh_result.is_ok());
 
-            let new_token = refresh_result.unwrap();
+            let new_token = refresh_result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             assert!(new_token.is_some());
-            assert_ne!(new_token.unwrap(), original_token);
+            assert_ne!(new_token.map_err(|e| anyhow::anyhow!("Error: {}", e))?, original_token);
         }
 
         #[test]
@@ -121,8 +122,8 @@ mod tests {
                 iat: 1234567800,
             };
 
-            let serialized = serde_json::to_string(&claims).unwrap();
-            let deserialized: TokenClaims = serde_json::from_str(&serialized).unwrap();
+            let serialized = serde_json::to_string(&claims).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+            let deserialized: TokenClaims = serde_json::from_str(&serialized).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             assert_eq!(claims.user_id, deserialized.user_id);
             assert_eq!(claims.exp, deserialized.exp);
@@ -184,7 +185,7 @@ mod tests {
             let hash_result = argon2.hash_password(password.as_bytes(), &salt);
             assert!(hash_result.is_ok());
 
-            let password_hash = hash_result.unwrap();
+            let password_hash = hash_result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             let hash_string = password_hash.to_string();
 
             assert!(hash_string.starts_with("$argon2"));
@@ -199,9 +200,9 @@ mod tests {
 
             let password_hash = argon2
                 .hash_password(password.as_bytes(), &salt)
-                .unwrap();
+                .map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
-            let parsed_hash = PasswordHash::new(&password_hash.to_string()).unwrap();
+            let parsed_hash = PasswordHash::new(&password_hash.to_string()).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             let verification = argon2.verify_password(password.as_bytes(), &parsed_hash);
 
             assert!(verification.is_ok());
@@ -216,9 +217,9 @@ mod tests {
 
             let password_hash = argon2
                 .hash_password(password.as_bytes(), &salt)
-                .unwrap();
+                .map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
-            let parsed_hash = PasswordHash::new(&password_hash.to_string()).unwrap();
+            let parsed_hash = PasswordHash::new(&password_hash.to_string()).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             let verification = argon2.verify_password(wrong_password.as_bytes(), &parsed_hash);
 
             assert!(verification.is_err());
@@ -232,13 +233,13 @@ mod tests {
             let salt1 = SaltString::generate(&mut OsRng);
             let hash1 = argon2
                 .hash_password(password.as_bytes(), &salt1)
-                .unwrap()
+                .map_err(|e| anyhow::anyhow!("Error: {}", e))?
                 .to_string();
 
             let salt2 = SaltString::generate(&mut OsRng);
             let hash2 = argon2
                 .hash_password(password.as_bytes(), &salt2)
-                .unwrap()
+                .map_err(|e| anyhow::anyhow!("Error: {}", e))?
                 .to_string();
 
             assert_ne!(hash1, hash2);
@@ -305,7 +306,7 @@ mod tests {
             }
 
             for handle in handles {
-                handle.await.unwrap();
+                handle.await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             }
 
             let sessions_read = sessions.read().await;
@@ -396,7 +397,7 @@ mod tests {
             fn check_rate_limit(&mut self, key: &str) -> bool {
                 let now = SystemTime::now()
                     .duration_since(UNIX_EPOCH)
-                    .unwrap()
+                    .map_err(|e| anyhow::anyhow!("Error: {}", e))?
                     .as_secs();
 
                 let attempts = self.attempts.entry(key.to_string()).or_insert(Vec::new());

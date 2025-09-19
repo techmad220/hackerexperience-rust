@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -532,7 +533,7 @@ impl Versioning {
         
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_millis() as u64
     }
 
@@ -571,12 +572,12 @@ mod tests {
 
     #[test]
     fn test_version_from_string() {
-        let version = Version::from_string("1.2.3").unwrap();
+        let version = Version::from_string("1.2.3").map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(version.major, 1);
         assert_eq!(version.minor, 2);
         assert_eq!(version.patch, 3);
 
-        let version_with_build = Version::from_string("1.2.3.4").unwrap();
+        let version_with_build = Version::from_string("1.2.3.4").map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(version_with_build.build, Some(4));
     }
 
@@ -637,7 +638,7 @@ mod tests {
         );
         
         assert!(result.is_ok());
-        let migration = result.unwrap();
+        let migration = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(migration.name, "add_user_table");
         assert!(matches!(migration.status, MigrationStatus::Pending));
     }

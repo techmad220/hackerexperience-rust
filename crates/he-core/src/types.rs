@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
@@ -232,16 +233,16 @@ mod tests {
     fn test_process_action_serialization() {
         // Test that ProcessAction can be serialized and deserialized
         let action = ProcessAction::Hack;
-        let json = serde_json::to_string(&action).unwrap();
-        let deserialized: ProcessAction = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&action).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let deserialized: ProcessAction = serde_json::from_str(&json).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(action, deserialized);
     }
 
     #[test]
     fn test_software_type_serialization() {
         let software = SoftwareType::Firewall;
-        let json = serde_json::to_string(&software).unwrap();
-        let deserialized: SoftwareType = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&software).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let deserialized: SoftwareType = serde_json::from_str(&json).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(software, deserialized);
     }
 }

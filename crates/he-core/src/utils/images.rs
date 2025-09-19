@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use thiserror::Error;
@@ -594,16 +595,16 @@ mod tests {
 
     #[test]
     fn test_image_format_detection() {
-        assert_eq!(ImageFormat::from_extension("jpg").unwrap(), ImageFormat::Jpeg);
-        assert_eq!(ImageFormat::from_extension("PNG").unwrap(), ImageFormat::Png);
-        assert_eq!(ImageFormat::from_extension("gif").unwrap(), ImageFormat::Gif);
+        assert_eq!(ImageFormat::from_extension("jpg").map_err(|e| anyhow::anyhow!("Error: {}", e))?, ImageFormat::Jpeg);
+        assert_eq!(ImageFormat::from_extension("PNG").map_err(|e| anyhow::anyhow!("Error: {}", e))?, ImageFormat::Png);
+        assert_eq!(ImageFormat::from_extension("gif").map_err(|e| anyhow::anyhow!("Error: {}", e))?, ImageFormat::Gif);
         
         assert!(ImageFormat::from_extension("xyz").is_err());
     }
 
     #[test]
     fn test_image_dimensions() {
-        let dims = ImageDimensions::new(800, 600).unwrap();
+        let dims = ImageDimensions::new(800, 600).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(dims.width, 800);
         assert_eq!(dims.height, 600);
         assert_eq!(dims.aspect_ratio(), 800.0 / 600.0);
@@ -623,10 +624,10 @@ mod tests {
     #[test]
     fn test_detect_format() {
         let jpeg_data = vec![0xFF, 0xD8, 0xFF, 0xE0];
-        assert_eq!(Images::detect_format(&jpeg_data).unwrap(), ImageFormat::Jpeg);
+        assert_eq!(Images::detect_format(&jpeg_data).map_err(|e| anyhow::anyhow!("Error: {}", e))?, ImageFormat::Jpeg);
 
         let png_data = vec![0x89, 0x50, 0x4E, 0x47];
-        assert_eq!(Images::detect_format(&png_data).unwrap(), ImageFormat::Png);
+        assert_eq!(Images::detect_format(&png_data).map_err(|e| anyhow::anyhow!("Error: {}", e))?, ImageFormat::Png);
 
         let invalid_data = vec![0x00, 0x00, 0x00, 0x00];
         assert!(Images::detect_format(&invalid_data).is_err());
@@ -635,11 +636,11 @@ mod tests {
     #[test]
     fn test_resize_calculations() {
         let images = Images::new();
-        let current = ImageDimensions::new(800, 600).unwrap();
+        let current = ImageDimensions::new(800, 600).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let options = ResizeOptions::default();
 
         // Test fit mode
-        let result = images.calculate_resize_dimensions(&current, 400, 400, &options).unwrap();
+        let result = images.calculate_resize_dimensions(&current, 400, 400, &options).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(result.width, 400);
         assert_eq!(result.height, 300); // Maintains aspect ratio
 
@@ -648,7 +649,7 @@ mod tests {
             mode: ResizeMode::Exact,
             ..Default::default()
         };
-        let result = images.calculate_resize_dimensions(&current, 400, 400, &options).unwrap();
+        let result = images.calculate_resize_dimensions(&current, 400, 400, &options).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(result.width, 400);
         assert_eq!(result.height, 400); // Exact dimensions
     }
@@ -656,17 +657,17 @@ mod tests {
     #[test]
     fn test_scale() {
         let mut images = Images::new();
-        images.dimensions = Some(ImageDimensions::new(800, 600).unwrap());
+        images.dimensions = Some(ImageDimensions::new(800, 600).map_err(|e| anyhow::anyhow!("Error: {}", e))?);
 
-        images.scale(50.0).unwrap(); // 50% scale
-        let dims = images.get_dimensions().unwrap();
+        images.scale(50.0).map_err(|e| anyhow::anyhow!("Error: {}", e))?; // 50% scale
+        let dims = images.get_dimensions().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(dims.width, 400);
         assert_eq!(dims.height, 300);
     }
 
     #[test]
     fn test_utils_calculate_web_dimensions() {
-        let original = ImageDimensions::new(2000, 1500).unwrap();
+        let original = ImageDimensions::new(2000, 1500).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let web_dims = utils::calculate_web_dimensions(&original, 800, 600);
         
         assert_eq!(web_dims.width, 800);
@@ -675,8 +676,8 @@ mod tests {
 
     #[test]
     fn test_utils_needs_resize() {
-        let small = ImageDimensions::new(400, 300).unwrap();
-        let large = ImageDimensions::new(1200, 900).unwrap();
+        let small = ImageDimensions::new(400, 300).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let large = ImageDimensions::new(1200, 900).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         assert!(!utils::needs_resize(&small, 800, 600));
         assert!(utils::needs_resize(&large, 800, 600));
@@ -697,10 +698,10 @@ mod tests {
     #[test]
     fn test_crop() {
         let mut images = Images::new();
-        images.dimensions = Some(ImageDimensions::new(800, 600).unwrap());
+        images.dimensions = Some(ImageDimensions::new(800, 600).map_err(|e| anyhow::anyhow!("Error: {}", e))?);
 
-        images.crop(100, 100, 400, 300).unwrap();
-        let dims = images.get_dimensions().unwrap();
+        images.crop(100, 100, 400, 300).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let dims = images.get_dimensions().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(dims.width, 400);
         assert_eq!(dims.height, 300);
 
@@ -712,10 +713,10 @@ mod tests {
     #[test]
     fn test_rotate() {
         let mut images = Images::new();
-        images.dimensions = Some(ImageDimensions::new(800, 600).unwrap());
+        images.dimensions = Some(ImageDimensions::new(800, 600).map_err(|e| anyhow::anyhow!("Error: {}", e))?);
 
-        images.rotate(90.0).unwrap();
-        let dims = images.get_dimensions().unwrap();
+        images.rotate(90.0).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let dims = images.get_dimensions().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(dims.width, 600); // Swapped
         assert_eq!(dims.height, 800); // Swapped
     }

@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -453,13 +454,13 @@ impl Finances {
         
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_millis() as u64
     }
 
     /// Get daily spending for user
     pub fn get_daily_spending(&self, user_id: u64) -> Result<u64, FinanceError> {
-        let today_start = Utc::now().date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
+        let today_start = Utc::now().date_naive().and_hms_opt(0, 0, 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?.and_utc();
         let today_end = today_start + chrono::Duration::days(1);
 
         let summary = self.get_transaction_summary(user_id, today_start, today_end)?;
@@ -469,11 +470,11 @@ impl Finances {
     /// Get monthly spending for user
     pub fn get_monthly_spending(&self, user_id: u64) -> Result<u64, FinanceError> {
         let now = Utc::now();
-        let month_start = now.date_naive().with_day(1).unwrap().and_hms_opt(0, 0, 0).unwrap().and_utc();
+        let month_start = now.date_naive().with_day(1).map_err(|e| anyhow::anyhow!("Error: {}", e))?.and_hms_opt(0, 0, 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?.and_utc();
         let month_end = if month_start.month() == 12 {
-            month_start.with_year(month_start.year() + 1).unwrap().with_month(1).unwrap()
+            month_start.with_year(month_start.year() + 1).map_err(|e| anyhow::anyhow!("Error: {}", e))?.with_month(1).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         } else {
-            month_start.with_month(month_start.month() + 1).unwrap()
+            month_start.with_month(month_start.month() + 1).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         };
 
         let summary = self.get_transaction_summary(user_id, month_start, month_end)?;
@@ -519,7 +520,7 @@ mod tests {
         let result = finances.get_account(1);
         assert!(result.is_ok());
 
-        let account = result.unwrap();
+        let account = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(account.user_id, 1);
         assert_eq!(account.balance, 1000);
     }
@@ -538,11 +539,11 @@ mod tests {
         let finances = Finances::new(None);
         let result = finances.can_afford(1, 500);
         assert!(result.is_ok());
-        assert!(result.unwrap()); // Mock account has 1000 balance
+        assert!(result.map_err(|e| anyhow::anyhow!("Error: {}", e))?); // Mock account has 1000 balance
 
         let result = finances.can_afford(1, 2000);
         assert!(result.is_ok());
-        assert!(!result.unwrap()); // Not enough balance
+        assert!(!result.map_err(|e| anyhow::anyhow!("Error: {}", e))?); // Not enough balance
     }
 
     #[test]

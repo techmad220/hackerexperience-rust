@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use bcrypt::{hash, verify, DEFAULT_COST};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -291,7 +292,7 @@ mod tests {
         let bcrypt = BCrypt::default();
         let password = "test_password_123";
         
-        let hash = bcrypt.hash_password(password).unwrap();
+        let hash = bcrypt.hash_password(password).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!hash.is_empty());
         assert!(hash.starts_with("$2"));
     }
@@ -301,20 +302,20 @@ mod tests {
         let bcrypt = BCrypt::default();
         let password = "test_password_123";
         
-        let hash = bcrypt.hash_password(password).unwrap();
-        assert!(bcrypt.verify_password(password, &hash).unwrap());
-        assert!(!bcrypt.verify_password("wrong_password", &hash).unwrap());
+        let hash = bcrypt.hash_password(password).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        assert!(bcrypt.verify_password(password, &hash).map_err(|e| anyhow::anyhow!("Error: {}", e))?);
+        assert!(!bcrypt.verify_password("wrong_password", &hash).map_err(|e| anyhow::anyhow!("Error: {}", e))?);
     }
 
     #[test]
     fn test_needs_rehash() {
-        let bcrypt = BCrypt::with_cost(10).unwrap();
+        let bcrypt = BCrypt::with_cost(10).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let password = "test_password_123";
         
-        let hash = bcrypt.hash_password(password).unwrap();
+        let hash = bcrypt.hash_password(password).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!bcrypt.needs_rehash(&hash));
         
-        let bcrypt_higher_cost = BCrypt::with_cost(12).unwrap();
+        let bcrypt_higher_cost = BCrypt::with_cost(12).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(bcrypt_higher_cost.needs_rehash(&hash));
     }
 
@@ -343,7 +344,7 @@ mod tests {
         let bcrypt = BCrypt::default();
         let password = "test_password_123";
         
-        let hash = bcrypt.hash_password(password).unwrap();
+        let hash = bcrypt.hash_password(password).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(bcrypt.is_valid_hash(&hash));
         assert!(!bcrypt.is_valid_hash("invalid_hash"));
     }

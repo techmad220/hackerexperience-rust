@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
@@ -234,9 +235,9 @@ mod tests {
     #[test]
     fn test_query_count() {
         let mut db = Database::default();
-        db.connect().unwrap();
+        db.connect().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
-        db.query("SELECT 1").unwrap();
+        db.query("SELECT 1").map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(db.get_query_count(), 1);
         
         db.reset_query_count();

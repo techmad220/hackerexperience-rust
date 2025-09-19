@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc, Duration};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -341,7 +342,7 @@ impl RememberMe {
         // Simple random string generation (use proper crypto in production)
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_nanos();
         
         let hash = self.hash_data(&format!("{}{}", timestamp, self.config.private_key))?;
@@ -549,8 +550,8 @@ mod tests {
     #[test]
     fn test_generate_token() {
         let remember_me = RememberMe::default();
-        let token1 = remember_me.generate_token().unwrap();
-        let token2 = remember_me.generate_token().unwrap();
+        let token1 = remember_me.generate_token().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let token2 = remember_me.generate_token().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_ne!(token1, token2);
         assert_eq!(token1.len(), 64);
@@ -575,8 +576,8 @@ mod tests {
             expires: Utc::now(),
         };
 
-        let json = serde_json::to_string(&cookie_data).unwrap();
-        let deserialized: CookieData = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&cookie_data).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let deserialized: CookieData = serde_json::from_str(&json).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_eq!(cookie_data.user, deserialized.user);
         assert_eq!(cookie_data.token, deserialized.token);
@@ -610,7 +611,7 @@ mod tests {
         );
 
         assert!(result.is_ok());
-        let (token, cookie) = result.unwrap();
+        let (token, cookie) = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_eq!(token.user_id, 123);
         assert!(!token.token.is_empty());
@@ -629,7 +630,7 @@ mod tests {
     #[test]
     fn test_authenticate_no_cookie() {
         let remember_me = RememberMe::default();
-        let result = remember_me.authenticate(None).unwrap();
+        let result = remember_me.authenticate(None).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert!(result.is_none());
     }
@@ -652,7 +653,7 @@ mod tests {
         let result = remember_me.cleanup_expired_tokens();
         
         assert!(result.is_ok());
-        let count = result.unwrap();
+        let count = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(count, 0); // Mock implementation returns 0
     }
 }

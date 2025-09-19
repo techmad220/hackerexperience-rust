@@ -14,7 +14,6 @@ async-trait.workspace = true
 futures.workspace = true
 
 # Actor system
-actix.workspace = true
 
 # Database and ORM
 sqlx.workspace = true

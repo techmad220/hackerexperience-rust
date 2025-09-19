@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -325,9 +326,9 @@ mod tests {
 
     #[test]
     fn test_script_removal() {
-        let purifier = Purifier::default().unwrap();
+        let purifier = Purifier::default().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let input = "Hello <script>alert('xss')</script> World";
-        let result = purifier.purify(input).unwrap();
+        let result = purifier.purify(input).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!result.contains("<script>"));
         assert!(result.contains("Hello"));
         assert!(result.contains("World"));
@@ -335,36 +336,36 @@ mod tests {
 
     #[test]
     fn test_html_escaping() {
-        let purifier = Purifier::default().unwrap();
+        let purifier = Purifier::default().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let input = "Hello <b>World</b>";
-        let result = purifier.purify(input).unwrap();
+        let result = purifier.purify(input).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(result.contains("&lt;b&gt;"));
         assert!(result.contains("&lt;/b&gt;"));
     }
 
     #[test]
     fn test_auto_paragraph() {
-        let purifier = Purifier::default().unwrap();
+        let purifier = Purifier::default().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let input = "Line 1\n\nLine 2";
-        let result = purifier.purify(input).unwrap();
+        let result = purifier.purify(input).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(result.contains("<p>Line 1</p>"));
         assert!(result.contains("<p>Line 2</p>"));
     }
 
     #[test]
     fn test_url_purification() {
-        let purifier = Purifier::default().unwrap();
+        let purifier = Purifier::default().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
-        assert_eq!(purifier.purify_url("https://example.com").unwrap(), "https://example.com");
-        assert_eq!(purifier.purify_url("/relative/path").unwrap(), "/relative/path");
-        assert_eq!(purifier.purify_url("javascript:alert('xss')").unwrap(), "#");
+        assert_eq!(purifier.purify_url("https://example.com").map_err(|e| anyhow::anyhow!("Error: {}", e))?, "https://example.com");
+        assert_eq!(purifier.purify_url("/relative/path").map_err(|e| anyhow::anyhow!("Error: {}", e))?, "/relative/path");
+        assert_eq!(purifier.purify_url("javascript:alert('xss')").map_err(|e| anyhow::anyhow!("Error: {}", e))?, "#");
     }
 
     #[test]
     fn test_css_purification() {
-        let purifier = Purifier::default().unwrap();
+        let purifier = Purifier::default().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let input = "color: red; background: url(javascript:alert('xss'));";
-        let result = purifier.purify_css(input).unwrap();
+        let result = purifier.purify_css(input).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(result.contains("color: red"));
         assert!(!result.contains("javascript:"));
     }

@@ -182,7 +182,7 @@ impl JwtManager {
 
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_secs() as usize;
 
         let claims = RefreshClaims {
@@ -215,7 +215,7 @@ impl JwtManager {
         // Additional validation
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_secs() as usize;
 
         if claims.exp < now {
@@ -296,7 +296,7 @@ impl JwtManager {
 
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_secs() as usize;
 
         let access_claims = JwtClaims {
@@ -401,13 +401,13 @@ mod tests {
             expiration_seconds: 1,
             ..Default::default()
         };
-        JwtManager::new(config).unwrap()
+        JwtManager::new(config).map_err(|e| anyhow::anyhow!("Error: {}", e))?
     }
 
     fn create_test_claims() -> JwtClaims {
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_secs() as usize;
 
         JwtClaims {
@@ -443,10 +443,10 @@ mod tests {
         let jwt_manager = create_test_jwt_manager();
         let claims = create_test_claims();
 
-        let token = jwt_manager.generate_token(&claims).unwrap();
+        let token = jwt_manager.generate_token(&claims).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!token.is_empty());
 
-        let validated_claims = jwt_manager.validate_token(&token).unwrap();
+        let validated_claims = jwt_manager.validate_token(&token).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(validated_claims.user_id, claims.user_id);
         assert_eq!(validated_claims.email, claims.email);
         assert_eq!(validated_claims.roles, claims.roles);
@@ -457,7 +457,7 @@ mod tests {
         let jwt_manager = create_test_jwt_manager();
         let claims = create_test_claims();
 
-        let token = jwt_manager.generate_token(&claims).unwrap();
+        let token = jwt_manager.generate_token(&claims).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!jwt_manager.is_token_expired(&token));
 
         // Wait for token to expire
@@ -472,13 +472,13 @@ mod tests {
             allow_refresh: true,
             ..Default::default()
         };
-        let jwt_manager = JwtManager::new(config).unwrap();
+        let jwt_manager = JwtManager::new(config).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let user_id = Uuid::new_v4();
-        let refresh_token = jwt_manager.generate_refresh_token(user_id).unwrap();
+        let refresh_token = jwt_manager.generate_refresh_token(user_id).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!refresh_token.is_empty());
 
-        let refresh_claims = jwt_manager.validate_refresh_token(&refresh_token).unwrap();
+        let refresh_claims = jwt_manager.validate_refresh_token(&refresh_token).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(refresh_claims.user_id, user_id);
         assert_eq!(refresh_claims.token_type, "refresh");
     }
@@ -490,10 +490,10 @@ mod tests {
             allow_refresh: true,
             ..Default::default()
         };
-        let jwt_manager = JwtManager::new(config).unwrap();
+        let jwt_manager = JwtManager::new(config).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let claims = create_test_claims();
 
-        let token_pair = jwt_manager.generate_token_pair(&claims).unwrap();
+        let token_pair = jwt_manager.generate_token_pair(&claims).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!token_pair.access_token.is_empty());
         assert!(!token_pair.refresh_token.is_empty());
         assert_eq!(token_pair.token_type, "Bearer");

@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Player entity - Core player functionality and management
 //! 
 //! This module provides the Player struct and methods for managing player accounts,
@@ -101,7 +102,7 @@ impl Player {
     /// # Returns
     /// Result with redirect URL or error
     pub async fn handle_post(&self, action: &str, post_data: HashMap<String, String>) -> HeResult<String> {
-        let system = System::new(self.db_pool.as_ref().unwrap().clone());
+        let system = System::new(self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?.clone());
         let post_redirect = "index".to_string();
 
         match action {
@@ -150,7 +151,7 @@ impl Player {
             }
         }
 
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query("SELECT COUNT(*) as total FROM users WHERE id = $1 LIMIT 1")
             .bind(uid)
@@ -169,7 +170,7 @@ impl Player {
     /// # Returns
     /// PlayerInfo struct with player data
     pub async fn get_player_info(&self, uid: i32) -> HeResult<PlayerInfo> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query(
             "SELECT COUNT(*) AS total, login, gameIP, homeIP, gamePass, email 
@@ -199,7 +200,7 @@ impl Player {
     /// # Arguments
     /// * `uid` - User ID to unset learning for
     pub async fn unset_player_learning(&self, uid: i32) -> HeResult<()> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         sqlx::query("DELETE FROM users_learning WHERE userID = $1")
             .bind(uid)
@@ -215,7 +216,7 @@ impl Player {
     /// * `uid` - User ID to set learning for
     /// * `cid` - Course/learning ID
     pub async fn set_player_learning(&self, uid: i32, cid: i32) -> HeResult<()> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         sqlx::query("INSERT INTO users_learning (userID, learning) VALUES ($1, $2)")
             .bind(uid)
@@ -234,7 +235,7 @@ impl Player {
     /// # Returns
     /// Learning course ID or 0 if not learning
     pub async fn player_learning(&self, uid: i32) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query(
             "SELECT COUNT(*) AS total, learning FROM users_learning WHERE userID = $1 LIMIT 1"
@@ -260,7 +261,7 @@ impl Player {
     /// # Returns
     /// IpIdResult with player information
     pub async fn get_id_by_ip(&self, ip: &str, pc_type: &str) -> HeResult<IpIdResult> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let mut exists = true;
         let mut result_type = pc_type.to_string();
         let mut player_id = None;
@@ -326,7 +327,7 @@ impl Player {
     /// # Returns
     /// True if bank account exists, false otherwise
     pub async fn isset_bank_account(&self, uid: i32, bank_id: i32) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query("SELECT id FROM bankAccounts WHERE bankID = $1 AND bankUser = $2 LIMIT 1")
             .bind(bank_id)
@@ -346,7 +347,7 @@ impl Player {
     /// # Returns
     /// BankInfo with account details
     pub async fn get_bank_info(&self, uid: i32, bank_id: i32) -> HeResult<BankInfo> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query(
             "SELECT bankAcc, bankPass, cash FROM bankAccounts WHERE bankID = $1 AND bankUser = $2 LIMIT 1"
@@ -374,7 +375,7 @@ impl Player {
     /// # Returns
     /// True if account was created successfully
     pub async fn create_bank_account(&self, uid: i32, bank_id: i32, bank_acc: &str, bank_pass: &str) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let result = sqlx::query(
             "INSERT INTO bankAccounts (bankAcc, bankID, bankPass, bankUser, cash, dateCreated) 
@@ -398,7 +399,7 @@ impl Player {
     /// # Returns
     /// True if user exists, false otherwise
     pub async fn isset_user(&self, username: &str) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query("SELECT COUNT(*) AS total FROM users WHERE login = $1 LIMIT 1")
             .bind(username)
@@ -417,7 +418,7 @@ impl Player {
     /// # Returns
     /// User ID
     pub async fn get_id_by_user(&self, username: &str) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query("SELECT id FROM users WHERE login = $1 LIMIT 1")
             .bind(username)
@@ -432,7 +433,7 @@ impl Player {
     /// # Returns
     /// Number of currently logged in users
     pub async fn count_logged_in_users(&self) -> HeResult<i64> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query("SELECT COUNT(*) AS t_users FROM users_online")
             .fetch_one(db)
@@ -449,7 +450,7 @@ impl Player {
     /// # Returns
     /// True if user is admin, false otherwise
     pub async fn is_admin(&self, uid: Option<i32>) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let user_id = uid.or(self.id).unwrap_or(0);
         
         let row = sqlx::query("SELECT COUNT(*) AS total FROM users_admin WHERE userID = $1 LIMIT 1")
@@ -469,7 +470,7 @@ impl Player {
     /// # Returns
     /// True if user is premium, false otherwise
     pub async fn is_premium(&self, uid: Option<i32>) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let user_id = uid.or(self.id).unwrap_or(0);
         
         let row = sqlx::query("SELECT COUNT(*) AS total FROM users_premium WHERE id = $1 LIMIT 1")
@@ -489,7 +490,7 @@ impl Player {
     /// # Returns
     /// True if user is a noob, false otherwise
     pub async fn is_noob(&self, uid: i32) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         // Check if player participated in previous rounds
         let row = sqlx::query("SELECT COUNT(*) AS total FROM hist_users WHERE userID = $1 LIMIT 1")
@@ -520,7 +521,7 @@ impl Player {
     /// # Returns
     /// Formatted uptime string
     pub async fn ip_uptime(&self, uid: i32) -> HeResult<String> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query(
             "SELECT TIMESTAMPDIFF(SECOND, lastIpReset, NOW()) AS uptime FROM users_stats WHERE uid = $1 LIMIT 1"
@@ -562,7 +563,7 @@ impl Player {
     /// # Returns
     /// IpInfo with pricing and timing details
     pub async fn ip_info(&self, uid: i32) -> HeResult<IpInfo> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query(
             "SELECT ipResets, TIMESTAMPDIFF(SECOND, lastIpReset, NOW()) AS uptime FROM users_stats WHERE uid = $1 LIMIT 1"
@@ -639,7 +640,7 @@ impl Player {
     /// # Returns
     /// PasswordInfo with pricing and timing details
     pub async fn pwd_info(&self) -> HeResult<PasswordInfo> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let uid = self.id.unwrap_or(0);
         
         let row = sqlx::query(
@@ -655,7 +656,7 @@ impl Player {
         let study_price = self.pwd_study_price(pwd_resets, last_reset).await?;
         
         // TODO: Calculate wait time based on study_price data
-        let next_reset = if study_price.price.is_some() && study_price.price.unwrap() > 0 {
+        let next_reset = if study_price.price.is_some() && study_price.price.map_err(|e| anyhow::anyhow!("Error: {}", e))? > 0 {
             "TODO: Calculate wait time".to_string()
         } else {
             "0".to_string()

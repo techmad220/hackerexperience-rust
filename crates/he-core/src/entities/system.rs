@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 use std::collections::HashMap;
@@ -223,7 +224,7 @@ impl System {
             return false;
         }
         
-        let re = Regex::new(r"^[a-zA-Z0-9_]+$").unwrap();
+        let re = Regex::new(r"^[a-zA-Z0-9_]+$").map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         re.is_match(username)
     }
 
@@ -246,7 +247,7 @@ impl System {
 
     /// Validates email address format
     fn validate_email(&self, email: &str) -> bool {
-        let re = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap();
+        let re = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         re.is_match(email)
     }
 }

@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use sqlx::{MySql, Pool};
 use he_core::{Session, UserId, HeResult, HeError};
 use chrono::{DateTime, Utc};
@@ -54,8 +55,8 @@ impl SessionRepository {
                 query_count: row.query_count,
                 buffer_query: row.buffer_query,
                 exec_time: row.exec_time,
-                created_at: DateTime::from_timestamp(row.created_at.and_utc().timestamp(), 0).unwrap(),
-                last_activity: DateTime::from_timestamp(row.last_activity.and_utc().timestamp(), 0).unwrap(),
+                created_at: DateTime::from_timestamp(row.created_at.and_utc().timestamp(), 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
+                last_activity: DateTime::from_timestamp(row.last_activity.and_utc().timestamp(), 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
                 ip_address: row.ip_address,
                 user_agent: row.user_agent,
                 is_active: row.is_active != 0,
@@ -138,8 +139,8 @@ impl SessionRepository {
                 query_count: row.query_count,
                 buffer_query: row.buffer_query,
                 exec_time: row.exec_time,
-                created_at: DateTime::from_timestamp(row.created_at.and_utc().timestamp(), 0).unwrap(),
-                last_activity: DateTime::from_timestamp(row.last_activity.and_utc().timestamp(), 0).unwrap(),
+                created_at: DateTime::from_timestamp(row.created_at.and_utc().timestamp(), 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
+                last_activity: DateTime::from_timestamp(row.last_activity.and_utc().timestamp(), 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
                 ip_address: row.ip_address,
                 user_agent: row.user_agent,
                 is_active: row.is_active != 0,

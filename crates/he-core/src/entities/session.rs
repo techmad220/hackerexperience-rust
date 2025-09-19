@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Session entity - User session management and state tracking
 //! 
 //! This module provides the Session struct and methods for managing user sessions,
@@ -267,8 +268,8 @@ impl Session {
     /// * `redirect` - Whether to redirect after logout
     pub async fn logout(&mut self, clear_db: bool, redirect: bool) -> HeResult<()> {
         if clear_db && self.user_id.is_some() {
-            let db = self.db_pool.as_ref().unwrap();
-            let user_id = self.user_id.unwrap();
+            let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+            let user_id = self.user_id.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             // Remove from online users
             sqlx::query("DELETE FROM users_online WHERE id = $1")
@@ -302,8 +303,8 @@ impl Session {
             return Ok(false);
         }
 
-        let db = self.db_pool.as_ref().unwrap();
-        let user_id = self.user_id.unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let user_id = self.user_id.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let row = sqlx::query("SELECT COUNT(*) AS t FROM users_online WHERE id = $1 LIMIT 1")
             .bind(user_id)
@@ -342,7 +343,7 @@ impl Session {
     /// * `info` - Additional information for experience calculation
     /// * `uid` - User ID (optional, uses session user if None)
     pub async fn exp_add(&self, action: &str, info: Vec<String>, uid: Option<i32>) -> HeResult<()> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let user_id = uid.or(self.user_id).unwrap_or(0);
 
         let total_to_add = self.exp_get_amount(action, &info);

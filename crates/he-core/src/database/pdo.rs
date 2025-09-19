@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
@@ -287,27 +288,27 @@ mod tests {
     fn test_pdo_creation() {
         let pdo = Pdo::factory();
         assert!(pdo.is_ok());
-        let pdo = pdo.unwrap();
+        let pdo = pdo.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(pdo.is_connected());
     }
 
     #[test]
     fn test_statement_preparation() {
-        let pdo = Pdo::factory().unwrap();
+        let pdo = Pdo::factory().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let stmt = pdo.prepare("SELECT * FROM users WHERE id = :id");
         assert!(stmt.is_ok());
     }
 
     #[test]
     fn test_parameter_binding() {
-        let pdo = Pdo::factory().unwrap();
-        let mut stmt = pdo.prepare("SELECT * FROM users WHERE id = :id").unwrap();
+        let pdo = Pdo::factory().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let mut stmt = pdo.prepare("SELECT * FROM users WHERE id = :id").map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(stmt.bind_param(":id", "123").is_ok());
     }
 
     #[test]
     fn test_transaction_handling() {
-        let mut pdo = Pdo::factory().unwrap();
+        let mut pdo = Pdo::factory().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert!(!pdo.in_transaction());
         assert!(pdo.begin_transaction().is_ok());
@@ -318,7 +319,7 @@ mod tests {
 
     #[test]
     fn test_quote_string() {
-        let pdo = Pdo::factory().unwrap();
+        let pdo = Pdo::factory().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let quoted = pdo.quote("test'string");
         assert_eq!(quoted, "'test''string'");
     }

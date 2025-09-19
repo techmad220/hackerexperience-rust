@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! JWT caching for WebSocket connections
 
 use std::collections::HashMap;
@@ -176,7 +177,7 @@ mod tests {
         // Get claims
         let cached_claims = cache.get(token).await;
         assert!(cached_claims.is_some());
-        assert_eq!(cached_claims.unwrap().user_id, claims.user_id);
+        assert_eq!(cached_claims.map_err(|e| anyhow::anyhow!("Error: {}", e))?.user_id, claims.user_id);
     }
 
     #[tokio::test]

@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc, Duration};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -553,7 +554,7 @@ impl Fame {
         }
 
         // Sort by progress descending
-        nearby.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        nearby.sort_by(|a, b| b.1.partial_cmp(&a.1).map_err(|e| anyhow::anyhow!("Error: {}", e))?);
 
         Ok(nearby)
     }
@@ -564,34 +565,34 @@ impl Fame {
         
         match period {
             FamePeriod::Daily => {
-                let start = now.date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
+                let start = now.date_naive().and_hms_opt(0, 0, 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?.and_utc();
                 let end = start + Duration::days(1);
                 (start, end)
             }
             FamePeriod::Weekly => {
                 let days_since_monday = now.weekday().num_days_from_monday();
                 let start = (now - Duration::days(days_since_monday as i64))
-                    .date_naive().and_hms_opt(0, 0, 0).unwrap().and_utc();
+                    .date_naive().and_hms_opt(0, 0, 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?.and_utc();
                 let end = start + Duration::weeks(1);
                 (start, end)
             }
             FamePeriod::Monthly => {
-                let start = now.date_naive().with_day(1).unwrap().and_hms_opt(0, 0, 0).unwrap().and_utc();
+                let start = now.date_naive().with_day(1).map_err(|e| anyhow::anyhow!("Error: {}", e))?.and_hms_opt(0, 0, 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?.and_utc();
                 let end = if start.month() == 12 {
-                    start.with_year(start.year() + 1).unwrap().with_month(1).unwrap()
+                    start.with_year(start.year() + 1).map_err(|e| anyhow::anyhow!("Error: {}", e))?.with_month(1).map_err(|e| anyhow::anyhow!("Error: {}", e))?
                 } else {
-                    start.with_month(start.month() + 1).unwrap()
+                    start.with_month(start.month() + 1).map_err(|e| anyhow::anyhow!("Error: {}", e))?
                 };
                 (start, end)
             }
             FamePeriod::Yearly => {
-                let start = now.date_naive().with_ordinal(1).unwrap().and_hms_opt(0, 0, 0).unwrap().and_utc();
-                let end = start.with_year(start.year() + 1).unwrap();
+                let start = now.date_naive().with_ordinal(1).map_err(|e| anyhow::anyhow!("Error: {}", e))?.and_hms_opt(0, 0, 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?.and_utc();
+                let end = start.with_year(start.year() + 1).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
                 (start, end)
             }
             FamePeriod::AllTime => {
-                let start = DateTime::from_timestamp(0, 0).unwrap();
-                let end = DateTime::from_timestamp(i64::MAX, 0).unwrap();
+                let start = DateTime::from_timestamp(0, 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+                let end = DateTime::from_timestamp(i64::MAX, 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
                 (start, end)
             }
         }
@@ -602,7 +603,7 @@ impl Fame {
         
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_millis() as u64
     }
 }
@@ -623,7 +624,7 @@ mod tests {
         let result = fame.get_achievements(None);
         assert!(result.is_ok());
 
-        let achievements = result.unwrap();
+        let achievements = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!achievements.is_empty());
         assert!(achievements.iter().all(|a| a.is_active));
     }
@@ -634,7 +635,7 @@ mod tests {
         let result = fame.get_achievements(Some(AchievementCategory::Hacking));
         assert!(result.is_ok());
 
-        let achievements = result.unwrap();
+        let achievements = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         // All returned achievements should be hacking category
         // Note: This test would work properly with real enum comparison
     }
@@ -645,7 +646,7 @@ mod tests {
         let result = fame.get_achievement("first_hack");
         assert!(result.is_ok());
 
-        let achievement = result.unwrap();
+        let achievement = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(achievement.id, "first_hack");
         assert_eq!(achievement.name, "First Steps");
     }
@@ -664,7 +665,7 @@ mod tests {
         let result = fame.get_user_achievements(1);
         assert!(result.is_ok());
 
-        let achievements = result.unwrap();
+        let achievements = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!achievements.is_empty());
     }
 
@@ -674,7 +675,7 @@ mod tests {
         let result = fame.get_achievement_progress(1, "first_hack");
         assert!(result.is_ok());
 
-        let progress = result.unwrap();
+        let progress = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!progress.is_empty());
     }
 
@@ -684,7 +685,7 @@ mod tests {
         let result = fame.get_leaderboard(FameCategory::Overall, FamePeriod::AllTime, 10);
         assert!(result.is_ok());
 
-        let leaderboard = result.unwrap();
+        let leaderboard = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!leaderboard.is_empty());
         
         // Check that ranks are in order

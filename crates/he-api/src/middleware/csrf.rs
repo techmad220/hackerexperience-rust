@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! CSRF (Cross-Site Request Forgery) Protection Middleware
 //!
 //! Implements double-submit cookie pattern and synchronizer token pattern
@@ -348,13 +349,13 @@ where
 
                     res.headers_mut().append(
                         HeaderName::from_static("set-cookie"),
-                        HeaderValue::from_str(&cookie.to_string()).unwrap(),
+                        HeaderValue::from_str(&cookie.to_string()).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
                     );
 
                     // Also add token as a response header for SPA applications
                     res.headers_mut().insert(
-                        HeaderName::from_bytes(config.header_name.as_bytes()).unwrap(),
-                        HeaderValue::from_str(&new_token).unwrap(),
+                        HeaderName::from_bytes(config.header_name.as_bytes()).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
+                        HeaderValue::from_str(&new_token).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
                     );
 
                     return Ok(res);

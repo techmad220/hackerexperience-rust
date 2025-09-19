@@ -1,0 +1,12 @@
+[package]
+name = "he-db"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+he-core = { path = "../he-core" }
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "mysql", "chrono", "uuid", "migrate"] }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }

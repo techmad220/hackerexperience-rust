@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Safe resource management with overflow protection
 
 use std::sync::Arc;
@@ -138,11 +139,11 @@ mod tests {
         let used = (Units(600), Units(1024));
 
         // Normal allocation should work
-        let result = allocate(Units(200), Units(512), caps, used).unwrap();
+        let result = allocate(Units(200), Units(512), caps, used).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(result, (Units(200), Units(512)));
 
         // Over-allocation should be clamped
-        let result = allocate(Units(500), Units(2000), caps, used).unwrap();
+        let result = allocate(Units(500), Units(2000), caps, used).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(result, (Units(400), Units(1024)));
 
         // Zero allocation should fail

@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc, Duration};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -320,7 +321,7 @@ impl RiddleManager {
         let mut progress = self.get_user_progress(riddle_id, user_id)?
             .unwrap_or_else(|| {
                 // Auto-start if not started
-                self.start_riddle(riddle_id).unwrap()
+                self.start_riddle(riddle_id).map_err(|e| anyhow::anyhow!("Error: {}", e))?
             });
 
         // Check if already solved
@@ -604,7 +605,7 @@ impl RiddleManager {
         
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_millis() as u64
     }
 }
@@ -625,7 +626,7 @@ mod tests {
         let result = manager.get_riddle(1);
         assert!(result.is_ok());
 
-        let riddle = result.unwrap();
+        let riddle = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(riddle.id, 1);
         assert_eq!(riddle.title, "Binary Challenge");
         assert!(matches!(riddle.riddle_type, RiddleType::Programming));

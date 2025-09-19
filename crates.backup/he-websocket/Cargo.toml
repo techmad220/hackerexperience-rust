@@ -1,0 +1,18 @@
+[package]
+name = "he-websocket"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix = "0.13"
+actix-web = "4"
+actix-web-actors = "4"
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1", features = ["v4", "serde"] }
+tracing = "0.1"
+dashmap = "5.5"
+chrono = { version = "0.4", features = ["serde"] }
+he-database = { path = "../he-database" }
+he-auth = { path = "../he-auth" }

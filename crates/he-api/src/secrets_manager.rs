@@ -546,11 +546,11 @@ mod tests {
 
         // Test getting a known environment variable
         std::env::set_var("TEST_SECRET", "test_value");
-        let result = provider.get_secret("TEST_SECRET").await.unwrap();
+        let result = provider.get_secret("TEST_SECRET").await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(result, Some("test_value".to_string()));
 
         // Test getting non-existent variable
-        let result = provider.get_secret("NON_EXISTENT_SECRET").await.unwrap();
+        let result = provider.get_secret("NON_EXISTENT_SECRET").await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(result, None);
 
         // Clean up

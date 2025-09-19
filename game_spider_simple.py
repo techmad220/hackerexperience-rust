@@ -14,7 +14,7 @@ from urllib.parse import urljoin
 class GameSpider:
     def __init__(self):
         self.frontend_base = "http://localhost:8080"
-        self.api_base = "http://localhost:3005"
+        self.api_base = "http://localhost:3000"  # Updated to test server port
         self.visited = set()
         self.issues = []
         self.timeout = 5

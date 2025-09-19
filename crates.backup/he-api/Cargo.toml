@@ -1,0 +1,56 @@
+[package]
+name = "he-api"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "he-api"
+path = "src/main.rs"
+
+[dependencies]
+# Web framework
+actix-web = { version = "4", features = ["macros"] }
+actix-cors = "0.6"
+actix-web-actors = "4"
+
+# Async runtime
+tokio = { workspace = true }
+
+# Database
+sqlx = { workspace = true, features = ["migrate", "macros"] }
+
+# Our internal crates
+he-helix-core = { path = "../../he-helix-core" }
+he-helix-http = { path = "../../he-helix-http" }
+he-helix-websocket-handlers = { path = "../../he-helix-websocket-handlers" }
+he-helix-security = { path = "../../he-helix-security" }
+he-database = { path = "../he-database" }
+he-auth = { path = "../he-auth" }
+he-game-mechanics = { path = "../he-game-mechanics" }
+he-vdp = { path = "../he-vdp" }
+
+# Serialization
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Logging
+tracing = { workspace = true }
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter", "json"] }
+env_logger = "0.10"
+
+# Security
+jsonwebtoken = { workspace = true }
+argon2 = "0.5"
+uuid = { workspace = true }
+
+# Utils
+num_cpus = "1.16"
+anyhow = { workspace = true }
+futures-util = "0.3"
+futures = "0.3"
+chrono = { workspace = true }
+rand = { workspace = true }
+sha2 = "0.10"
+base64 = { workspace = true }
+thiserror = { workspace = true }
+validator = { workspace = true }

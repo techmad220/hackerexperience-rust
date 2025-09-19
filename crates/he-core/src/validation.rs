@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Input validation module for secure data handling
 //!
 //! This module provides comprehensive input validation to prevent
@@ -10,15 +11,15 @@ use once_cell::sync::Lazy;
 
 // Regex patterns for validation
 static USERNAME_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"^[a-zA-Z0-9_-]{3,32}$").unwrap()
+    Regex::new(r"^[a-zA-Z0-9_-]{3,32}$").map_err(|e| anyhow::anyhow!("Error: {}", e))?
 });
 
 static EMAIL_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap()
+    Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").map_err(|e| anyhow::anyhow!("Error: {}", e))?
 });
 
 static IP_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$").unwrap()
+    Regex::new(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$").map_err(|e| anyhow::anyhow!("Error: {}", e))?
 });
 
 /// Validates that a string contains no SQL injection attempts

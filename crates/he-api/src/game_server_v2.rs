@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Improved game server with safe resource management and idempotent operations
 
 use actix_web::{web, App, HttpResponse, HttpServer, Result, middleware, HttpRequest};
@@ -270,7 +271,7 @@ mod tests {
         let mut engine = GameEngine::new();
 
         // Start a process
-        let id = engine.start_process("Mine".to_string(), "normal".to_string(), None).unwrap();
+        let id = engine.start_process("Mine".to_string(), "normal".to_string(), None).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         // Cancel it multiple times - should all succeed
         assert!(engine.cancel_process(id).is_ok());
@@ -307,8 +308,8 @@ mod tests {
         let mut engine = GameEngine::new();
 
         // Start multiple processes
-        let id1 = engine.start_process("Scan".to_string(), "normal".to_string(), None).unwrap();
-        let id2 = engine.start_process("Download".to_string(), "normal".to_string(), None).unwrap();
+        let id1 = engine.start_process("Scan".to_string(), "normal".to_string(), None).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let id2 = engine.start_process("Download".to_string(), "normal".to_string(), None).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         // Cancel both
         assert!(engine.cancel_process(id1).is_ok());

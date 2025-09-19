@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Process entity - Game process management and execution
 //! 
 //! This module provides the Process struct and methods for managing game processes
@@ -155,14 +156,14 @@ impl Process {
         net_usage: i32,
         hacker_id: i32,
     ) -> HeResult<f32> {
-        let hardware = HardwareVPC::new(self.db_pool.as_ref().unwrap().clone());
+        let hardware = HardwareVPC::new(self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?.clone());
         let pc_type = if victim_npc { "NPC" } else { "VPC" };
 
         // Get hardware info for both parties
-        let mut hacker_hardware = HardwareVPC::new(self.db_pool.as_ref().unwrap().clone());
+        let mut hacker_hardware = HardwareVPC::new(self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?.clone());
         let hacker_net_info = hacker_hardware.get_hardware_info(Some(hacker_id), "VPC", None).await?;
 
-        let mut victim_hardware = HardwareVPC::new(self.db_pool.as_ref().unwrap().clone());
+        let mut victim_hardware = HardwareVPC::new(self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?.clone());
         let victim_net_info = victim_hardware.get_hardware_info(Some(victim_id), pc_type, None).await?;
 
         let transfer_rate = if action == 1 { // download
@@ -197,7 +198,7 @@ impl Process {
     /// # Returns
     /// Vector of ProcessInfo
     pub async fn list_processes(&self, uid: i32, process_type: &str) -> HeResult<Vec<ProcessInfo>> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let (condition, columns) = match process_type {
             "all" => ("", ", cpuUsage, netUsage"),
@@ -335,7 +336,7 @@ impl Process {
         info_str: &str,
         is_npc: i32,
     ) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         // Convert string parameters
         let action_id = self.parse_action_string(action)?;
@@ -419,7 +420,7 @@ impl Process {
         software_id: &str,
         info: &str,
     ) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let victim_id_num = if victim_id.is_empty() { None } else { victim_id.parse::<i32>().ok() };
         let software_id_num = if software_id.is_empty() { None } else { software_id.parse::<i32>().ok() };
@@ -496,7 +497,7 @@ impl Process {
     /// # Returns
     /// Process information
     pub async fn get_process_info(&self, pid: i32) -> HeResult<ProcessInfo> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let row = sqlx::query(
             "SELECT pid, paction, pvictimid, plocal, pnpc, isPaused, 
@@ -534,7 +535,7 @@ impl Process {
     /// # Returns
     /// True if successfully paused
     pub async fn pause_process(&self, pid: i32) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let result = sqlx::query("UPDATE processes SET isPaused = true WHERE pid = $1")
             .bind(pid)
@@ -552,7 +553,7 @@ impl Process {
     /// # Returns
     /// True if successfully resumed
     pub async fn resume_process(&self, pid: i32) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let result = sqlx::query("UPDATE processes SET isPaused = false WHERE pid = $1")
             .bind(pid)
@@ -571,7 +572,7 @@ impl Process {
     /// # Returns
     /// True if successfully deleted
     pub async fn delete_process(&self, pid: i32, update: bool) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         if update {
             // TODO: Update related data (hardware usage, etc.)
@@ -612,7 +613,7 @@ impl Process {
     /// # Returns
     /// Total process count
     pub async fn total_processes(&self, user_id: Option<i32>) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let uid = user_id.unwrap_or(0); // TODO: Get from session
 
         let row = sqlx::query("SELECT COUNT(*) as count FROM processes WHERE pcreatorid = $1")
@@ -631,7 +632,7 @@ impl Process {
     /// # Returns
     /// True if process exists
     pub async fn isset_pid(&self, pid: i32) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let row = sqlx::query("SELECT COUNT(*) as count FROM processes WHERE pid = $1")
             .bind(pid)
@@ -650,7 +651,7 @@ impl Process {
     /// # Returns
     /// True if process is paused
     pub async fn is_paused(&self, pid: i32) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let row = sqlx::query("SELECT isPaused FROM processes WHERE pid = $1 LIMIT 1")
             .bind(pid)

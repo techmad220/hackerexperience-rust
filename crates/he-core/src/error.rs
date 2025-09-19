@@ -65,7 +65,7 @@ mod tests {
 
         let result = returns_result();
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), "Success");
+        assert_eq!(result.map_err(|e| anyhow::anyhow!("Error: {}", e))?, "Success");
 
         fn returns_error() -> HeResult<String> {
             Err(HeError::UserNotFound)

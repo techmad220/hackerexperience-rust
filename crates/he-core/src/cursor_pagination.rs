@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Cursor-based Pagination for Extreme Scale
 //!
 //! Implements efficient cursor-based pagination that scales to millions of records
@@ -227,13 +228,13 @@ impl<T> CursorResponse<T> {
         }
 
         let next_cursor = if has_next && !data.is_empty() {
-            Some(get_cursor(data.last().unwrap()).encode())
+            Some(get_cursor(data.last().map_err(|e| anyhow::anyhow!("Error: {}", e))?).encode())
         } else {
             None
         };
 
         let prev_cursor = if !data.is_empty() && params.cursor.is_some() {
-            Some(get_cursor(data.first().unwrap()).encode())
+            Some(get_cursor(data.first().map_err(|e| anyhow::anyhow!("Error: {}", e))?).encode())
         } else {
             None
         };
@@ -384,7 +385,7 @@ mod tests {
     fn test_cursor_encoding() {
         let cursor = Cursor::from_id(123, SortDirection::Asc);
         let encoded = cursor.encode();
-        let decoded = Cursor::decode(&encoded).unwrap();
+        let decoded = Cursor::decode(&encoded).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         assert_eq!(decoded.id, Some(123));
         assert_eq!(decoded.direction, SortDirection::Asc);
@@ -399,7 +400,7 @@ mod tests {
         assert_eq!(cursor.to_sql_where(Some("u")), "u.id < 100");
 
         let cursor = Cursor::from_timestamp(
-            DateTime::parse_from_rfc3339("2024-01-01T00:00:00Z").unwrap().with_timezone(&Utc),
+            DateTime::parse_from_rfc3339("2024-01-01T00:00:00Z").map_err(|e| anyhow::anyhow!("Error: {}", e))?.with_timezone(&Utc),
             SortDirection::Asc
         );
         assert!(cursor.to_sql_where(None).contains("created_at >"));

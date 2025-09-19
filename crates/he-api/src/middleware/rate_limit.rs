@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Enhanced Rate Limiting Middleware
 //!
 //! Implements advanced rate limiting with:
@@ -232,7 +233,7 @@ impl RateLimiter {
             .map(|s| s.to_string());
 
         if self.config.per_user && user_id.is_some() {
-            format!("user:{}:{}", user_id.unwrap(), path)
+            format!("user:{}:{}", user_id.map_err(|e| anyhow::anyhow!("Error: {}", e))?, path)
         } else if self.config.per_ip {
             format!("ip:{}:{}", ip, path)
         } else {
@@ -383,15 +384,15 @@ where
                         let headers = res.headers_mut();
                         headers.insert(
                             HeaderName::from_static("x-ratelimit-limit"),
-                            HeaderValue::from_str(&info.limit.to_string()).unwrap(),
+                            HeaderValue::from_str(&info.limit.to_string()).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
                         );
                         headers.insert(
                             HeaderName::from_static("x-ratelimit-remaining"),
-                            HeaderValue::from_str(&info.remaining.to_string()).unwrap(),
+                            HeaderValue::from_str(&info.remaining.to_string()).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
                         );
                         headers.insert(
                             HeaderName::from_static("x-ratelimit-reset"),
-                            HeaderValue::from_str(&info.reset_after_seconds.to_string()).unwrap(),
+                            HeaderValue::from_str(&info.reset_after_seconds.to_string()).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
                         );
                     }
 
@@ -452,7 +453,7 @@ mod tests {
         let config = RateLimitConfig::default();
 
         // Check login endpoint has stricter limits
-        let login_limit = config.endpoint_limits.get("/api/auth/login").unwrap();
+        let login_limit = config.endpoint_limits.get("/api/auth/login").map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(login_limit.max_requests, 5);
         assert_eq!(login_limit.window_seconds, 300);
     }

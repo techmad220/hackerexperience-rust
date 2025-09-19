@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc, Duration};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -722,7 +723,7 @@ impl Social {
         
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_millis() as u64
     }
 }
@@ -776,7 +777,7 @@ mod tests {
         let result = social.show_profile(2);
         assert!(result.is_ok());
 
-        let profile = result.unwrap();
+        let profile = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(profile.user_id, 2);
         assert_eq!(profile.username, "user_2");
     }
@@ -787,7 +788,7 @@ mod tests {
         let result = social.show_profile(1);
         assert!(result.is_ok());
 
-        let profile = result.unwrap();
+        let profile = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(profile.user_id, 1);
     }
 
@@ -796,7 +797,7 @@ mod tests {
         let social = Social::default();
         let result = social.get_friendship_status(1, 2);
         assert!(result.is_ok());
-        assert!(matches!(result.unwrap(), FriendshipStatus::None));
+        assert!(matches!(result.map_err(|e| anyhow::anyhow!("Error: {}", e))?, FriendshipStatus::None));
     }
 
     #[test]
@@ -804,7 +805,7 @@ mod tests {
         let social = Social::default();
         let result = social.get_friendship_status(1, 1);
         assert!(result.is_ok());
-        assert!(matches!(result.unwrap(), FriendshipStatus::None));
+        assert!(matches!(result.map_err(|e| anyhow::anyhow!("Error: {}", e))?, FriendshipStatus::None));
     }
 
     #[test]
@@ -829,7 +830,7 @@ mod tests {
         let result = social.get_profile_cache_info(1);
         assert!(result.is_ok());
 
-        let cache_info = result.unwrap();
+        let cache_info = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(cache_info.user_id, 1);
         assert!(!cache_info.is_valid); // Forced to false in mock
     }
@@ -848,8 +849,8 @@ mod tests {
             servers_owned: 8,
         };
 
-        let json = serde_json::to_string(&stats).unwrap();
-        let deserialized: ProfileStats = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&stats).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let deserialized: ProfileStats = serde_json::from_str(&json).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_eq!(stats.total_hacks, deserialized.total_hacks);
         assert_eq!(stats.successful_hacks, deserialized.successful_hacks);

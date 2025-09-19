@@ -435,7 +435,7 @@ mod tests {
             cleanup_interval_seconds: 1,
             ..Default::default()
         };
-        SessionManager::new(config).await.unwrap()
+        SessionManager::new(config).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?
     }
 
     fn create_test_session_data() -> SessionData {
@@ -455,12 +455,12 @@ mod tests {
         let manager = create_test_session_manager().await;
         let session_data = create_test_session_data();
 
-        let session_id = manager.create_session(session_data.clone()).await.unwrap();
+        let session_id = manager.create_session(session_data.clone()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!session_id.is_empty());
 
         let retrieved = manager.get_session(&session_id).await;
         assert!(retrieved.is_some());
-        assert_eq!(retrieved.unwrap().user_id, session_data.user_id);
+        assert_eq!(retrieved.map_err(|e| anyhow::anyhow!("Error: {}", e))?.user_id, session_data.user_id);
     }
 
     #[tokio::test]
@@ -468,16 +468,16 @@ mod tests {
         let manager = create_test_session_manager().await;
         let session_data = create_test_session_data();
 
-        let session_id = manager.create_session(session_data).await.unwrap();
+        let session_id = manager.create_session(session_data).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         // Session should be valid initially
-        assert!(manager.is_session_valid(&session_id).await.unwrap());
+        assert!(manager.is_session_valid(&session_id).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?);
 
         // Wait for expiration
         sleep(Duration::from_secs(2)).await;
 
         // Session should be expired
-        assert!(!manager.is_session_valid(&session_id).await.unwrap());
+        assert!(!manager.is_session_valid(&session_id).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?);
     }
 
     #[tokio::test]
@@ -485,10 +485,10 @@ mod tests {
         let manager = create_test_session_manager().await;
         let session_data = create_test_session_data();
 
-        let session_id = manager.create_session(session_data).await.unwrap();
+        let session_id = manager.create_session(session_data).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(manager.get_session(&session_id).await.is_some());
 
-        manager.invalidate_session(&session_id).await.unwrap();
+        manager.invalidate_session(&session_id).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(manager.get_session(&session_id).await.is_none());
     }
 
@@ -498,24 +498,24 @@ mod tests {
             max_sessions_per_user: 2,
             ..Default::default()
         };
-        let manager = SessionManager::new(config).await.unwrap();
+        let manager = SessionManager::new(config).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let user_id = Uuid::new_v4();
         let mut session_data = create_test_session_data();
         session_data.user_id = user_id;
 
         // Create first session
-        let session1 = manager.create_session(session_data.clone()).await.unwrap();
+        let session1 = manager.create_session(session_data.clone()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         // Create second session
-        let session2 = manager.create_session(session_data.clone()).await.unwrap();
+        let session2 = manager.create_session(session_data.clone()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         // Both sessions should exist
         assert!(manager.get_session(&session1).await.is_some());
         assert!(manager.get_session(&session2).await.is_some());
 
         // Create third session (should remove first)
-        let _session3 = manager.create_session(session_data).await.unwrap();
+        let _session3 = manager.create_session(session_data).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         // First session should be gone
         assert!(manager.get_session(&session1).await.is_none());

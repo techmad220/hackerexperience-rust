@@ -137,12 +137,12 @@ impl DatabaseManager {
                     Err(e) => {
                         warn!("Failed to connect to {} database: {}", name, e);
                         // Use main database as fallback
-                        pools.insert(name.to_string(), pools.get("main").unwrap().clone());
+                        pools.insert(name.to_string(), pools.get("main").map_err(|e| anyhow::anyhow!("Error: {}", e))?.clone());
                     }
                 }
             } else {
                 // Use main database for undefined specialized databases
-                pools.insert(name.to_string(), pools.get("main").unwrap().clone());
+                pools.insert(name.to_string(), pools.get("main").map_err(|e| anyhow::anyhow!("Error: {}", e))?.clone());
             }
         }
         

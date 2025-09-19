@@ -246,7 +246,7 @@ impl PasswordManager {
         }
         if self.config.require_special {
             let specials = "!@#$%^&*()_+-=[]{}|;:,.<>?";
-            password.push(specials.chars().nth(rng.gen_range(0..specials.len())).unwrap());
+            password.push(specials.chars().nth(rng.gen_range(0..specials.len())).map_err(|e| anyhow::anyhow!("Error: {}", e))?);
         }
 
         // Fill the rest randomly
@@ -310,10 +310,10 @@ mod tests {
         let manager = PasswordManager::new(PasswordConfig::default());
 
         let password = "SecurePassword123!";
-        let hash = manager.hash_password(password).await.unwrap();
+        let hash = manager.hash_password(password).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
-        assert!(manager.verify_password_argon2id(password, &hash).await.unwrap());
-        assert!(!manager.verify_password_argon2id("WrongPassword", &hash).await.unwrap());
+        assert!(manager.verify_password_argon2id(password, &hash).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?);
+        assert!(!manager.verify_password_argon2id("WrongPassword", &hash).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?);
     }
 
     #[test]

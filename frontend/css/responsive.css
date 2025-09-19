@@ -1,0 +1,318 @@
+/* HackerExperience - Mobile Responsive & Accessibility Styles */
+
+/* Base responsive layout */
+* {
+    box-sizing: border-box;
+}
+
+/* Responsive typography */
+html {
+    font-size: 16px; /* Base font size for better readability */
+}
+
+body {
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+}
+
+/* Container responsive */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Responsive grid system */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+.col {
+    flex: 1;
+    padding: 0 15px;
+}
+
+/* Mobile-first breakpoints */
+/* Small devices (phones) */
+@media (max-width: 576px) {
+    html {
+        font-size: 14px;
+    }
+
+    /* Stack navigation vertically */
+    nav ul {
+        flex-direction: column;
+    }
+
+    nav li {
+        width: 100%;
+        text-align: center;
+        padding: 10px 0;
+    }
+
+    /* Full width forms */
+    input, textarea, select {
+        width: 100%;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    /* Responsive tables */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Hide complex elements on mobile */
+    .desktop-only {
+        display: none;
+    }
+
+    /* Larger touch targets */
+    button, .btn, a {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 12px 16px;
+    }
+
+    /* Stack columns on mobile */
+    .row {
+        flex-direction: column;
+    }
+
+    /* Responsive modals */
+    .modal {
+        width: 95%;
+        margin: 2.5%;
+    }
+
+    /* Hamburger menu */
+    .mobile-menu-toggle {
+        display: block;
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        background: #0a0a0a;
+        border: 1px solid #00ff00;
+        color: #00ff00;
+        padding: 10px;
+        font-size: 24px;
+    }
+
+    .mobile-menu {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 80%;
+        height: 100vh;
+        background: #0a0a0a;
+        border-right: 2px solid #00ff00;
+        transition: left 0.3s ease;
+        z-index: 999;
+        overflow-y: auto;
+    }
+
+    .mobile-menu.open {
+        left: 0;
+    }
+
+    /* Game interface adjustments */
+    .game-panel {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .hardware-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Medium devices (tablets) */
+@media (min-width: 577px) and (max-width: 768px) {
+    .container {
+        max-width: 720px;
+    }
+
+    /* Two column layout */
+    .col-md-6 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    /* Adjust navigation */
+    nav {
+        font-size: 0.9rem;
+    }
+}
+
+/* Large devices (desktops) */
+@media (min-width: 769px) and (max-width: 992px) {
+    .container {
+        max-width: 960px;
+    }
+
+    .col-lg-4 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+}
+
+/* Extra large devices */
+@media (min-width: 993px) {
+    .container {
+        max-width: 1140px;
+    }
+
+    .mobile-menu-toggle {
+        display: none;
+    }
+}
+
+/* Accessibility improvements */
+
+/* Focus indicators */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    outline: 2px solid #00ff00;
+    outline-offset: 2px;
+}
+
+/* Skip navigation link */
+.skip-nav {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #000;
+    color: #00ff00;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 100;
+}
+
+.skip-nav:focus {
+    top: 0;
+}
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    body {
+        background: #000;
+        color: #fff;
+    }
+
+    a {
+        color: #00ffff;
+    }
+
+    button, .btn {
+        border: 2px solid #fff;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    /* Already dark theme by default */
+}
+
+/* Touch-friendly adjustments */
+@media (hover: none) and (pointer: coarse) {
+    /* Touch devices */
+    button, .btn, a {
+        padding: 15px 20px;
+    }
+
+    /* Remove hover effects on touch */
+    a:hover,
+    button:hover {
+        background: inherit;
+    }
+}
+
+/* Improve form accessibility */
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input:invalid {
+    border-color: #ff0000;
+}
+
+input:valid {
+    border-color: #00ff00;
+}
+
+/* Loading states */
+.loading {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.loading::after {
+    content: '...';
+    animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+    0%, 20% {
+        content: '.';
+    }
+    40% {
+        content: '..';
+    }
+    60%, 100% {
+        content: '...';
+    }
+}
+
+/* Responsive images */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Print styles */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+
+    nav, .mobile-menu-toggle, .no-print {
+        display: none;
+    }
+}

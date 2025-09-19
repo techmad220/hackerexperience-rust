@@ -1,0 +1,37 @@
+Spider Report - 2025-09-19 02:56:39.947980
+==================================================
+URLs Checked: 70
+Issues Found: 32
+
+404: http://localhost:8080/blog
+404: http://localhost:8080/profile?id=38147
+404: http://localhost:8080/news?id=4386
+404: http://localhost:8080/news?id=4387
+404: http://localhost:8080/profile?id=37973
+404: http://localhost:8080/profile?id=38122
+404: http://localhost:8080/news?id=4388
+404: http://localhost:8080/internet?ip=227.119.233.149
+404: http://localhost:8080/index
+404: http://localhost:8080/clan?id=967
+404: http://localhost:8080/profile?id=37556
+404: http://localhost:8080/profile?id=1672
+404: http://localhost:8080/blog?id=15
+404: http://localhost:8080/blog?id=14
+404: http://localhost:8080/blog?id=13
+404: http://localhost:8080/profile?id=38157
+404: http://localhost:8080/privacy
+404: http://localhost:8080/stats
+404: http://localhost:8080/logout
+404: http://localhost:8080/profile?id=37987
+404: http://localhost:8080/news
+404: http://localhost:8080/TOS
+404: http://localhost:8080/finances
+404: http://localhost:8080/list
+404: http://localhost:8080/utilities
+404: http://localhost:8080/processes
+404: http://localhost:8080/university
+404: http://localhost:8080/internet
+404: http://localhost:8080/hardware
+404: http://localhost:8080/log
+404: http://localhost:8080/software
+404: http://localhost:8080/missions

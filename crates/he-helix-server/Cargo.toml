@@ -13,8 +13,7 @@ tokio.workspace = true
 async-trait.workspace = true
 futures.workspace = true
 
-# Actor system
-actix.workspace = true
+# Actor system - removed, using tokio channels instead
 
 # Database and ORM
 sqlx.workspace = true

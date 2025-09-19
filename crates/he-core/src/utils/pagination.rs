@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use thiserror::Error;
@@ -468,7 +469,7 @@ mod tests {
 
     #[test]
     fn test_pagination_creation() {
-        let pagination = Pagination::new(1, 10, 100).unwrap();
+        let pagination = Pagination::new(1, 10, 100).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_eq!(pagination.current_page, 1);
         assert_eq!(pagination.page_size, 10);
@@ -481,7 +482,7 @@ mod tests {
 
     #[test]
     fn test_pagination_middle_page() {
-        let pagination = Pagination::new(5, 10, 100).unwrap();
+        let pagination = Pagination::new(5, 10, 100).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_eq!(pagination.current_page, 5);
         assert_eq!(pagination.offset, 40);
@@ -495,7 +496,7 @@ mod tests {
 
     #[test]
     fn test_pagination_last_page() {
-        let pagination = Pagination::new(10, 10, 100).unwrap();
+        let pagination = Pagination::new(10, 10, 100).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_eq!(pagination.current_page, 10);
         assert_eq!(pagination.offset, 90);
@@ -509,7 +510,7 @@ mod tests {
 
     #[test]
     fn test_pagination_empty_results() {
-        let pagination = Pagination::new(1, 10, 0).unwrap();
+        let pagination = Pagination::new(1, 10, 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_eq!(pagination.current_page, 1);
         assert_eq!(pagination.total_pages, 1);
@@ -535,14 +536,14 @@ mod tests {
 
     #[test]
     fn test_pagination_page_too_high() {
-        let pagination = Pagination::new(15, 10, 100).unwrap();
+        let pagination = Pagination::new(15, 10, 100).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         // Should automatically adjust to last valid page
         assert_eq!(pagination.current_page, 10);
     }
 
     #[test]
     fn test_get_page_numbers() {
-        let pagination = Pagination::new(5, 10, 200).unwrap();
+        let pagination = Pagination::new(5, 10, 200).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let pages = pagination.get_page_numbers(2);
         
         assert_eq!(pages, vec![3, 4, 5, 6, 7]);
@@ -550,7 +551,7 @@ mod tests {
 
     #[test]
     fn test_get_page_numbers_start() {
-        let pagination = Pagination::new(1, 10, 200).unwrap();
+        let pagination = Pagination::new(1, 10, 200).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let pages = pagination.get_page_numbers(2);
         
         assert_eq!(pages, vec![1, 2, 3]);
@@ -558,7 +559,7 @@ mod tests {
 
     #[test]
     fn test_get_page_numbers_end() {
-        let pagination = Pagination::new(20, 10, 200).unwrap();
+        let pagination = Pagination::new(20, 10, 200).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let pages = pagination.get_page_numbers(2);
         
         assert_eq!(pages, vec![18, 19, 20]);
@@ -566,39 +567,39 @@ mod tests {
 
     #[test]
     fn test_pagination_summary() {
-        let pagination = Pagination::new(5, 10, 157).unwrap();
+        let pagination = Pagination::new(5, 10, 157).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(pagination.get_summary(), "Showing 41-50 of 157 items");
 
-        let empty = Pagination::new(1, 10, 0).unwrap();
+        let empty = Pagination::new(1, 10, 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(empty.get_summary(), "No items found");
 
-        let single = Pagination::new(1, 10, 1).unwrap();
+        let single = Pagination::new(1, 10, 1).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(single.get_summary(), "Showing 1 item");
     }
 
     #[test]
     fn test_pagination_navigation() {
-        let pagination = Pagination::new(5, 10, 100).unwrap();
+        let pagination = Pagination::new(5, 10, 100).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
-        let first = pagination.first_page().unwrap();
+        let first = pagination.first_page().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(first.current_page, 1);
 
-        let last = pagination.last_page().unwrap();
+        let last = pagination.last_page().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(last.current_page, 10);
 
-        let prev = pagination.previous_page().unwrap().unwrap();
+        let prev = pagination.previous_page().map_err(|e| anyhow::anyhow!("Error: {}", e))?.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(prev.current_page, 4);
 
-        let next = pagination.next_page().unwrap().unwrap();
+        let next = pagination.next_page().map_err(|e| anyhow::anyhow!("Error: {}", e))?.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(next.current_page, 6);
     }
 
     #[test]
     fn test_pagination_with_page_size() {
-        let pagination = Pagination::new(3, 10, 100).unwrap();
+        let pagination = Pagination::new(3, 10, 100).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         // Current page shows items 21-30
         
-        let new_pagination = pagination.with_page_size(20).unwrap();
+        let new_pagination = pagination.with_page_size(20).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         // Should show page 2 (items 21-40 with page size 20)
         assert_eq!(new_pagination.current_page, 2);
         assert_eq!(new_pagination.page_size, 20);
@@ -621,11 +622,11 @@ mod tests {
     fn test_validate_params() {
         let config = PaginationConfig::default();
         
-        let (page, size) = helpers::validate_params(Some(5), Some(25), &config).unwrap();
+        let (page, size) = helpers::validate_params(Some(5), Some(25), &config).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(page, 5);
         assert_eq!(size, 25);
 
-        let (page, size) = helpers::validate_params(None, None, &config).unwrap();
+        let (page, size) = helpers::validate_params(None, None, &config).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(page, 1);
         assert_eq!(size, config.default_page_size);
 

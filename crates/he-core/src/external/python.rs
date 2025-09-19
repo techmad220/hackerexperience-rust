@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -490,7 +491,7 @@ mod tests {
 
     #[test]
     fn test_script_validation() {
-        let python = Python::with_default().unwrap();
+        let python = Python::with_default().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         // Valid script
         let valid_script = create_simple_script("valid", "print('Hello')");

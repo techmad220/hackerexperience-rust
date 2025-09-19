@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Game Server - REST API that connects the game engine to the frontend
 
 use actix_web::{web, App, HttpResponse, HttpServer, Result, middleware, HttpRequest};
@@ -299,7 +300,7 @@ pub struct ApiResponse<T> {
 // API Endpoints
 
 async fn get_game_state(data: web::Data<AppState>) -> Result<HttpResponse> {
-    let mut engine = data.engine.lock().unwrap();
+    let mut engine = data.engine.lock().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     engine.update();
     let state = engine.get_state();
 
@@ -314,7 +315,7 @@ async fn start_process(
     data: web::Data<AppState>,
     req: web::Json<StartProcessRequest>,
 ) -> Result<HttpResponse> {
-    let mut engine = data.engine.lock().unwrap();
+    let mut engine = data.engine.lock().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     engine.update();
 
     match engine.start_process(req.process_type.clone(), req.priority.clone(), req.target.clone()) {
@@ -335,7 +336,7 @@ async fn cancel_process(
     data: web::Data<AppState>,
     req: web::Json<CancelProcessRequest>,
 ) -> Result<HttpResponse> {
-    let mut engine = data.engine.lock().unwrap();
+    let mut engine = data.engine.lock().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
     match engine.cancel_process(req.process_id) {
         Ok(()) => Ok(HttpResponse::Ok().json(ApiResponse::<()> {
@@ -352,7 +353,7 @@ async fn cancel_process(
 }
 
 async fn get_processes(data: web::Data<AppState>) -> Result<HttpResponse> {
-    let mut engine = data.engine.lock().unwrap();
+    let mut engine = data.engine.lock().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     engine.update();
     let state = engine.get_state();
 
@@ -364,7 +365,7 @@ async fn get_processes(data: web::Data<AppState>) -> Result<HttpResponse> {
 }
 
 async fn get_hardware(data: web::Data<AppState>) -> Result<HttpResponse> {
-    let engine = data.engine.lock().unwrap();
+    let engine = data.engine.lock().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     let state = engine.get_state();
 
     Ok(HttpResponse::Ok().json(ApiResponse {
@@ -381,7 +382,7 @@ async fn get_user_profile(req: HttpRequest, data: web::Data<AppState>) -> Result
 
     if let Some(id_str) = query.get("id") {
         if let Ok(id) = id_str.parse::<u32>() {
-            let users = data.users.lock().unwrap();
+            let users = data.users.lock().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             if let Some(user) = users.get(&id) {
                 return Ok(HttpResponse::Ok().json(ApiResponse {
@@ -416,7 +417,7 @@ async fn get_news(req: HttpRequest, data: web::Data<AppState>) -> Result<HttpRes
 
     if let Some(id_str) = query.get("id") {
         if let Ok(id) = id_str.parse::<u32>() {
-            let news = data.news.lock().unwrap();
+            let news = data.news.lock().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             if let Some(article) = news.iter().find(|n| n.id == id) {
                 return Ok(HttpResponse::Ok().json(ApiResponse {
@@ -444,7 +445,7 @@ async fn get_news(req: HttpRequest, data: web::Data<AppState>) -> Result<HttpRes
     }
 
     // Return all news
-    let news = data.news.lock().unwrap();
+    let news = data.news.lock().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     let all_news = if news.is_empty() {
         vec![
             NewsArticle {

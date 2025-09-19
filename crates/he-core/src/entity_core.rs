@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Core entity types shared across the Helix system
 
 use serde::{Deserialize, Serialize};
@@ -39,14 +40,14 @@ mod tests {
     #[test]
     fn test_entity_type_serialization() {
         let entity_type = EntityType::Account;
-        let json = serde_json::to_string(&entity_type).unwrap();
-        let deserialized: EntityType = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&entity_type).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let deserialized: EntityType = serde_json::from_str(&json).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(entity_type, deserialized);
 
         // Test all variants
         for variant in EntityType::possible_types() {
-            let json = serde_json::to_string(&variant).unwrap();
-            let deserialized: EntityType = serde_json::from_str(&json).unwrap();
+            let json = serde_json::to_string(&variant).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+            let deserialized: EntityType = serde_json::from_str(&json).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             assert_eq!(variant, deserialized);
         }
     }

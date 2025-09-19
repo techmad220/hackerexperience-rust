@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc, Duration};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -385,7 +386,7 @@ impl EmailVerification {
         // Generate unique code
         let timestamp = SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_nanos();
         
         let random_data = format!("verification_{}_{}", timestamp, self.config.site_name);
@@ -573,7 +574,7 @@ impl EmailVerification {
         
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_millis() as u64
     }
 }
@@ -676,7 +677,7 @@ mod tests {
             user_agent: None,
         };
 
-        let template_data = verification.prepare_template_data(&code, "testuser").unwrap();
+        let template_data = verification.prepare_template_data(&code, "testuser").map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_eq!(template_data.user_id, 123);
         assert_eq!(template_data.username, "testuser");
@@ -698,7 +699,7 @@ mod tests {
         );
 
         assert!(result.is_ok());
-        let code = result.unwrap();
+        let code = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(code.user_id, 123);
         assert_eq!(code.email, "test@example.com");
         assert!(matches!(code.status, VerificationStatus::Pending));
@@ -723,7 +724,7 @@ mod tests {
     #[test]
     fn test_verification_stats() {
         let verification = EmailVerification::default();
-        let stats = verification.get_verification_stats().unwrap();
+        let stats = verification.get_verification_stats().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         assert_eq!(stats.total_codes_sent, 1000);
         assert_eq!(stats.successful_verifications, 850);
@@ -737,7 +738,7 @@ mod tests {
         
         let result = verification.verify_by_code_only("valid_code");
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 1); // Returns user_id
+        assert_eq!(result.map_err(|e| anyhow::anyhow!("Error: {}", e))?, 1); // Returns user_id
 
         let result = verification.verify_by_code_only("");
         assert!(result.is_err());

@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Benchmarks for game mechanics performance
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
@@ -5,8 +6,8 @@ use he_game_mechanics::*;
 use std::sync::Arc;
 
 fn benchmark_hacking_calculations(c: &mut Criterion) {
-    let engine = GameMechanicsEngine::new().unwrap();
-    let skill = types::SkillLevel::new(60).unwrap();
+    let engine = GameMechanicsEngine::new().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+    let skill = types::SkillLevel::new(60).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     
     c.bench_function("hacking_difficulty_calculation", |b| {
         b.iter(|| {
@@ -15,11 +16,11 @@ fn benchmark_hacking_calculations(c: &mut Criterion) {
                 black_box(skill),
                 black_box(55),
                 black_box(false),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
-    let difficulty = engine.hacking().calculate_difficulty(35, skill, 55, false).unwrap();
+    let difficulty = engine.hacking().calculate_difficulty(35, skill, 55, false).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     let tools = vec![hacking::HackingTool::AdvancedCracker];
     
     c.bench_function("hacking_success_rate_calculation", |b| {
@@ -29,7 +30,7 @@ fn benchmark_hacking_calculations(c: &mut Criterion) {
                 black_box(skill),
                 black_box(&tools),
                 black_box(chrono::Duration::seconds(120)),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -40,13 +41,13 @@ fn benchmark_hacking_calculations(c: &mut Criterion) {
                 black_box(skill),
                 black_box(100),
                 black_box(&hacking::HackingMethod::BruteForce),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
 }
 
 fn benchmark_defense_calculations(c: &mut Criterion) {
-    let engine = GameMechanicsEngine::new().unwrap();
+    let engine = GameMechanicsEngine::new().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     let hardware = types::HardwareSpec { cpu: 100, ram: 2000, hdd: 1000, net: 100 };
     let firewall_software = defense::FirewallSoftware {
         name: "BenchFirewall".to_string(),
@@ -62,7 +63,7 @@ fn benchmark_defense_calculations(c: &mut Criterion) {
                 black_box(&firewall_software),
                 black_box(0.9),
                 black_box(0.95),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -85,27 +86,27 @@ fn benchmark_defense_calculations(c: &mut Criterion) {
                 black_box(&ids_software),
                 black_box(&topology),
                 black_box(chrono::Duration::days(1)),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
 }
 
 fn benchmark_experience_calculations(c: &mut Criterion) {
-    let engine = GameMechanicsEngine::new().unwrap();
+    let engine = GameMechanicsEngine::new().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     
     c.bench_function("level_from_experience", |b| {
         b.iter(|| {
-            engine.experience().calculate_level_from_experience(black_box(25000)).unwrap()
+            engine.experience().calculate_level_from_experience(black_box(25000)).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
     c.bench_function("experience_required_for_level", |b| {
         b.iter(|| {
-            engine.experience().experience_required_for_level(black_box(25)).unwrap()
+            engine.experience().experience_required_for_level(black_box(25)).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
-    let current_skill = types::SkillLevel::new(45).unwrap();
+    let current_skill = types::SkillLevel::new(45).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     c.bench_function("skill_progression", |b| {
         b.iter(|| {
             engine.experience().calculate_skill_progression(
@@ -113,7 +114,7 @@ fn benchmark_experience_calculations(c: &mut Criterion) {
                 black_box(120),
                 black_box(0.25),
                 black_box(1.3),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -123,21 +124,21 @@ fn benchmark_experience_calculations(c: &mut Criterion) {
                 black_box(current_skill),
                 black_box(chrono::Duration::hours(750)),
                 black_box(85),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     };
     c.bench_function("skill_mastery_calculation", skill_mastery_calc);
 }
 
 fn benchmark_financial_calculations(c: &mut Criterion) {
-    let engine = GameMechanicsEngine::new().unwrap();
+    let engine = GameMechanicsEngine::new().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     
     c.bench_function("compound_interest", |b| {
         b.iter(|| {
             engine.financial().calculate_interest(
                 black_box(types::Money::new(50000)),
                 black_box(365),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -145,7 +146,7 @@ fn benchmark_financial_calculations(c: &mut Criterion) {
         b.iter(|| {
             engine.financial().calculate_transaction_fee(
                 black_box(types::Money::new(15000))
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -155,7 +156,7 @@ fn benchmark_financial_calculations(c: &mut Criterion) {
                 black_box(250.0),
                 black_box(75.0),
                 black_box(125.0),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
 }
@@ -169,7 +170,7 @@ fn benchmark_formula_calculations(c: &mut Criterion) {
                 black_box(30),
                 black_box(1.25),
                 black_box(1.0),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -179,7 +180,7 @@ fn benchmark_formula_calculations(c: &mut Criterion) {
                 black_box(20),
                 black_box(1500),
                 black_box(1.15),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -191,7 +192,7 @@ fn benchmark_formula_calculations(c: &mut Criterion) {
                 black_box(95),
                 black_box(2500),
                 black_box(1.4),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -204,13 +205,13 @@ fn benchmark_formula_calculations(c: &mut Criterion) {
                 black_box(1.35),
                 black_box(1.15),
                 black_box(0.95),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
 }
 
 fn benchmark_network_calculations(c: &mut Criterion) {
-    let engine = GameMechanicsEngine::new().unwrap();
+    let engine = GameMechanicsEngine::new().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     
     c.bench_function("network_latency", |b| {
         b.iter(|| {
@@ -218,7 +219,7 @@ fn benchmark_network_calculations(c: &mut Criterion) {
                 black_box(2500.0),
                 black_box(0.8),
                 black_box(0.4),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -228,13 +229,13 @@ fn benchmark_network_calculations(c: &mut Criterion) {
                 black_box(1000),
                 black_box(0.6),
                 black_box(800),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
 }
 
 fn benchmark_clan_calculations(c: &mut Criterion) {
-    let engine = GameMechanicsEngine::new().unwrap();
+    let engine = GameMechanicsEngine::new().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     
     let contributions = vec![
         (150, 1.0), (200, 1.5), (100, 0.8), (300, 2.0), (175, 1.2)
@@ -248,7 +249,7 @@ fn benchmark_clan_calculations(c: &mut Criterion) {
                 black_box(12),
                 black_box(4),
                 black_box(75),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -259,13 +260,13 @@ fn benchmark_clan_calculations(c: &mut Criterion) {
                 black_box(1100),
                 black_box(1.3),
                 black_box(0.85),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
 }
 
 fn benchmark_hardware_software(c: &mut Criterion) {
-    let engine = GameMechanicsEngine::new().unwrap();
+    let engine = GameMechanicsEngine::new().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     let hardware = types::HardwareSpec { cpu: 110, ram: 2800, hdd: 1200, net: 120 };
     let software = types::SoftwareSpec {
         name: "BenchSoftware".to_string(),
@@ -276,7 +277,7 @@ fn benchmark_hardware_software(c: &mut Criterion) {
     
     c.bench_function("hardware_performance_rating", |b| {
         b.iter(|| {
-            engine.hardware().calculate_performance_rating(black_box(&hardware)).unwrap()
+            engine.hardware().calculate_performance_rating(black_box(&hardware)).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
@@ -285,18 +286,18 @@ fn benchmark_hardware_software(c: &mut Criterion) {
             engine.hardware().check_compatibility(
                 black_box(&hardware),
                 black_box(&software.requirements),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     
-    let skill = types::SkillLevel::new(70).unwrap();
+    let skill = types::SkillLevel::new(70).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     c.bench_function("software_effectiveness", |b| {
         b.iter(|| {
             engine.software().calculate_effectiveness(
                 black_box(&software),
                 black_box(&hardware),
                 black_box(skill),
-            ).unwrap()
+            ).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
 }
@@ -304,14 +305,14 @@ fn benchmark_hardware_software(c: &mut Criterion) {
 fn benchmark_engine_creation_and_validation(c: &mut Criterion) {
     c.bench_function("engine_creation", |b| {
         b.iter(|| {
-            black_box(GameMechanicsEngine::new().unwrap())
+            black_box(GameMechanicsEngine::new().map_err(|e| anyhow::anyhow!("Error: {}", e))?)
         })
     });
     
-    let engine = GameMechanicsEngine::new().unwrap();
+    let engine = GameMechanicsEngine::new().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
     c.bench_function("engine_validation", |b| {
         b.iter(|| {
-            black_box(engine.validate()).unwrap()
+            black_box(engine.validate()).map_err(|e| anyhow::anyhow!("Error: {}", e))?
         })
     });
     

@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -388,7 +389,7 @@ impl Forum {
         }
 
         let topic_id = self.generate_id();
-        let user_id = self.current_user_id.unwrap();
+        let user_id = self.current_user_id.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         // Create topic
         let topic = ForumTopic {
@@ -459,7 +460,7 @@ impl Forum {
         }
 
         let post_id = self.generate_id();
-        let user_id = self.current_user_id.unwrap();
+        let user_id = self.current_user_id.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         // Parse content (would use purifier in real implementation)
         let parsed_content = format!("<p>{}</p>", content.trim());
@@ -652,7 +653,7 @@ impl Forum {
         
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_millis() as u64
     }
 }
@@ -688,7 +689,7 @@ mod tests {
         let result = forum.get_category(1);
         assert!(result.is_ok());
 
-        let category = result.unwrap();
+        let category = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(category.id, 1);
         assert_eq!(category.name, "General Discussion");
     }

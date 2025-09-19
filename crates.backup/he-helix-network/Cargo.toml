@@ -1,0 +1,51 @@
+[package]
+name = "he-helix-network"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Helix Network Topology System - Rust implementation"
+
+[dependencies]
+# Async runtime
+tokio.workspace = true
+async-trait.workspace = true
+futures.workspace = true
+
+# Actor system
+actix.workspace = true
+
+# Database and ORM
+sqlx.workspace = true
+sea-orm.workspace = true
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+
+# Networking
+hyper.workspace = true
+
+# Error handling
+anyhow.workspace = true
+thiserror.workspace = true
+
+# Logging
+tracing.workspace = true
+
+# Utilities
+once_cell.workspace = true
+dashmap.workspace = true
+
+# Internal dependencies
+he-core = { path = "../he-core" }
+he-db = { path = "../he-db" }
+he-helix-compat = { path = "../he-helix-compat" }
+he-helix-server = { path = "../he-helix-server" }
+
+[dev-dependencies]
+tokio-test.workspace = true
+mockall.workspace = true

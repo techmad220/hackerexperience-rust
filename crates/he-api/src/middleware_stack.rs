@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Production middleware stack with auth, rate limiting, and security
 
 use actix_web::{
@@ -221,7 +222,7 @@ where
         // Create unique key for this IP + route
         let key = format!("{}:{}", ip, path);
 
-        let mut limits = self.limits.lock().unwrap();
+        let mut limits = self.limits.lock().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let state = limits.entry(key.clone()).or_insert(RateLimitState {
             count: 0,
             window_start: now,

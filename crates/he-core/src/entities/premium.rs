@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc, Duration};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -539,7 +540,7 @@ impl Premium {
         
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_millis() as u64
     }
 }
@@ -560,7 +561,7 @@ mod tests {
         let result = premium.get_plans();
         assert!(result.is_ok());
         
-        let plans = result.unwrap();
+        let plans = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert!(!plans.is_empty());
         assert!(plans.iter().all(|p| p.is_active));
     }
@@ -571,7 +572,7 @@ mod tests {
         let result = premium.get_plan("basic_monthly");
         assert!(result.is_ok());
 
-        let plan = result.unwrap();
+        let plan = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(plan.id, "basic_monthly");
         assert!(matches!(plan.plan_type, PlanType::Basic));
     }
@@ -590,7 +591,7 @@ mod tests {
         let result = premium.get_user_status(1);
         assert!(result.is_ok());
 
-        let status = result.unwrap();
+        let status = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(status.user_id, 1);
     }
 
@@ -634,7 +635,7 @@ mod tests {
         let result = premium.create_subscription(1, "basic_monthly", "credit_card");
         assert!(result.is_ok());
 
-        let subscription = result.unwrap();
+        let subscription = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(subscription.user_id, 1);
         assert_eq!(subscription.plan_id, "basic_monthly");
         assert!(matches!(subscription.status, SubscriptionStatus::PendingPayment));

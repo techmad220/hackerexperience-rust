@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! ID types re-exported from he-helix-core
 
 pub use he_helix_core::types::{EntityId, AccountId, ServerId, NetworkId, ProcessId, RequestId, HelixId};
@@ -57,8 +58,8 @@ mod tests {
     #[test]
     fn test_component_id_serialization() {
         let id = ComponentId::new();
-        let json = serde_json::to_string(&id).unwrap();
-        let deserialized: ComponentId = serde_json::from_str(&json).unwrap();
+        let json = serde_json::to_string(&id).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let deserialized: ComponentId = serde_json::from_str(&json).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         assert_eq!(id, deserialized);
     }

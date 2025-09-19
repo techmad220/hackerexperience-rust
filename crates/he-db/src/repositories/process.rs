@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use sqlx::{MySql, Pool};
 use he_core::{Process, ProcessId, UserId, ProcessAction, ProcessStatus, HeResult, HeError};
 use chrono::{DateTime, Utc};
@@ -74,8 +75,8 @@ impl ProcessRepository {
                     is_npc: row.p_npc != 0,
                     cpu_usage: row.cpu_usage as i32,
                     net_usage: row.net_usage as i32,
-                    created_at: DateTime::from_timestamp(row.p_time_start.and_utc().timestamp(), 0).unwrap(),
-                    started_at: Some(DateTime::from_timestamp(row.p_time_start.and_utc().timestamp(), 0).unwrap()),
+                    created_at: DateTime::from_timestamp(row.p_time_start.and_utc().timestamp(), 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
+                    started_at: Some(DateTime::from_timestamp(row.p_time_start.and_utc().timestamp(), 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?),
                     completed_at: None,
                     status: if row.is_paused != 0 { ProcessStatus::Paused } else { ProcessStatus::Running },
                     priority: 5, // Default priority
@@ -112,8 +113,8 @@ impl ProcessRepository {
                     is_npc: row.p_npc != 0,
                     cpu_usage: row.cpu_usage as i32,
                     net_usage: row.net_usage as i32,
-                    created_at: DateTime::from_timestamp(row.p_time_start.and_utc().timestamp(), 0).unwrap(),
-                    started_at: Some(DateTime::from_timestamp(row.p_time_start.and_utc().timestamp(), 0).unwrap()),
+                    created_at: DateTime::from_timestamp(row.p_time_start.and_utc().timestamp(), 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?,
+                    started_at: Some(DateTime::from_timestamp(row.p_time_start.and_utc().timestamp(), 0).map_err(|e| anyhow::anyhow!("Error: {}", e))?),
                     completed_at: None,
                     status: if row.is_paused != 0 { ProcessStatus::Paused } else { ProcessStatus::Running },
                     priority: 5,

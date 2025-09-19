@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! PC (Hardware) entity - Computer hardware management and operations
 //! 
 //! This module provides the PC struct and methods for managing computer hardware,
@@ -146,7 +147,7 @@ impl HardwareVPC {
     /// # Returns
     /// HardwareInfo with aggregated hardware stats
     pub async fn get_hardware_info(&mut self, id: Option<i32>, pc_type: &str, xhd: Option<&str>) -> HeResult<HardwareInfo> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let user_id = id.unwrap_or(0); // TODO: Get from session
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
@@ -214,7 +215,7 @@ impl HardwareVPC {
     /// # Returns
     /// Network speed in Mbps
     pub async fn get_net_spec(&self, id: i32, pc_type: &str) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
         let row = sqlx::query("SELECT net FROM hardware WHERE userID = $1 AND isNPC = $2 LIMIT 1")
@@ -250,7 +251,7 @@ impl HardwareVPC {
     /// # Returns
     /// Total number of PCs
     pub async fn get_total_pcs(&self, id: Option<i32>, pc_type: Option<&str>) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let user_id = id.unwrap_or(0);
         let is_npc = match pc_type {
             Some("NPC") => 1,
@@ -277,7 +278,7 @@ impl HardwareVPC {
     /// # Returns
     /// PCSpec with detailed PC information
     pub async fn get_pc_spec(&self, server_id: Option<i32>, pc_type: &str, id: i32, unknown_id: Option<&str>) -> HeResult<PCSpec> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
         let mut query = "SELECT id, serverName, cpu, hdd, ram, net, userID FROM hardware WHERE userID = $1 AND isNPC = $2".to_string();
@@ -330,7 +331,7 @@ impl HardwareVPC {
     /// # Returns
     /// RAM usage in MB
     pub async fn calculate_ram_usage(&self, id: i32, pc_type: &str) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
         let row = sqlx::query(
@@ -355,7 +356,7 @@ impl HardwareVPC {
     /// # Returns
     /// Software RAM usage in MB
     pub async fn get_soft_usage(&self, id: i32, pc_type: &str, soft_id: i32) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
         let row = sqlx::query(
@@ -379,7 +380,7 @@ impl HardwareVPC {
     /// # Returns
     /// HDD usage in MB
     pub async fn calculate_hdd_usage(&self, id: i32, pc_type: &str) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
         let row = sqlx::query(
@@ -436,7 +437,7 @@ impl HardwareVPC {
     /// * `server_id` - Server ID to rename
     /// * `server_name` - New server name
     pub async fn rename_server(&self, server_id: i32, server_name: &str) -> HeResult<()> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         sqlx::query("UPDATE hardware SET serverName = $1 WHERE id = $2")
             .bind(server_name)
@@ -453,7 +454,7 @@ impl HardwareVPC {
     /// * `server_id` - Server ID
     /// * `server_name` - New name
     pub async fn rename_xhd(&self, server_id: i32, server_name: &str) -> HeResult<()> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         sqlx::query("UPDATE hardware_external SET name = $1 WHERE id = $2")
             .bind(server_name)
@@ -511,7 +512,7 @@ impl HardwareVPC {
     /// # Returns
     /// XHD information
     pub async fn get_xhd_info(&self) -> HeResult<HashMap<String, i32>> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let user_id = self.id.unwrap_or(0);
 
         let row = sqlx::query("SELECT SUM(size) AS total_size FROM hardware_external WHERE userID = $1")
@@ -535,7 +536,7 @@ impl HardwareVPC {
     /// # Returns
     /// XHD information
     pub async fn get_xhd(&self, server_id: i32) -> HeResult<HashMap<String, String>> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
         let row = sqlx::query("SELECT * FROM hardware_external WHERE id = $1 LIMIT 1")
             .bind(server_id)
@@ -560,7 +561,7 @@ impl HardwareVPC {
     /// # Returns
     /// True if software is installed
     pub async fn is_installed(&self, soft_id: i32, uid: i32, pc_type: &str) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
         let row = sqlx::query(
@@ -586,7 +587,7 @@ impl HardwareVPC {
     /// # Returns
     /// RAM usage in MB
     pub async fn soft_ram_usage(&self, soft_id: i32, uid: i32, pc_type: &str) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().unwrap();
+        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
         let row = sqlx::query(

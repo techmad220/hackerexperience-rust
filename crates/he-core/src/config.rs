@@ -879,11 +879,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_secret_manager() {
-        let secret_manager = SecretManager::new().await.unwrap();
+        let secret_manager = SecretManager::new().await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         secret_manager.set_secret("test_key".to_string(), "test_value".to_string()).await;
         
-        let value = secret_manager.get_secret("test_key").await.unwrap();
+        let value = secret_manager.get_secret("test_key").await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(value, "test_value");
         
         let missing = secret_manager.get_secret("missing_key").await;
@@ -893,12 +893,12 @@ mod tests {
     #[tokio::test]
     async fn test_config_loading() {
         let config = HeConfig::default();
-        let config_json = serde_json::to_string_pretty(&config).unwrap();
+        let config_json = serde_json::to_string_pretty(&config).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
-        let mut temp_file = NamedTempFile::new().unwrap();
-        temp_file.write_all(config_json.as_bytes()).unwrap();
+        let mut temp_file = NamedTempFile::new().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        temp_file.write_all(config_json.as_bytes()).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
-        let config_manager = ConfigManager::new(temp_file.path()).await.unwrap();
+        let config_manager = ConfigManager::new(temp_file.path()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let loaded_config = config_manager.get_config().await;
         
         assert_eq!(loaded_config.app.name, "HackerExperience");

@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! Generate missions job
 //! 
 //! This job generates new missions for players to complete.
@@ -408,7 +409,7 @@ mod tests {
     fn test_mission_type_determination() {
         // Test that mission type is always between 1 and 5
         for _ in 0..100 {
-            let mission_type = GenerateMissionsJob::determine_mission_type().unwrap();
+            let mission_type = GenerateMissionsJob::determine_mission_type().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             assert!(mission_type >= 1 && mission_type <= 5);
         }
     }
@@ -416,7 +417,7 @@ mod tests {
     #[test]
     fn test_base_prize_calculation() {
         for mission_type in 1..=5 {
-            let prize = GenerateMissionsJob::calculate_base_prize(mission_type).unwrap();
+            let prize = GenerateMissionsJob::calculate_base_prize(mission_type).map_err(|e| anyhow::anyhow!("Error: {}", e))?;
             assert!(prize > 0);
             
             match mission_type {

@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 //! API handler tests
 
 #[cfg(test)]
@@ -20,7 +21,7 @@ mod tests {
         let database_url = std::env::var("TEST_DATABASE_URL")
             .unwrap_or_else(|_| "postgres://test:test@localhost:5432/test_he".to_string());
 
-        let db = Database::new(&database_url).await.unwrap();
+        let db = Database::new(&database_url).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         let auth = AuthService::new("test_secret_key".to_string());
         let ws_manager = Some(Arc::new(he_websocket::ConnectionManager::new()));
 
@@ -177,7 +178,7 @@ mod tests {
 
             // Create mock JWT token
             let auth = AuthService::new("test_secret_key".to_string());
-            let token = auth.generate_token(uuid::Uuid::new_v4()).await.unwrap();
+            let token = auth.generate_token(uuid::Uuid::new_v4()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             let req = test::TestRequest::get()
                 .uri("/api/game/dashboard")
@@ -198,7 +199,7 @@ mod tests {
             let app = create_test_app().await;
 
             let auth = AuthService::new("test_secret_key".to_string());
-            let token = auth.generate_token(uuid::Uuid::new_v4()).await.unwrap();
+            let token = auth.generate_token(uuid::Uuid::new_v4()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             let req = test::TestRequest::get()
                 .uri("/api/game/stats")
@@ -249,7 +250,7 @@ mod tests {
             let app = create_test_app().await;
 
             let auth = AuthService::new("test_secret_key".to_string());
-            let token = auth.generate_token(uuid::Uuid::new_v4()).await.unwrap();
+            let token = auth.generate_token(uuid::Uuid::new_v4()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             let req = test::TestRequest::post()
                 .uri("/api/processes")
@@ -274,7 +275,7 @@ mod tests {
             let app = create_test_app().await;
 
             let auth = AuthService::new("test_secret_key".to_string());
-            let token = auth.generate_token(uuid::Uuid::new_v4()).await.unwrap();
+            let token = auth.generate_token(uuid::Uuid::new_v4()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             let req = test::TestRequest::delete()
                 .uri("/api/processes/12345")
@@ -311,7 +312,7 @@ mod tests {
             let app = create_test_app().await;
 
             let auth = AuthService::new("test_secret_key".to_string());
-            let token = auth.generate_token(uuid::Uuid::new_v4()).await.unwrap();
+            let token = auth.generate_token(uuid::Uuid::new_v4()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             let req = test::TestRequest::post()
                 .uri("/api/hardware/upgrade")
@@ -369,7 +370,7 @@ mod tests {
             let app = create_test_app().await;
 
             let auth = AuthService::new("test_secret_key".to_string());
-            let token = auth.generate_token(uuid::Uuid::new_v4()).await.unwrap();
+            let token = auth.generate_token(uuid::Uuid::new_v4()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             let req = test::TestRequest::post()
                 .uri("/api/bank/transfer")
@@ -418,7 +419,7 @@ mod tests {
             let app = create_test_app().await;
 
             let auth = AuthService::new("test_secret_key".to_string());
-            let token = auth.generate_token(uuid::Uuid::new_v4()).await.unwrap();
+            let token = auth.generate_token(uuid::Uuid::new_v4()).await.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
 
             let req = test::TestRequest::post()
                 .uri("/api/missions/99999/accept")

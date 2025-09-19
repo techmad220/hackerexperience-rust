@@ -1,0 +1,334 @@
+{
+  "raw_results": {
+    "server_discovery": {
+      "/": {
+        "status_code": 200,
+        "response_size": 32929,
+        "response_time_ms": 149.78957176208496,
+        "accessible": true
+      },
+      "/health": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 97.97048568725586,
+        "accessible": false
+      },
+      "/api": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 103.12724113464355,
+        "accessible": false
+      },
+      "/api/v1": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 109.73048210144043,
+        "accessible": false
+      },
+      "/docs": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 125.62370300292969,
+        "accessible": false
+      },
+      "/swagger": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 82.63158798217773,
+        "accessible": false
+      },
+      "/metrics": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 89.93339538574219,
+        "accessible": false
+      },
+      "/status": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 99.67684745788574,
+        "accessible": false
+      },
+      "/ping": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 105.42106628417969,
+        "accessible": false
+      },
+      "/admin": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 98.49095344543457,
+        "accessible": false
+      },
+      "/secure-admin-ea9017d46e0fe963": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 80.07240295410156,
+        "accessible": false
+      },
+      "/api/register": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 87.69607543945312,
+        "accessible": false
+      },
+      "/api/login": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 107.22136497497559,
+        "accessible": false
+      },
+      "/api/users": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 92.10705757141113,
+        "accessible": false
+      },
+      "/api/game": {
+        "status_code": 404,
+        "response_size": 335,
+        "response_time_ms": 84.16032791137695,
+        "accessible": false
+      }
+    },
+    "basic_endpoints": [
+      {
+        "endpoint": "GET /",
+        "tests_run": 3,
+        "success_rate": 1.0,
+        "avg_response_time_ms": 172.3779837290446,
+        "min_response_time_ms": 161.08345985412598,
+        "max_response_time_ms": 179.5182228088379,
+        "all_results": [
+          {
+            "endpoint": "GET /",
+            "response_time_ms": 179.5182228088379,
+            "status_code": 200,
+            "response_size": 32929,
+            "success": true
+          },
+          {
+            "endpoint": "GET /",
+            "response_time_ms": 176.53226852416992,
+            "status_code": 200,
+            "response_size": 32929,
+            "success": true
+          },
+          {
+            "endpoint": "GET /",
+            "response_time_ms": 161.08345985412598,
+            "status_code": 200,
+            "response_size": 32929,
+            "success": true
+          }
+        ]
+      },
+      {
+        "endpoint": "GET /health",
+        "tests_run": 3,
+        "success_rate": 0.0,
+        "avg_response_time_ms": 0,
+        "min_response_time_ms": 0,
+        "max_response_time_ms": 0,
+        "all_results": [
+          {
+            "endpoint": "GET /health",
+            "response_time_ms": 137.9556655883789,
+            "status_code": 404,
+            "response_size": 335,
+            "success": false
+          },
+          {
+            "endpoint": "GET /health",
+            "response_time_ms": 100.93998908996582,
+            "status_code": 404,
+            "response_size": 335,
+            "success": false
+          },
+          {
+            "endpoint": "GET /health",
+            "response_time_ms": 92.01908111572266,
+            "status_code": 404,
+            "response_size": 335,
+            "success": false
+          }
+        ]
+      },
+      {
+        "endpoint": "GET /api/",
+        "tests_run": 3,
+        "success_rate": 0.0,
+        "avg_response_time_ms": 0,
+        "min_response_time_ms": 0,
+        "max_response_time_ms": 0,
+        "all_results": [
+          {
+            "endpoint": "GET /api/",
+            "response_time_ms": 75.8054256439209,
+            "status_code": 404,
+            "response_size": 335,
+            "success": false
+          },
+          {
+            "endpoint": "GET /api/",
+            "response_time_ms": 93.64128112792969,
+            "status_code": 404,
+            "response_size": 335,
+            "success": false
+          },
+          {
+            "endpoint": "GET /api/",
+            "response_time_ms": 77.84438133239746,
+            "status_code": 404,
+            "response_size": 335,
+            "success": false
+          }
+        ]
+      },
+      {
+        "endpoint": "GET /metrics",
+        "tests_run": 3,
+        "success_rate": 0.0,
+        "avg_response_time_ms": 0,
+        "min_response_time_ms": 0,
+        "max_response_time_ms": 0,
+        "all_results": [
+          {
+            "endpoint": "GET /metrics",
+            "response_time_ms": 78.45163345336914,
+            "status_code": 404,
+            "response_size": 335,
+            "success": false
+          },
+          {
+            "endpoint": "GET /metrics",
+            "response_time_ms": 104.34389114379883,
+            "status_code": 404,
+            "response_size": 335,
+            "success": false
+          },
+          {
+            "endpoint": "GET /metrics",
+            "response_time_ms": 115.98491668701172,
+            "status_code": 404,
+            "response_size": 335,
+            "success": false
+          }
+        ]
+      },
+      {
+        "endpoint": "OPTIONS /api/register",
+        "tests_run": 3,
+        "success_rate": 0.0,
+        "avg_response_time_ms": 0,
+        "min_response_time_ms": 0,
+        "max_response_time_ms": 0,
+        "all_results": [
+          {
+            "endpoint": "OPTIONS /api/register",
+            "response_time_ms": 138.5970115661621,
+            "status_code": 501,
+            "response_size": 360,
+            "success": false
+          },
+          {
+            "endpoint": "OPTIONS /api/register",
+            "response_time_ms": 134.8276138305664,
+            "status_code": 501,
+            "response_size": 360,
+            "success": false
+          },
+          {
+            "endpoint": "OPTIONS /api/register",
+            "response_time_ms": 96.73309326171875,
+            "status_code": 501,
+            "response_size": 360,
+            "success": false
+          }
+        ]
+      },
+      {
+        "endpoint": "OPTIONS /api/login",
+        "tests_run": 3,
+        "success_rate": 0.0,
+        "avg_response_time_ms": 0,
+        "min_response_time_ms": 0,
+        "max_response_time_ms": 0,
+        "all_results": [
+          {
+            "endpoint": "OPTIONS /api/login",
+            "response_time_ms": 148.96106719970703,
+            "status_code": 501,
+            "response_size": 360,
+            "success": false
+          },
+          {
+            "endpoint": "OPTIONS /api/login",
+            "response_time_ms": 95.38745880126953,
+            "status_code": 501,
+            "response_size": 360,
+            "success": false
+          },
+          {
+            "endpoint": "OPTIONS /api/login",
+            "response_time_ms": 138.8716697692871,
+            "status_code": 501,
+            "response_size": 360,
+            "success": false
+          }
+        ]
+      }
+    ],
+    "concurrent_load": {
+      "concurrent_requests": 20,
+      "total_time_seconds": 0.3641550540924072,
+      "successful_requests": 0,
+      "failed_requests": 20,
+      "requests_per_second": 0.0,
+      "avg_response_time_ms": 0,
+      "min_response_time_ms": 0,
+      "max_response_time_ms": 0,
+      "p95_response_time_ms": 0
+    }
+  },
+  "analysis": {
+    "test_timestamp": "2025-09-19T03:16:00.604612",
+    "server_url": "http://172.104.215.73",
+    "summary": {
+      "basic_endpoints": {
+        "total_tested": 6,
+        "working_endpoints": 1,
+        "avg_response_time_ms": 172.3779837290446,
+        "fastest_endpoint_ms": 172.3779837290446,
+        "slowest_endpoint_ms": 172.3779837290446
+      },
+      "concurrent_performance": {
+        "requests_per_second": 0.0,
+        "success_rate": 0.0,
+        "avg_response_time_ms": 0
+      },
+      "server_discovery": {
+        "total_paths_tested": 15,
+        "accessible_paths": 1,
+        "accessible_endpoints": [
+          "/"
+        ]
+      }
+    },
+    "recommendations": [
+      {
+        "category": "Throughput",
+        "priority": "MEDIUM",
+        "issue": "Low throughput (0.0 RPS)",
+        "recommendation": "Scale server resources, optimize application code, implement connection pooling"
+      },
+      {
+        "category": "Reliability",
+        "priority": "HIGH",
+        "issue": "20 failed requests under load",
+        "recommendation": "Investigate error causes, increase server capacity, add error handling"
+      }
+    ]
+  }
+}

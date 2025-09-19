@@ -1,0 +1,7 @@
+2025-09-19 03:14:38,647 - INFO - Starting HackerExperience Performance Test Suite
+2025-09-19 03:14:38,647 - INFO - Target server: http://172.104.215.73:3000
+2025-09-19 03:14:38,647 - INFO - Baseline memory usage: 4474.96 MB
+2025-09-19 03:14:38,647 - INFO - Starting API endpoint performance testing...
+2025-09-19 03:14:38,716 - ERROR - Authentication failed: Cannot connect to host 172.104.215.73:3000 ssl:default [Connect call failed ('172.104.215.73', 3000)]
+2025-09-19 03:14:38,716 - ERROR - Failed to authenticate - some tests may fail
+2025-09-19 03:14:38,716 - ERROR - Performance test failed: [Errno 13] Permission denied: '/proc/stat'

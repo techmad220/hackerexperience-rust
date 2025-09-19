@@ -1,0 +1,767 @@
+{
+  "test_timestamp": "2025-09-19T03:20:26.433876",
+  "base_url": "http://172.104.215.73",
+  "tests": {
+    "/": {
+      "consistency": {
+        "endpoint": "/",
+        "total_requests": 10,
+        "successful_requests": 10,
+        "unique_content_hashes": 1,
+        "content_consistent": true,
+        "avg_response_time_ms": 165.90218544006348,
+        "min_response_time_ms": 117.11668968200684,
+        "max_response_time_ms": 203.32980155944824,
+        "cache_headers_found": false,
+        "responses": [
+          {
+            "request_num": 1,
+            "response_time_ms": 178.08794975280762,
+            "status_code": 200,
+            "content_hash": "c06be03fd5e05ae4ce0ab6fc1044e6fd",
+            "content_length": 32929,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 2,
+            "response_time_ms": 172.45054244995117,
+            "status_code": 200,
+            "content_hash": "c06be03fd5e05ae4ce0ab6fc1044e6fd",
+            "content_length": 32929,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 3,
+            "response_time_ms": 172.85466194152832,
+            "status_code": 200,
+            "content_hash": "c06be03fd5e05ae4ce0ab6fc1044e6fd",
+            "content_length": 32929,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 4,
+            "response_time_ms": 192.79074668884277,
+            "status_code": 200,
+            "content_hash": "c06be03fd5e05ae4ce0ab6fc1044e6fd",
+            "content_length": 32929,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 5,
+            "response_time_ms": 203.32980155944824,
+            "status_code": 200,
+            "content_hash": "c06be03fd5e05ae4ce0ab6fc1044e6fd",
+            "content_length": 32929,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 6,
+            "response_time_ms": 149.51252937316895,
+            "status_code": 200,
+            "content_hash": "c06be03fd5e05ae4ce0ab6fc1044e6fd",
+            "content_length": 32929,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 7,
+            "response_time_ms": 178.38144302368164,
+            "status_code": 200,
+            "content_hash": "c06be03fd5e05ae4ce0ab6fc1044e6fd",
+            "content_length": 32929,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 8,
+            "response_time_ms": 151.37100219726562,
+            "status_code": 200,
+            "content_hash": "c06be03fd5e05ae4ce0ab6fc1044e6fd",
+            "content_length": 32929,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 9,
+            "response_time_ms": 117.11668968200684,
+            "status_code": 200,
+            "content_hash": "c06be03fd5e05ae4ce0ab6fc1044e6fd",
+            "content_length": 32929,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 10,
+            "response_time_ms": 143.1264877319336,
+            "status_code": 200,
+            "content_hash": "c06be03fd5e05ae4ce0ab6fc1044e6fd",
+            "content_length": 32929,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          }
+        ]
+      },
+      "performance": {
+        "endpoint": "/",
+        "cold_cache_avg_ms": 170.98561922709146,
+        "warm_cache_avg_ms": 177.04429626464844,
+        "performance_improvement_percent": -3.543383978690192,
+        "cache_likely_present": false,
+        "cold_times": [
+          227.46992111206055,
+          158.9951515197754,
+          126.49178504943848
+        ],
+        "warm_times": [
+          164.3211841583252,
+          160.73131561279297,
+          147.37224578857422,
+          151.85952186584473,
+          180.6640625,
+          151.32427215576172,
+          155.79557418823242,
+          159.515380859375,
+          204.1773796081543,
+          294.6820259094238
+        ]
+      },
+      "concurrent": {
+        "endpoint": "/",
+        "concurrent_requests": 20,
+        "total_time_seconds": 0.9821324348449707,
+        "successful_requests": 20,
+        "failed_requests": 0,
+        "requests_per_second": 20.363852460648033,
+        "content_consistent": true,
+        "unique_content_versions": 1,
+        "avg_response_time_ms": 801.140034198761,
+        "response_time_consistency": 558.4113597869873
+      }
+    },
+    "/health": {
+      "consistency": {
+        "endpoint": "/health",
+        "total_requests": 10,
+        "successful_requests": 10,
+        "unique_content_hashes": 1,
+        "content_consistent": true,
+        "avg_response_time_ms": 114.6305799484253,
+        "min_response_time_ms": 88.6690616607666,
+        "max_response_time_ms": 144.15216445922852,
+        "cache_headers_found": false,
+        "responses": [
+          {
+            "request_num": 1,
+            "response_time_ms": 104.00962829589844,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 2,
+            "response_time_ms": 88.6690616607666,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 3,
+            "response_time_ms": 98.35457801818848,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 4,
+            "response_time_ms": 135.45942306518555,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 5,
+            "response_time_ms": 102.7827262878418,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 6,
+            "response_time_ms": 103.91902923583984,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 7,
+            "response_time_ms": 101.04250907897949,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 8,
+            "response_time_ms": 127.77853012084961,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 9,
+            "response_time_ms": 140.1381492614746,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 10,
+            "response_time_ms": 144.15216445922852,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          }
+        ]
+      },
+      "performance": {
+        "endpoint": "/health",
+        "cold_cache_avg_ms": 98.92185529073079,
+        "warm_cache_avg_ms": 115.14649391174316,
+        "performance_improvement_percent": -16.40147020426199,
+        "cache_likely_present": false,
+        "cold_times": [
+          93.74189376831055,
+          102.57911682128906,
+          100.44455528259277
+        ],
+        "warm_times": [
+          94.4058895111084,
+          111.2058162689209,
+          107.39779472351074,
+          81.13718032836914,
+          135.98179817199707,
+          145.51973342895508,
+          117.92302131652832,
+          141.4635181427002,
+          80.30867576599121,
+          136.1215114593506
+        ]
+      },
+      "concurrent": {
+        "endpoint": "/health",
+        "concurrent_requests": 20,
+        "total_time_seconds": 0.36810874938964844,
+        "successful_requests": 20,
+        "failed_requests": 0,
+        "requests_per_second": 54.331770253115366,
+        "content_consistent": true,
+        "unique_content_versions": 1,
+        "avg_response_time_ms": 123.6710786819458,
+        "response_time_consistency": 261.7158889770508
+      }
+    },
+    "/api": {
+      "consistency": {
+        "endpoint": "/api",
+        "total_requests": 10,
+        "successful_requests": 10,
+        "unique_content_hashes": 1,
+        "content_consistent": true,
+        "avg_response_time_ms": 111.08441352844238,
+        "min_response_time_ms": 90.25263786315918,
+        "max_response_time_ms": 137.6173496246338,
+        "cache_headers_found": false,
+        "responses": [
+          {
+            "request_num": 1,
+            "response_time_ms": 100.53730010986328,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 2,
+            "response_time_ms": 101.49073600769043,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 3,
+            "response_time_ms": 98.38247299194336,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 4,
+            "response_time_ms": 134.2167854309082,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 5,
+            "response_time_ms": 111.88173294067383,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 6,
+            "response_time_ms": 129.3354034423828,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 7,
+            "response_time_ms": 105.95464706420898,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 8,
+            "response_time_ms": 101.17506980895996,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 9,
+            "response_time_ms": 90.25263786315918,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 10,
+            "response_time_ms": 137.6173496246338,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          }
+        ]
+      },
+      "performance": {
+        "endpoint": "/api",
+        "cold_cache_avg_ms": 124.79178110758464,
+        "warm_cache_avg_ms": 118.06132793426514,
+        "performance_improvement_percent": 5.393346511752317,
+        "cache_likely_present": false,
+        "cold_times": [
+          141.6780948638916,
+          110.21542549133301,
+          122.4818229675293
+        ],
+        "warm_times": [
+          103.51014137268066,
+          118.86310577392578,
+          133.78477096557617,
+          73.83012771606445,
+          87.03064918518066,
+          120.46194076538086,
+          135.55383682250977,
+          157.9596996307373,
+          118.77036094665527,
+          130.84864616394043
+        ]
+      },
+      "concurrent": {
+        "endpoint": "/api",
+        "concurrent_requests": 20,
+        "total_time_seconds": 0.40364956855773926,
+        "successful_requests": 20,
+        "failed_requests": 0,
+        "requests_per_second": 49.54792859425326,
+        "content_consistent": true,
+        "unique_content_versions": 1,
+        "avg_response_time_ms": 139.18229341506958,
+        "response_time_consistency": 294.234037399292
+      }
+    },
+    "/metrics": {
+      "consistency": {
+        "endpoint": "/metrics",
+        "total_requests": 10,
+        "successful_requests": 10,
+        "unique_content_hashes": 1,
+        "content_consistent": true,
+        "avg_response_time_ms": 88.99621963500977,
+        "min_response_time_ms": 77.71587371826172,
+        "max_response_time_ms": 103.92975807189941,
+        "cache_headers_found": false,
+        "responses": [
+          {
+            "request_num": 1,
+            "response_time_ms": 86.64774894714355,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 2,
+            "response_time_ms": 96.90403938293457,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 3,
+            "response_time_ms": 93.4290885925293,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 4,
+            "response_time_ms": 82.43536949157715,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 5,
+            "response_time_ms": 80.53135871887207,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 6,
+            "response_time_ms": 88.28878402709961,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 7,
+            "response_time_ms": 81.50291442871094,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 8,
+            "response_time_ms": 77.71587371826172,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 9,
+            "response_time_ms": 98.57726097106934,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          },
+          {
+            "request_num": 10,
+            "response_time_ms": 103.92975807189941,
+            "status_code": 404,
+            "content_hash": "a2ae3eaedf7f44998f3639756a1725cc",
+            "content_length": 335,
+            "cache_headers": {
+              "cache_control": null,
+              "etag": null,
+              "last_modified": null,
+              "expires": null
+            }
+          }
+        ]
+      },
+      "performance": {
+        "endpoint": "/metrics",
+        "cold_cache_avg_ms": 84.53647295633952,
+        "warm_cache_avg_ms": 93.30222606658936,
+        "performance_improvement_percent": -10.369196636317051,
+        "cache_likely_present": false,
+        "cold_times": [
+          84.80262756347656,
+          76.30443572998047,
+          92.50235557556152
+        ],
+        "warm_times": [
+          101.20058059692383,
+          78.95898818969727,
+          82.19552040100098,
+          94.60926055908203,
+          139.6327018737793,
+          81.74657821655273,
+          76.49850845336914,
+          100.91400146484375,
+          97.14436531066895,
+          80.12175559997559
+        ]
+      },
+      "concurrent": {
+        "endpoint": "/metrics",
+        "concurrent_requests": 20,
+        "total_time_seconds": 0.1293323040008545,
+        "successful_requests": 20,
+        "failed_requests": 0,
+        "requests_per_second": 154.64040600303434,
+        "content_consistent": true,
+        "unique_content_versions": 1,
+        "avg_response_time_ms": 98.91365766525269,
+        "response_time_consistency": 41.52250289916992
+      }
+    }
+  },
+  "analysis": {
+    "cache_indicators": [
+      {
+        "endpoint": "/",
+        "evidence_score": 3,
+        "likely_cached": false
+      },
+      {
+        "endpoint": "/health",
+        "evidence_score": 3,
+        "likely_cached": false
+      },
+      {
+        "endpoint": "/api",
+        "evidence_score": 3,
+        "likely_cached": false
+      },
+      {
+        "endpoint": "/metrics",
+        "evidence_score": 4,
+        "likely_cached": false
+      }
+    ],
+    "performance_summary": {
+      "endpoints_tested": 4,
+      "endpoints_with_cache_evidence": 0,
+      "avg_response_time_ms": 125.88858604431152
+    },
+    "recommendations": [
+      {
+        "category": "Caching",
+        "priority": "HIGH",
+        "issue": "No cache evidence detected on any endpoints",
+        "recommendation": "Implement HTTP caching headers and consider reverse proxy caching (nginx, Varnish)"
+      }
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+[package]
+name = "he-auth"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+he-core = { path = "../he-core" }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+jsonwebtoken = { workspace = true }
+serde = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }

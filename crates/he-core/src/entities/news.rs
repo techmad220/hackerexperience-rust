@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -217,7 +218,7 @@ impl News {
 
         // Set creation timestamp and author
         article.id = self.generate_id();
-        article.author_id = self.current_user_id.unwrap();
+        article.author_id = self.current_user_id.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         article.created_at = Utc::now();
         article.updated_at = Utc::now();
         article.language = self.language.clone();
@@ -285,7 +286,7 @@ impl News {
         let article = self.get_article(id)?;
 
         // Check if user can delete this article
-        if article.author_id != self.current_user_id.unwrap() {
+        if article.author_id != self.current_user_id.map_err(|e| anyhow::anyhow!("Error: {}", e))? {
             // In a real system, check for admin permissions here
             return Err(NewsError::PermissionDenied);
         }
@@ -396,7 +397,7 @@ impl News {
         
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
-            .unwrap()
+            .map_err(|e| anyhow::anyhow!("Error: {}", e))?
             .as_millis() as u64
     }
 }
@@ -434,7 +435,7 @@ mod tests {
         let result = news.get_article(1);
         assert!(result.is_ok());
         
-        let article = result.unwrap();
+        let article = result.map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         assert_eq!(article.id, 1);
         assert_eq!(article.title, "Sample News Article");
     }

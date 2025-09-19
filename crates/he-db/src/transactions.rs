@@ -300,7 +300,7 @@ mod tests {
             .await;
             
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 42);
+        assert_eq!(result.map_err(|e| anyhow::anyhow!("Error: {}", e))?, 42);
     }
 
     #[tokio::test]
@@ -322,6 +322,6 @@ mod tests {
             .await;
             
         assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 42);
+        assert_eq!(result.map_err(|e| anyhow::anyhow!("Error: {}", e))?, 42);
     }
 }
