@@ -11,7 +11,9 @@ import json
 from datetime import datetime
 
 app = Flask(__name__)
-CORS(app)
+import os
+FRONTEND_ORIGIN = os.environ.get('FRONTEND_ORIGIN', 'http://localhost:8080')
+CORS(app, resources={r"/*": {"origins": [FRONTEND_ORIGIN]}}, supports_credentials=True)
 
 # Mock data
 game_state = {

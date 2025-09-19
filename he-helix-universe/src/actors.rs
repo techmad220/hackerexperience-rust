@@ -18,7 +18,7 @@ use crate::models::{
     ServerLocation, WorldRegion, EconomicIndicators, PopulationStats, TechnologyLevel,
     ServerTemplate, UniverseError, OrganizationType, ServerType, EventType
 };
-use he_helix_core::{
+use he_core::{
     genserver::{GenServer, GenServerBehavior, GenServerMessage, GenServerReply, InfoSource},
     actors::{Actor, ActorContext, Handler, Message},
     HelixError, HelixResult, ProcessId

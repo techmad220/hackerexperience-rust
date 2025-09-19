@@ -2,7 +2,7 @@
 
 use crate::event::{Event, EventType, EventCategory};
 use crate::handler::EventHandler;
-use he_helix_core::{HelixError, HelixResult};
+use he_core::{HelixError, HelixResult};
 use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;

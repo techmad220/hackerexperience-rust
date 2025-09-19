@@ -17,7 +17,7 @@ use crate::models::{
     Log, LogEntry, LogStream, LogFilter, LogAggregationRule, AuditEntry, LogRetentionPolicy,
     LogSearchQuery, LogSearchResult, LogMetrics, LogError, LogLevel, LogCategory
 };
-use he_helix_core::{
+use he_core::{
     genserver::{GenServer, GenServerBehavior, GenServerMessage, GenServerReply, InfoSource},
     actors::{Actor, ActorContext, Handler, Message},
     HelixError, HelixResult, ProcessId

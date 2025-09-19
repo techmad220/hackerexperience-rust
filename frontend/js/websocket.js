@@ -24,7 +24,7 @@ class WebSocketManager {
     connect(url = null) {
         const wsUrl = url || this.getWebSocketUrl();
         
-        console.log('Connecting to WebSocket:', wsUrl);
+        if (window.DEBUG_WEBSOCKET) console.log('Connecting to WebSocket:', wsUrl);
         
         try {
             this.socket = new WebSocket(wsUrl);
@@ -45,7 +45,7 @@ class WebSocketManager {
         if (!this.socket) return;
 
         this.socket.onopen = (event) => {
-            console.log('WebSocket connected');
+            if (window.DEBUG_WEBSOCKET) console.log('WebSocket connected');
             this.isConnected = true;
             this.reconnectAttempts = 0;
             this.updateConnectionStatus(true);
@@ -65,12 +65,12 @@ class WebSocketManager {
                 const message = JSON.parse(event.data);
                 this.handleMessage(message);
             } catch (error) {
-                console.error('Failed to parse WebSocket message:', error, event.data);
+                if (window.DEBUG_WEBSOCKET) console.error('Failed to parse WebSocket message:', error, event.data);
             }
         };
 
         this.socket.onclose = (event) => {
-            console.log('WebSocket disconnected:', event.code, event.reason);
+            if (window.DEBUG_WEBSOCKET) console.log('WebSocket disconnected:', event.code, event.reason);
             this.isConnected = false;
             this.updateConnectionStatus(false);
             
@@ -81,13 +81,13 @@ class WebSocketManager {
         };
 
         this.socket.onerror = (error) => {
-            console.error('WebSocket error:', error);
+            if (window.DEBUG_WEBSOCKET) console.error('WebSocket error:', error);
             this.updateConnectionStatus(false);
         };
     }
 
     handleMessage(message) {
-        console.log('WebSocket message received:', message);
+        if (window.DEBUG_WEBSOCKET) console.log('WebSocket message received:', message);
         
         const { type, data } = message;
         
@@ -116,18 +116,10 @@ class WebSocketManager {
     }
 
     authenticate() {
-        // Get auth token from local storage or session
-        const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+        // Prefer cookie-based authentication; send player_id only if available
         const playerId = localStorage.getItem('player_id') || sessionStorage.getItem('player_id');
-        
-        if (token && playerId) {
-            this.send({
-                type: 'authenticate',
-                data: {
-                    token: token,
-                    player_id: parseInt(playerId)
-                }
-            });
+        if (playerId) {
+            this.send({ type: 'authenticate', data: { player_id: parseInt(playerId) } });
         }
     }
 
@@ -182,7 +174,7 @@ class WebSocketManager {
         this.reconnectAttempts++;
         const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
         
-        console.log(`Scheduling reconnection attempt ${this.reconnectAttempts} in ${delay}ms`);
+        if (window.DEBUG_WEBSOCKET) console.log(`Scheduling reconnection attempt ${this.reconnectAttempts} in ${delay}ms`);
         
         setTimeout(() => {
             this.connect();
@@ -205,7 +197,7 @@ class WebSocketManager {
     // Event Handlers
 
     handleProcessUpdate(data) {
-        console.log('Process update:', data);
+        if (window.DEBUG_WEBSOCKET) console.log('Process update:', data);
         
         if (window.gameInstance) {
             // Update process in game instance
@@ -239,7 +231,7 @@ class WebSocketManager {
     }
 
     handleServerUpdate(data) {
-        console.log('Server update:', data);
+        if (window.DEBUG_WEBSOCKET) console.log('Server update:', data);
         
         // Handle server-related updates
         if (data.type === 'breach' && data.your_server) {
@@ -248,7 +240,7 @@ class WebSocketManager {
     }
 
     handlePlayerUpdate(data) {
-        console.log('Player update:', data);
+        if (window.DEBUG_WEBSOCKET) console.log('Player update:', data);
         
         if (window.gameInstance) {
             // Update player data
@@ -271,7 +263,7 @@ class WebSocketManager {
     }
 
     handleNotification(data) {
-        console.log('Notification:', data);
+        if (window.DEBUG_WEBSOCKET) console.log('Notification:', data);
         
         this.showNotification(
             data.title || 'Notification',
@@ -281,7 +273,7 @@ class WebSocketManager {
     }
 
     handleMailUpdate(data) {
-        console.log('Mail update:', data);
+        if (window.DEBUG_WEBSOCKET) console.log('Mail update:', data);
         
         if (data.new_mail) {
             const mailCount = document.getElementById('mail-count');
@@ -294,7 +286,7 @@ class WebSocketManager {
     }
 
     handleClanUpdate(data) {
-        console.log('Clan update:', data);
+        if (window.DEBUG_WEBSOCKET) console.log('Clan update:', data);
         
         if (data.war_declared) {
             this.showNotification('Clan War', `War declared against ${data.target_clan}!`, 'warning');
@@ -306,7 +298,7 @@ class WebSocketManager {
     }
 
     handleSystemMessage(data) {
-        console.log('System message:', data);
+        if (window.DEBUG_WEBSOCKET) console.log('System message:', data);
         
         this.showNotification(
             'System Message',
@@ -478,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.API && window.API.isAuthenticated()) {
             window.WebSocketManager.connect();
         } else {
-            console.log('Not connecting WebSocket - user not authenticated');
+            if (window.DEBUG_WEBSOCKET) console.log('Not connecting WebSocket - user not authenticated');
         }
     }, 1000);
 });

@@ -156,14 +156,15 @@ impl Process {
         net_usage: i32,
         hacker_id: i32,
     ) -> HeResult<f32> {
-        let hardware = HardwareVPC::new(self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?.clone());
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
+        let hardware = HardwareVPC::new(db.clone());
         let pc_type = if victim_npc { "NPC" } else { "VPC" };
 
         // Get hardware info for both parties
-        let mut hacker_hardware = HardwareVPC::new(self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?.clone());
+        let mut hacker_hardware = HardwareVPC::new(db.clone());
         let hacker_net_info = hacker_hardware.get_hardware_info(Some(hacker_id), "VPC", None).await?;
 
-        let mut victim_hardware = HardwareVPC::new(self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?.clone());
+        let mut victim_hardware = HardwareVPC::new(db.clone());
         let victim_net_info = victim_hardware.get_hardware_info(Some(victim_id), pc_type, None).await?;
 
         let transfer_rate = if action == 1 { // download
@@ -198,7 +199,7 @@ impl Process {
     /// # Returns
     /// Vector of ProcessInfo
     pub async fn list_processes(&self, uid: i32, process_type: &str) -> HeResult<Vec<ProcessInfo>> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
 
         let (condition, columns) = match process_type {
             "all" => ("", ", cpuUsage, netUsage"),
@@ -208,8 +209,8 @@ impl Process {
         };
 
         let sql = format!(
-            "SELECT pid, pvictimid, paction, psoftid, pinfo, plocal, pnpc, isPaused, 
-             TIMESTAMPDIFF(SECOND, NOW(), pTimeEnd) AS pTimeLeft {} 
+            "SELECT pid, pvictimid, paction, psoftid, pinfo, plocal, pnpc, isPaused, \
+             EXTRACT(EPOCH FROM (pTimeEnd - NOW()))::int AS pTimeLeft {} \
              FROM processes WHERE pcreatorid = $1 {} ORDER BY ptimeend DESC",
             columns, condition
         );
@@ -252,17 +253,33 @@ impl Process {
     /// Action name string
     fn get_proc_action_name(&self, action: i32) -> String {
         match action {
-            1 => "Download".to_string(),
-            2 => "Upload".to_string(),
-            3 => "Research".to_string(),
-            4 => "Hack".to_string(),
-            5 => "DDoS".to_string(),
-            6 => "Bank Hack".to_string(),
-            7 => "Collect".to_string(),
-            8 => "Password Reset".to_string(),
-            9 => "IP Reset".to_string(),
-            10 => "Mission".to_string(),
-            11 => "Study".to_string(),
+            1 => "Download".into(),
+            2 => "Upload".into(),
+            3 => "Delete".into(),
+            4 => "Hide".into(),
+            5 => "Seek".into(),
+            6 => "Collect".into(),
+            7 => "Antivirus".into(),
+            8 => "Edit Log".into(),
+            9 => "Delete Log".into(),
+            10 => "Format".into(),
+            11 => "Hack".into(),
+            12 => "Bank Hack".into(),
+            13 => "Install".into(),
+            14 => "Uninstall".into(),
+            15 => "Port Scan".into(),
+            16 => "Hack XP".into(),
+            17 => "Research".into(),
+            18 => "Upload XHD".into(),
+            19 => "Download XHD".into(),
+            20 => "Delete XHD".into(),
+            22 => "Nmap".into(),
+            23 => "Analyze".into(),
+            24 => "Install Doom".into(),
+            25 => "Reset IP".into(),
+            26 => "Reset Password".into(),
+            27 => "DDoS".into(),
+            28 => "Install Webserver".into(),
             _ => format!("Unknown ({})", action),
         }
     }
@@ -336,7 +353,7 @@ impl Process {
         info_str: &str,
         is_npc: i32,
     ) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
 
         // Convert string parameters
         let action_id = self.parse_action_string(action)?;
@@ -420,7 +437,7 @@ impl Process {
         software_id: &str,
         info: &str,
     ) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
 
         let victim_id_num = if victim_id.is_empty() { None } else { victim_id.parse::<i32>().ok() };
         let software_id_num = if software_id.is_empty() { None } else { software_id.parse::<i32>().ok() };
@@ -497,11 +514,11 @@ impl Process {
     /// # Returns
     /// Process information
     pub async fn get_process_info(&self, pid: i32) -> HeResult<ProcessInfo> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
 
         let row = sqlx::query(
-            "SELECT pid, paction, pvictimid, plocal, pnpc, isPaused, 
-             TIMESTAMPDIFF(SECOND, NOW(), pTimeEnd) AS pTimeLeft, cpuUsage, netUsage
+            "SELECT pid, paction, pvictimid, plocal, pnpc, isPaused, \
+             EXTRACT(EPOCH FROM (pTimeEnd - NOW()))::int AS pTimeLeft, cpuUsage, netUsage \
              FROM processes WHERE pid = $1 LIMIT 1"
         )
         .bind(pid)
@@ -535,7 +552,7 @@ impl Process {
     /// # Returns
     /// True if successfully paused
     pub async fn pause_process(&self, pid: i32) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
 
         let result = sqlx::query("UPDATE processes SET isPaused = true WHERE pid = $1")
             .bind(pid)
@@ -553,7 +570,7 @@ impl Process {
     /// # Returns
     /// True if successfully resumed
     pub async fn resume_process(&self, pid: i32) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
 
         let result = sqlx::query("UPDATE processes SET isPaused = false WHERE pid = $1")
             .bind(pid)
@@ -572,7 +589,7 @@ impl Process {
     /// # Returns
     /// True if successfully deleted
     pub async fn delete_process(&self, pid: i32, update: bool) -> HeResult<bool> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
 
         if update {
             // TODO: Update related data (hardware usage, etc.)

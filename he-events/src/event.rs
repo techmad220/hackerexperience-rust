@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 use chrono::{DateTime, Utc};
-use he_helix_core::{HelixId, RequestId, ProcessId, EntityId, ServerId, AccountId, NetworkId};
+use he_core::{HelixId, RequestId, ProcessId};
+use he_core::id::{EntityId, ServerId, AccountId, NetworkId};
 
 /// Core event structure that flows through the Helix system
 #[derive(Debug, Clone, Serialize, Deserialize)]

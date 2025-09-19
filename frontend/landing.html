@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackerExperience - The Internet Under Your Command</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        .terminal {
+            width: 100%;
+            height: 100vh;
+            padding: 20px;
+            background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
+            position: relative;
+        }
+
+        .terminal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 255, 0, 0.03) 2px,
+                rgba(0, 255, 0, 0.03) 4px
+            );
+            pointer-events: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 30px #0f0; }
+            to { text-shadow: 0 0 20px #0f0, 0 0 30px #0f0, 0 0 40px #0f0; }
+        }
+
+        h1 {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 1.5em;
+            color: #0a0;
+            opacity: 0.8;
+        }
+
+        .terminal-window {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0, 20, 0, 0.9);
+            border: 2px solid #0f0;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 50px rgba(0, 255, 0, 0.2);
+        }
+
+        .terminal-header {
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .terminal-content {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .prompt {
+            color: #0f0;
+            margin-top: 20px;
+        }
+
+        .prompt::before {
+            content: '$ ';
+            color: #0a0;
+        }
+
+        .typing {
+            display: inline-block;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .options {
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            background: transparent;
+            border: 2px solid #0f0;
+            color: #0f0;
+            text-decoration: none;
+            font-size: 1.2em;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+        }
+
+        .stats {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+        .matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.1;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <canvas class="matrix"></canvas>
+    <div class="terminal">
+        <div class="header">
+            <h1>HackerExperience</h1>
+            <p class="tagline">The Internet Under Your Command</p>
+        </div>
+
+        <div class="terminal-window">
+            <div class="terminal-header">
+                root@hackerexperience:~#
+            </div>
+            <div class="terminal-content">
+                <p>> Initializing connection...</p>
+                <p>> Scanning network...</p>
+                <p>> 5 vulnerable servers detected</p>
+                <p>> 3 active missions available</p>
+                <p>> Welcome to HackerExperience</p>
+                <p>></p>
+                <p>> You are about to enter a world where your hacking skills</p>
+                <p>> determine your survival. Hack servers, steal data, develop</p>
+                <p>> viruses, and become the most notorious hacker on the net.</p>
+                <p>></p>
+                <p>> WARNING: Trust no one. Everyone is a potential threat.</p>
+                <div class="prompt">
+                    Ready to begin?<span class="typing">_</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="options">
+            <a href="simple_login.html" class="btn">Login</a>
+            <a href="register.html" class="btn">Register</a>
+        </div>
+
+        <div class="stats">
+            <p>Active Players: 1,337</p>
+            <p>Servers Online: 42</p>
+            <p>Total Hacks Today: 9,001</p>
+        </div>
+    </div>
+
+    <script>
+        // Matrix rain effect
+        const canvas = document.querySelector('.matrix');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars = '01';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+
+        for(let i = 0; i < columns; i++) {
+            drops[i] = Math.random() * canvas.height;
+        }
+
+        function matrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#0f0';
+            ctx.font = fontSize + 'px monospace';
+
+            for(let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.95) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(matrix, 35);
+
+        // Check if user is already logged in (cookie-based)
+        fetch('/api/game/status', { credentials: 'include' })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = '/game';
+                }
+            })
+            .catch(() => {/* ignore */});
+    </script>
+</body>
+</html>

@@ -3,11 +3,11 @@
 //! Complete port of Helix.Universe GenServer with distributed coordination,
 //! game world state management, and multi-node synchronization.
 
-use he_helix_core::genserver::{
+use he_core::genserver::{
     GenServer, GenServerState, GenServerHandle, GenServerMessage, GenServerReply,
     InfoSource, TerminateReason, SupervisionStrategy, GenServerSupervisor
 };
-use he_helix_core::{HelixError, HelixResult, ProcessId};
+use he_core::{HelixError, HelixResult, ProcessId};
 use he_core::id::{AccountId, EntityId, ServerId, BankId, UniverseId};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};

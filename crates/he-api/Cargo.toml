@@ -12,6 +12,7 @@ path = "src/main.rs"
 actix-web = { version = "4", features = ["macros"] }
 actix-cors = "0.6"
 actix-web-actors = "4"
+actix-files = "0.6"
 
 # Async runtime
 tokio = { workspace = true }
@@ -20,7 +21,7 @@ tokio = { workspace = true }
 sqlx = { workspace = true, features = ["migrate", "macros"] }
 
 # Our internal crates
-he-helix-core = { path = "../../he-helix-core" }
+he-core = { path = "../he-core" }
 he-helix-http = { path = "../../he-helix-http" }
 he-helix-websocket-handlers = { path = "../../he-helix-websocket-handlers" }
 he-helix-security = { path = "../../he-helix-security" }
@@ -32,6 +33,7 @@ he-vdp = { path = "../he-vdp" }
 # Serialization
 serde = { workspace = true }
 serde_json = { workspace = true }
+tera = "1.19"
 
 # Logging
 tracing = { workspace = true }

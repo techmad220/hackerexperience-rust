@@ -1,17 +1,16 @@
 // API Client for Hacker Experience
 
+// Debug logger helper
+const DEBUG_API = window.DEBUG_API === true;
+function apiDebug(...args) { if (DEBUG_API) { try { console.log('[API]', ...args); } catch(_) {} } }
+
 class APIClient {
     constructor() {
         this.baseUrl = this.getBaseUrl();
-        this.authToken = this.getAuthToken();
         this.defaultHeaders = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         };
-        
-        if (this.authToken) {
-            this.defaultHeaders['Authorization'] = `Bearer ${this.authToken}`;
-        }
         
         // Retry configuration
         this.maxRetries = 3;
@@ -39,22 +38,9 @@ class APIClient {
         return `${protocol}//${host}/api`;
     }
 
-    getAuthToken() {
-        return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-    }
-
-    setAuthToken(token) {
-        this.authToken = token;
-        this.defaultHeaders['Authorization'] = `Bearer ${token}`;
-        localStorage.setItem('auth_token', token);
-    }
-
-    clearAuthToken() {
-        this.authToken = null;
-        delete this.defaultHeaders['Authorization'];
-        localStorage.removeItem('auth_token');
-        sessionStorage.removeItem('auth_token');
-    }
+    // Tokens are stored in httpOnly cookies; do not use localStorage
+    setAuthToken() { /* no-op */ }
+    clearAuthToken() { /* no-op */ }
 
     async request(endpoint, options = {}, retryCount = 0) {
         const url = `${this.baseUrl}${endpoint}`;
@@ -65,10 +51,8 @@ class APIClient {
             ...options
         };
 
-        // Add auth token to headers if available
-        if (this.authToken && !config.headers['Authorization']) {
-            config.headers['Authorization'] = `Bearer ${this.authToken}`;
-        }
+        // Send credentials so httpOnly auth cookie is included
+        config.credentials = 'include';
 
         // Check if offline and queue request
         if (!this.isOnline && config.method !== 'GET') {
@@ -76,7 +60,7 @@ class APIClient {
         }
 
         try {
-            console.log(`API Request: ${config.method} ${url} (attempt ${retryCount + 1})`);
+            apiDebug(`Request ${config.method} ${url} (attempt ${retryCount + 1})`);
             
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), config.timeout);
@@ -124,12 +108,12 @@ class APIClient {
 
             return data;
         } catch (error) {
-            console.error(`API Error: ${config.method} ${url}`, error);
+            if (DEBUG_API) console.error(`[API] Error ${config.method} ${url}`, error);
             
             // Handle specific error cases
-            if (error.status === 401) {
+            if (error && error.status === 401) {
                 this.handleAuthError();
-            } else if (error.name === 'AbortError') {
+            } else if (error && error.name === 'AbortError') {
                 error.message = 'Request timeout';
             } else if (!this.isOnline) {
                 error.message = 'No internet connection';
@@ -151,7 +135,7 @@ class APIClient {
 
     async retryRequest(endpoint, options, retryCount) {
         const delay = this.retryDelay * Math.pow(2, retryCount); // Exponential backoff
-        console.log(`Retrying request in ${delay}ms...`);
+        apiDebug(`Retrying in ${delay}ms...`);
         
         await this.sleep(delay);
         return this.request(endpoint, options, retryCount + 1);
@@ -261,13 +245,10 @@ class APIClient {
     // Authentication endpoints
     async login(username, password) {
         const response = await this.post('/auth/login', { username, password });
-        if (response.success && response.data && response.data.token) {
-            this.setAuthToken(response.data.token);
-            // Store user data
-            if (response.data.user) {
-                localStorage.setItem('user_data', JSON.stringify(response.data.user));
-                localStorage.setItem('player_id', response.data.user.id.toString());
-            }
+        // Server sets httpOnly cookie. Store minimal user data only if provided.
+        if (response && response.user) {
+            try { localStorage.setItem('user_data', JSON.stringify(response.user)); } catch (_) {}
+            if (response.user.id) { try { localStorage.setItem('player_id', response.user.id.toString()); } catch (_) {} }
         }
         return response;
     }
@@ -276,7 +257,7 @@ class APIClient {
         try {
             await this.post('/auth/logout');
         } catch (error) {
-            console.warn('Logout API call failed:', error);
+        if (DEBUG_API) console.warn('Logout API call failed:', error);
         } finally {
             this.clearAuthToken();
             localStorage.removeItem('user_data');
@@ -556,7 +537,7 @@ class APIClient {
             if (this.authToken) {
                 const result = await this.safeCall(this.getCurrentUser);
                 if (result.success && result.data && result.data.success) {
-                    console.log('API connection established with authenticated user');
+            apiDebug('API connection established with authenticated user');
                     return true;
                 } else {
                     // Token expired or invalid
@@ -564,7 +545,7 @@ class APIClient {
                 }
             }
             
-            console.log('API connection established (not authenticated)');
+            apiDebug('API connection established (not authenticated)');
             return true;
         } catch (error) {
             console.warn('API initialization failed:', error);

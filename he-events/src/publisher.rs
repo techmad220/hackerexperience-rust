@@ -2,7 +2,7 @@
 
 use crate::event::{Event, EventType, EventData, EventMetadata};
 use crate::dispatcher::EventDispatcher;
-use he_helix_core::{HelixError, HelixResult, HelixId, RequestId, ProcessId};
+use he_core::{HelixError, HelixResult, HelixId, RequestId, ProcessId};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;

@@ -36,7 +36,7 @@ class GameClient {
         // Load saved state
         this.loadState();
         
-        console.log('GameClient initialized');
+        if (window.DEBUG_GAMECLIENT) { try { console.log('[GAMECLIENT] initialized'); } catch(_) {} }
     }
 
     // Event system for state changes
@@ -367,7 +367,7 @@ class GameClient {
                 this.state.chat = parsed.chat || [];
                 this.state.lastUpdate = parsed.lastUpdate;
                 
-                console.log('Game state loaded from localStorage');
+                if (window.DEBUG_GAMECLIENT) { try { console.log('[GAMECLIENT] state loaded'); } catch(_) {} }
             }
         } catch (error) {
             console.error('Failed to load state:', error);
@@ -384,11 +384,11 @@ class GameClient {
         this.pauseUpdates();
         this.listeners.clear();
         this.saveState();
-        console.log('GameClient destroyed');
+        if (window.DEBUG_GAMECLIENT) { try { console.log('[GAMECLIENT] destroyed'); } catch(_) {} }
     }
 }
 
 // Create global instance
 window.GameClient = new GameClient();
 
-console.log('GameClient service loaded');
+if (window.DEBUG_GAMECLIENT) { try { console.log('[GAMECLIENT] service loaded'); } catch(_) {} }

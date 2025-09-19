@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackerExperience - Register</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .register-container {
+            background: #111;
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        h1 {
+            color: #0f0;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .subtitle {
+            color: #888;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #0f0;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #000;
+            border: 1px solid #0f0;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 2px solid #0f0;
+            color: #0f0;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 20px #0f0;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .links a {
+            color: #0a0;
+            text-decoration: none;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .error {
+            color: #f00;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success {
+            color: #0f0;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h1>Create Account</h1>
+        <p class="subtitle">Join the hacking underground</p>
+
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required minlength="3" maxlength="20">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirm">Confirm Password:</label>
+                <input type="password" id="confirm" name="confirm" required minlength="6">
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <div class="links">
+            Already have an account? <a href="login.html">Login here</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm').value;
+            const errorDiv = document.getElementById('error');
+            const successDiv = document.getElementById('success');
+
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+
+            if (password !== confirm) {
+                errorDiv.textContent = 'Passwords do not match!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successDiv.textContent = 'Registration successful! Redirecting...';
+                    successDiv.style.display = 'block';
+
+                    // Token is set as httpOnly cookie; only store non-sensitive username
+                    try { localStorage.setItem('username', data.user.username); } catch (_) {}
+
+                    // Redirect to game
+                    setTimeout(() => {
+                        window.location.href = 'game';
+                    }, 1500);
+                } else {
+                    errorDiv.textContent = data.error || 'Registration failed';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Connection error. Please try again.';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

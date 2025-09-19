@@ -3,7 +3,7 @@
 use crate::event::{Event, EventType, EventCategory};
 use crate::handler::EventHandler;
 use crate::{EventStoreConfig, StorageBackend};
-use he_helix_core::{HelixError, HelixResult, HelixId};
+use he_core::{HelixError, HelixResult, HelixId};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::VecDeque;

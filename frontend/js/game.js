@@ -1,5 +1,9 @@
 // Hacker Experience - Main Game Logic
 
+// Debug logger helper
+const DEBUG_GAME = window.DEBUG_GAME === true;
+function gameDebug(...args) { if (DEBUG_GAME) { try { console.log('[GAME]', ...args); } catch(_) {} } }
+
 class Game {
     constructor() {
         this.currentPage = 'desktop';
@@ -27,7 +31,7 @@ class Game {
     }
 
     async initialize() {
-        console.log('Initializing Hacker Experience...');
+        gameDebug('Initializing Hacker Experience...');
         
         try {
             // Show loading screen
@@ -38,7 +42,7 @@ class Game {
             
             // Check if user is authenticated
             if (!API.isAuthenticated()) {
-                console.log('User not authenticated, redirecting to login');
+                gameDebug('User not authenticated, redirecting to login');
                 window.location.href = 'login.html';
                 return;
             }
@@ -46,7 +50,7 @@ class Game {
             // Load player data
             const playerLoaded = await this.loadPlayerData();
             if (!playerLoaded) {
-                console.log('Failed to load player data, redirecting to login');
+                gameDebug('Failed to load player data, redirecting to login');
                 window.location.href = 'login.html';
                 return;
             }
@@ -68,12 +72,19 @@ class Game {
             this.startGameLoops();
             
             this.isInitialized = true;
-            console.log('Game initialized successfully');
+            gameDebug('Game initialized successfully');
             
         } catch (error) {
             console.error('Failed to initialize game:', error);
             this.showError('Failed to initialize game: ' + error.message);
         }
+
+        // Ensure timers are cleared when navigating away
+        window.addEventListener('beforeunload', () => {
+            if (this.updateTimeInterval) {
+                try { clearInterval(this.updateTimeInterval); } catch (_) {}
+            }
+        });
     }
 
     showLoginForm() {
@@ -115,7 +126,7 @@ class Game {
                 return false;
             }
         } catch (error) {
-            console.warn('Could not load player data:', error);
+            if (DEBUG_GAME) console.warn('Could not load player data:', error);
             if (error.status === 401) {
                 API.clearAuthToken();
             }
@@ -281,9 +292,9 @@ class Game {
             
             processItem.innerHTML = `
                 <div class="process-info">
-                    <h4>${process.action || process.type} Process</h4>
-                    <p>Target: ${process.target_ip || process.target || 'N/A'}</p>
-                    <p>Status: ${process.status} | ${timeLeftStr}</p>
+                    <h4>${escapeHTML(process.action || process.type)} Process</h4>
+                    <p>Target: ${escapeHTML(process.target_ip || process.target || 'N/A')}</p>
+                    <p>Status: ${escapeHTML(process.status)} | ${escapeHTML(timeLeftStr)}</p>
                 </div>
                 <div class="process-progress">
                     <div class="progress-bar">
@@ -344,10 +355,13 @@ class Game {
         const softwareGrid = document.getElementById('software-grid');
         if (!softwareGrid) return;
 
-        softwareGrid.innerHTML = '';
+        while (softwareGrid.firstChild) softwareGrid.removeChild(softwareGrid.firstChild);
 
         if (this.software.length === 0) {
-            softwareGrid.innerHTML = '<p class="no-software">No software installed</p>';
+            const p = document.createElement('p');
+            p.className = 'no-software';
+            p.textContent = 'No software installed';
+            softwareGrid.appendChild(p);
             return;
         }
 
@@ -356,7 +370,7 @@ class Game {
             softwareItem.className = 'software-item';
             softwareItem.innerHTML = `
                 <div class="icon">${this.getSoftwareIcon(software.type)}</div>
-                <div class="name">${software.name || software.type}</div>
+                <div class="name">${escapeHTML(software.name || software.type)}</div>
                 <div class="version">v${software.version || '1.0'}</div>
             `;
             softwareItem.addEventListener('click', () => this.showSoftwareDetails(software));
@@ -368,30 +382,28 @@ class Game {
         const hardwareInfo = document.getElementById('hardware-info');
         if (!hardwareInfo || !hardware) return;
 
-        hardwareInfo.innerHTML = `
-            <div class="hardware-grid">
-                <div class="hardware-item">
-                    <h4>CPU</h4>
-                    <p>${hardware.cpu?.type || 'Basic Processor'}</p>
-                    <p>Speed: ${hardware.cpu?.speed || 1000} MHz</p>
-                </div>
-                <div class="hardware-item">
-                    <h4>Memory</h4>
-                    <p>${hardware.memory?.type || 'Basic RAM'}</p>
-                    <p>Size: ${hardware.memory?.size || 1024} MB</p>
-                </div>
-                <div class="hardware-item">
-                    <h4>Storage</h4>
-                    <p>${hardware.storage?.type || 'Hard Drive'}</p>
-                    <p>Size: ${(hardware.storage?.size || 10000) / 1000} GB</p>
-                </div>
-                <div class="hardware-item">
-                    <h4>Network</h4>
-                    <p>${hardware.network?.type || 'Ethernet'}</p>
-                    <p>Speed: ${hardware.network?.speed || 100} Mbps</p>
-                </div>
-            </div>
-        `;
+        while (hardwareInfo.firstChild) hardwareInfo.removeChild(hardwareInfo.firstChild);
+        const grid = document.createElement('div');
+        grid.className = 'hardware-grid';
+
+        const mkItem = (title, type, spec) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'hardware-item';
+            const h4 = document.createElement('h4');
+            h4.textContent = title;
+            const p1 = document.createElement('p');
+            p1.textContent = type;
+            const p2 = document.createElement('p');
+            p2.textContent = spec;
+            wrap.appendChild(h4); wrap.appendChild(p1); wrap.appendChild(p2);
+            return wrap;
+        };
+
+        grid.appendChild(mkItem('CPU', hardware.cpu?.type || 'Basic Processor', `Speed: ${hardware.cpu?.speed || 1000} MHz`));
+        grid.appendChild(mkItem('Memory', hardware.memory?.type || 'Basic RAM', `Size: ${hardware.memory?.size || 1024} MB`));
+        grid.appendChild(mkItem('Storage', hardware.storage?.type || 'Hard Drive', `Size: ${(hardware.storage?.size || 10000) / 1000} GB`));
+        grid.appendChild(mkItem('Network', hardware.network?.type || 'Ethernet', `Speed: ${hardware.network?.speed || 100} Mbps`));
+        hardwareInfo.appendChild(grid);
     }
 
     getSoftwareIcon(type) {
@@ -541,7 +553,7 @@ class Game {
                     break;
             }
         } catch (error) {
-            console.warn(`Failed to load data for page ${page}:`, error);
+            if (DEBUG_GAME) console.warn(`Failed to load data for page ${page}:`, error);
         }
     }
 
@@ -557,7 +569,7 @@ class Game {
                 this.navigateTo('internet');
                 break;
             default:
-                console.log('Unknown desktop action:', action);
+                gameDebug('Unknown desktop action:', action);
         }
     }
 
@@ -568,7 +580,7 @@ class Game {
         // Add command to terminal
         const commandLine = document.createElement('div');
         commandLine.className = 'terminal-line';
-        commandLine.innerHTML = `<span class="prompt">root@localhost:~#</span> <span class="command">${command}</span>`;
+        commandLine.innerHTML = `<span class="prompt">root@localhost:~#</span> <span class="command">${escapeHTML(command)}</span>`;
         terminal.appendChild(commandLine);
 
         // Process command
@@ -616,7 +628,7 @@ class Game {
         // Add output to terminal
         const outputLine = document.createElement('div');
         outputLine.className = 'terminal-line';
-        outputLine.innerHTML = output.replace(/\n/g, '<br>');
+        outputLine.innerHTML = escapeHTML(output).replace(/\n/g, '<br>');
         terminal.appendChild(outputLine);
 
         // Scroll to bottom
@@ -631,33 +643,38 @@ class Game {
 
         const ip = addressInput.value.trim();
         if (!ip) {
-            browserContent.innerHTML = '<div class="error">Please enter an IP address</div>';
+            while (browserContent.firstChild) browserContent.removeChild(browserContent.firstChild);
+            const div = document.createElement('div'); div.className = 'error'; div.textContent = 'Please enter an IP address';
+            browserContent.appendChild(div);
             return;
         }
 
-        browserContent.innerHTML = '<div class="loading">Connecting...</div>';
+        while (browserContent.firstChild) browserContent.removeChild(browserContent.firstChild);
+        { const div = document.createElement('div'); div.className = 'loading'; div.textContent = 'Connecting...'; browserContent.appendChild(div); }
 
         try {
             const result = await API.connectToServer(ip);
             if (result && result.success) {
-                browserContent.innerHTML = `
-                    <div class="server-info">
-                        <h3>Connected to ${ip}</h3>
-                        <p>Server Type: ${result.server_type || 'Unknown'}</p>
-                        <p>Status: ${result.protected ? 'Protected' : 'Open'}</p>
-                        ${result.files ? `
-                            <h4>Files:</h4>
-                            <ul>
-                                ${result.files.map(file => `<li>${file.name} (${file.size} bytes)</li>`).join('')}
-                            </ul>
-                        ` : ''}
-                    </div>
-                `;
+                while (browserContent.firstChild) browserContent.removeChild(browserContent.firstChild);
+                const wrap = document.createElement('div'); wrap.className = 'server-info';
+                const h3 = document.createElement('h3'); h3.textContent = `Connected to ${ip}`; wrap.appendChild(h3);
+                const p1 = document.createElement('p'); p1.textContent = `Server Type: ${result.server_type || 'Unknown'}`; wrap.appendChild(p1);
+                const p2 = document.createElement('p'); p2.textContent = `Status: ${result.protected ? 'Protected' : 'Open'}`; wrap.appendChild(p2);
+                if (Array.isArray(result.files) && result.files.length) {
+                    const h4 = document.createElement('h4'); h4.textContent = 'Files:'; wrap.appendChild(h4);
+                    const ul = document.createElement('ul');
+                    result.files.forEach(file => { const li = document.createElement('li'); li.textContent = `${file.name} (${Number(file.size)||0} bytes)`; ul.appendChild(li); });
+                    wrap.appendChild(ul);
+                }
+                browserContent.appendChild(wrap);
             } else {
-                browserContent.innerHTML = `<div class="error">Connection failed: ${result?.message || 'Unknown error'}</div>`;
+                const msg = (result && result.message) ? result.message : 'Unknown error';
+                while (browserContent.firstChild) browserContent.removeChild(browserContent.firstChild);
+                const div = document.createElement('div'); div.className = 'error'; div.textContent = `Connection failed: ${msg}`; browserContent.appendChild(div);
             }
         } catch (error) {
-            browserContent.innerHTML = `<div class="error">Connection failed: ${error.message}</div>`;
+            while (browserContent.firstChild) browserContent.removeChild(browserContent.firstChild);
+            const div = document.createElement('div'); div.className = 'error'; div.textContent = `Connection failed: ${(error && error.message) || 'Error'}`; browserContent.appendChild(div);
         }
     }
 
@@ -789,115 +806,99 @@ class Game {
         const content = document.querySelector('#servers-page .page-content') || document.getElementById('servers-page');
         if (!content) return;
 
+        while (content.firstChild) content.removeChild(content.firstChild);
+        const h2 = document.createElement('h2'); h2.textContent = 'My Servers'; content.appendChild(h2);
         if (servers.length === 0) {
-            content.innerHTML = '<h2>My Servers</h2><p>No servers owned</p>';
-            return;
+            const p = document.createElement('p'); p.textContent = 'No servers owned'; content.appendChild(p); return;
         }
-
-        let html = '<h2>My Servers</h2><div class="servers-grid">';
+        const grid = document.createElement('div'); grid.className = 'servers-grid';
         servers.forEach(server => {
-            html += `
-                <div class="server-item">
-                    <h4>${server.ip}</h4>
-                    <p>Type: ${server.server_type || 'Unknown'}</p>
-                    <p>Status: ${server.is_online ? 'Online' : 'Offline'}</p>
-                    <button onclick="window.gameInstance.manageServer(${server.id})" class="btn btn-primary">Manage</button>
-                </div>
-            `;
+            const item = document.createElement('div'); item.className = 'server-item';
+            const h4 = document.createElement('h4'); h4.textContent = String(server.ip); item.appendChild(h4);
+            const pType = document.createElement('p'); pType.textContent = `Type: ${server.server_type || 'Unknown'}`; item.appendChild(pType);
+            const pStatus = document.createElement('p'); pStatus.textContent = `Status: ${server.is_online ? 'Online' : 'Offline'}`; item.appendChild(pStatus);
+            const btn = document.createElement('button'); btn.className='btn btn-primary'; btn.textContent='Manage'; btn.addEventListener('click', ()=> this.manageServer(server.id)); item.appendChild(btn);
+            grid.appendChild(item);
         });
-        html += '</div>';
-        content.innerHTML = html;
+        content.appendChild(grid);
     }
 
     displayAvailableServers(servers) {
         const browserContent = document.getElementById('browser-content');
         if (!browserContent) return;
 
+        while (browserContent.firstChild) browserContent.removeChild(browserContent.firstChild);
         if (servers.length === 0) {
-            browserContent.innerHTML = '<div class="welcome-message"><h3>No servers found</h3><p>Try scanning the network first.</p></div>';
-            return;
+            const div = document.createElement('div'); div.className='welcome-message';
+            const h3 = document.createElement('h3'); h3.textContent='No servers found';
+            const p = document.createElement('p'); p.textContent='Try scanning the network first.'; div.appendChild(h3); div.appendChild(p);
+            browserContent.appendChild(div); return;
         }
-
-        let html = '<h3>Available Servers</h3><div class="servers-list">';
+        const h3 = document.createElement('h3'); h3.textContent = 'Available Servers'; browserContent.appendChild(h3);
+        const list = document.createElement('div'); list.className='servers-list';
         servers.forEach(server => {
-            html += `
-                <div class="server-item">
-                    <div class="server-info">
-                        <strong>${server.ip}</strong>
-                        <span>Type: ${server.server_type || 'Unknown'}</span>
-                        <span>Security: ${server.password_protected ? 'High' : 'Low'}</span>
-                    </div>
-                    <div class="server-actions">
-                        <button onclick="window.gameInstance.hackServer('${server.ip}')" class="btn btn-primary">Hack</button>
-                        <button onclick="window.gameInstance.scanServer('${server.ip}')" class="btn btn-secondary">Scan</button>
-                    </div>
-                </div>
-            `;
+            const item = document.createElement('div'); item.className='server-item';
+            const info = document.createElement('div'); info.className='server-info';
+            const strong = document.createElement('strong'); strong.textContent = String(server.ip); info.appendChild(strong);
+            const spanType = document.createElement('span'); spanType.textContent = `Type: ${server.server_type || 'Unknown'}`; info.appendChild(spanType);
+            const spanSec = document.createElement('span'); spanSec.textContent = `Security: ${server.password_protected ? 'High' : 'Low'}`; info.appendChild(spanSec);
+            const actions = document.createElement('div'); actions.className='server-actions';
+            const btnHack = document.createElement('button'); btnHack.className='btn btn-primary'; btnHack.textContent='Hack'; btnHack.addEventListener('click', ()=> this.hackServer(server.ip));
+            const btnScan = document.createElement('button'); btnScan.className='btn btn-secondary'; btnScan.textContent='Scan'; btnScan.addEventListener('click', ()=> this.scanServer(server.ip));
+            actions.appendChild(btnHack); actions.appendChild(btnScan);
+            item.appendChild(info); item.appendChild(actions);
+            list.appendChild(item);
         });
-        html += '</div>';
-        browserContent.innerHTML = html;
+        browserContent.appendChild(list);
     }
 
     displayClanInfo(clanData) {
         const content = document.querySelector('#clan-page .page-content') || document.getElementById('clan-page');
         if (!content) return;
-
+        while (content.firstChild) content.removeChild(content.firstChild);
         const { clan, members } = clanData;
-        let html = `
-            <h2>${clan.name} [${clan.tag}]</h2>
-            <p>${clan.description}</p>
-            <div class="clan-stats">
-                <span>Members: ${members.length}</span>
-                <span>Founded: ${new Date(clan.created_at).toLocaleDateString()}</span>
-            </div>
-            <h3>Members</h3>
-            <div class="members-list">
-        `;
-        
+        const h2 = document.createElement('h2'); h2.textContent = `${clan.name} [${clan.tag}]`; content.appendChild(h2);
+        const p = document.createElement('p'); p.textContent = clan.description || ''; content.appendChild(p);
+        const stats = document.createElement('div'); stats.className='clan-stats';
+        const s1 = document.createElement('span'); s1.textContent = `Members: ${members.length}`; stats.appendChild(s1);
+        const s2 = document.createElement('span'); s2.textContent = `Founded: ${new Date(clan.created_at).toLocaleDateString()}`; stats.appendChild(s2);
+        content.appendChild(stats);
+        const h3 = document.createElement('h3'); h3.textContent = 'Members'; content.appendChild(h3);
+        const list = document.createElement('div'); list.className='members-list';
         members.forEach(member => {
-            html += `
-                <div class="member-item">
-                    <span class="username">${member.username}</span>
-                    <span class="level">Level ${this.calculateLevel(member.experience)}</span>
-                    <span class="status ${member.is_online ? 'online' : 'offline'}">${member.is_online ? 'Online' : 'Offline'}</span>
-                </div>
-            `;
+            const item = document.createElement('div'); item.className='member-item';
+            const u = document.createElement('span'); u.className='username'; u.textContent = member.username; item.appendChild(u);
+            const lvl = document.createElement('span'); lvl.className='level'; lvl.textContent = `Level ${this.calculateLevel(member.experience)}`; item.appendChild(lvl);
+            const st = document.createElement('span'); st.className = `status ${member.is_online ? 'online' : 'offline'}`; st.textContent = member.is_online ? 'Online' : 'Offline'; item.appendChild(st);
+            list.appendChild(item);
         });
-        
-        html += `
-            </div>
-            <div class="clan-actions">
-                <button onclick="window.gameInstance.leaveClan()" class="btn btn-danger">Leave Clan</button>
-            </div>
-        `;
-        
-        content.innerHTML = html;
+        content.appendChild(list);
+        const actions = document.createElement('div'); actions.className='clan-actions';
+        const btn = document.createElement('button'); btn.className='btn btn-danger'; btn.textContent='Leave Clan'; btn.addEventListener('click', ()=> this.leaveClan()); actions.appendChild(btn);
+        content.appendChild(actions);
     }
 
     displayNoClan() {
         const content = document.querySelector('#clan-page .page-content') || document.getElementById('clan-page');
         if (!content) return;
-
-        content.innerHTML = `
-            <h2>Clan System</h2>
-            <p>You are not a member of any clan.</p>
-            <div class="clan-actions">
-                <button onclick="window.gameInstance.showCreateClanForm()" class="btn btn-primary">Create Clan</button>
-                <button onclick="window.gameInstance.showJoinClanForm()" class="btn btn-secondary">Find Clans</button>
-            </div>
-        `;
+        while (content.firstChild) content.removeChild(content.firstChild);
+        const h2 = document.createElement('h2'); h2.textContent = 'Clan System'; content.appendChild(h2);
+        const p = document.createElement('p'); p.textContent = 'You are not a member of any clan.'; content.appendChild(p);
+        const actions = document.createElement('div'); actions.className='clan-actions';
+        const btnCreate = document.createElement('button'); btnCreate.className='btn btn-primary'; btnCreate.textContent = 'Create Clan'; btnCreate.addEventListener('click', ()=> this.showCreateClanForm());
+        const btnJoin = document.createElement('button'); btnJoin.className='btn btn-secondary'; btnJoin.textContent = 'Find Clans'; btnJoin.addEventListener('click', ()=> this.showJoinClanForm());
+        actions.appendChild(btnCreate); actions.appendChild(btnJoin);
+        content.appendChild(actions);
     }
 
     displayMissions(missions) {
         const content = document.querySelector('#missions-page .page-content') || document.getElementById('missions-page');
         if (!content) return;
 
-        if (missions.length === 0) {
-            content.innerHTML = '<h2>Active Missions</h2><p>No active missions</p>';
-            return;
-        }
-
-        let html = '<h2>Active Missions</h2><div class="missions-list">';
+        while (content.firstChild) content.removeChild(content.firstChild);
+        const h2m = document.createElement('h2'); h2m.textContent = 'Active Missions'; content.appendChild(h2m);
+        if (missions.length === 0) { const p = document.createElement('p'); p.textContent='No active missions'; content.appendChild(p); return; }
+        let html = '<div class="missions-list">';
         missions.forEach(mission => {
             html += `
                 <div class="mission-item">
@@ -916,27 +917,29 @@ class Game {
             `;
         });
         html += '</div>';
-        content.innerHTML = html;
+        const wrap = document.createElement('div'); wrap.className='missions-list';
+        // For now, keep simple injection for mission list; consider DOM builders next pass
+        wrap.innerHTML = html.replace('<div class="missions-list">','').replace('</div>','');
+        content.appendChild(wrap);
     }
 
     displayRankings(rankings) {
         const content = document.querySelector('#ranking-page .page-content') || document.getElementById('ranking-page');
         if (!content) return;
-
-        let html = '<h2>Player Rankings</h2><div class="rankings-list">';
+        while (content.firstChild) content.removeChild(content.firstChild);
+        const h2 = document.createElement('h2'); h2.textContent = 'Player Rankings'; content.appendChild(h2);
+        const list = document.createElement('div'); list.className='rankings-list';
         rankings.forEach((player, index) => {
-            html += `
-                <div class="ranking-item">
-                    <span class="rank">#${index + 1}</span>
-                    <span class="username">${player.username}</span>
-                    <span class="level">Level ${this.calculateLevel(player.experience)}</span>
-                    <span class="money">$${player.money.toLocaleString()}</span>
-                    <span class="status ${player.is_online ? 'online' : 'offline'}">${player.is_online ? 'Online' : 'Offline'}</span>
-                </div>
-            `;
+            const item = document.createElement('div'); item.className='ranking-item';
+            const r = document.createElement('span'); r.className='rank'; r.textContent = `#${index+1}`;
+            const u = document.createElement('span'); u.className='username'; u.textContent = player.username;
+            const l = document.createElement('span'); l.className='level'; l.textContent = `Level ${this.calculateLevel(player.experience)}`;
+            const m = document.createElement('span'); m.className='money'; m.textContent = `$${(player.money||0).toLocaleString()}`;
+            const s = document.createElement('span'); s.className = `status ${player.is_online ? 'online' : 'offline'}`; s.textContent = player.is_online ? 'Online' : 'Offline';
+            item.appendChild(r); item.appendChild(u); item.appendChild(l); item.appendChild(m); item.appendChild(s);
+            list.appendChild(item);
         });
-        html += '</div>';
-        content.innerHTML = html;
+        content.appendChild(list);
     }
 
     // Clan management functions
@@ -1020,7 +1023,8 @@ class Game {
         // This would show active network connections
         const content = document.querySelector('#connections-page .connections-content');
         if (content) {
-            content.innerHTML = '<p>Network connections feature will be implemented in a future update.</p>';
+            while (content.firstChild) content.removeChild(content.firstChild);
+            const p = document.createElement('p'); p.textContent = 'Network connections feature will be implemented in a future update.'; content.appendChild(p);
         }
     }
 
@@ -1029,7 +1033,7 @@ class Game {
         const chatMessages = document.getElementById('chat-messages');
         if (!chatMessages) return;
 
-        chatMessages.innerHTML = '';
+        while (chatMessages.firstChild) chatMessages.removeChild(chatMessages.firstChild);
         messages.forEach(msg => {
             this.addChatMessage(msg.sender, msg.message, msg.timestamp);
         });
@@ -1045,11 +1049,10 @@ class Game {
         const messageEl = document.createElement('div');
         messageEl.className = 'chat-message';
         const time = new Date(timestamp).toLocaleTimeString();
-        messageEl.innerHTML = `
-            <span class="chat-time">[${time}]</span>
-            <span class="chat-sender">${sender}:</span>
-            <span class="chat-text">${message}</span>
-        `;
+        const spanTime = document.createElement('span'); spanTime.className = 'chat-time'; spanTime.textContent = `[${time}]`;
+        const spanSender = document.createElement('span'); spanSender.className = 'chat-sender'; spanSender.textContent = `${sender}:`;
+        const spanText = document.createElement('span'); spanText.className = 'chat-text'; spanText.textContent = message;
+        messageEl.appendChild(spanTime); messageEl.appendChild(spanSender); messageEl.appendChild(spanText);
         chatMessages.appendChild(messageEl);
         
         // Auto-scroll to bottom
@@ -1060,23 +1063,19 @@ class Game {
         const logsList = document.getElementById('logs-list');
         if (!logsList) return;
 
+        while (logsList.firstChild) logsList.removeChild(logsList.firstChild);
         if (logs.length === 0) {
-            logsList.innerHTML = '<p class="no-logs">No logs found</p>';
-            return;
+            const p = document.createElement('p'); p.className = 'no-logs'; p.textContent = 'No logs found'; logsList.appendChild(p); return;
         }
-
-        logsList.innerHTML = '';
         logs.forEach(log => {
-            const logItem = document.createElement('div');
-            logItem.className = 'log-item';
-            const time = new Date(log.created_at).toLocaleString();
-            logItem.innerHTML = `
-                <div class="log-header">
-                    <span class="log-time">${time}</span>
-                    <span class="log-type">${log.log_type}</span>
-                </div>
-                <div class="log-message">${log.message}</div>
-            `;
+            const logItem = document.createElement('div'); logItem.className = 'log-item';
+            const timeText = new Date(log.created_at).toLocaleString();
+            const header = document.createElement('div'); header.className = 'log-header';
+            const spanTime = document.createElement('span'); spanTime.className = 'log-time'; spanTime.textContent = timeText;
+            const spanType = document.createElement('span'); spanType.className = 'log-type'; spanType.textContent = log.log_type;
+            header.appendChild(spanTime); header.appendChild(spanType);
+            const msg = document.createElement('div'); msg.className = 'log-message'; msg.textContent = log.message;
+            logItem.appendChild(header); logItem.appendChild(msg);
             logsList.appendChild(logItem);
         });
     }
@@ -1169,6 +1168,17 @@ class Game {
             browserContent.innerHTML = `<div class="error">Network scan failed: ${error.message}</div>`;
         }
     }
+}
+
+// Basic HTML escaping to mitigate XSS when injecting dynamic content
+function escapeHTML(value) {
+    if (value === null || value === undefined) return '';
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 // Auto-initialize if DOM is already loaded

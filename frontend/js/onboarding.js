@@ -266,12 +266,12 @@ class OnboardingTutorial {
 
     showInternetDemo() {
         // Demo of internet browsing
-        console.log("Showing internet demo...");
+        if (window.DEBUG_ONBOARD) { try { console.log("[ONBOARD] Showing internet demo..."); } catch(_) {} }
     }
 
     showHackingDemo() {
         // Demo of hacking process
-        console.log("Showing hacking demo...");
+        if (window.DEBUG_ONBOARD) { try { console.log("[ONBOARD] Showing hacking demo..."); } catch(_) {} }
     }
 
     addStyles() {

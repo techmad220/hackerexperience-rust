@@ -524,7 +524,7 @@ impl Player {
         let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query(
-            "SELECT TIMESTAMPDIFF(SECOND, lastIpReset, NOW()) AS uptime FROM users_stats WHERE uid = $1 LIMIT 1"
+            "SELECT EXTRACT(EPOCH FROM (NOW() - lastIpReset))::int AS uptime FROM users_stats WHERE uid = $1 LIMIT 1"
         )
         .bind(uid)
         .fetch_one(db)
@@ -566,7 +566,7 @@ impl Player {
         let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
         
         let row = sqlx::query(
-            "SELECT ipResets, TIMESTAMPDIFF(SECOND, lastIpReset, NOW()) AS uptime FROM users_stats WHERE uid = $1 LIMIT 1"
+            "SELECT ipResets, EXTRACT(EPOCH FROM (NOW() - lastIpReset))::int AS uptime FROM users_stats WHERE uid = $1 LIMIT 1"
         )
         .bind(uid)
         .fetch_one(db)
@@ -644,7 +644,7 @@ impl Player {
         let uid = self.id.unwrap_or(0);
         
         let row = sqlx::query(
-            "SELECT pwdResets, TIMESTAMPDIFF(SECOND, lastPwdReset, NOW()) AS lastReset FROM users_stats WHERE uid = $1 LIMIT 1"
+            "SELECT pwdResets, EXTRACT(EPOCH FROM (NOW() - lastPwdReset))::int AS lastReset FROM users_stats WHERE uid = $1 LIMIT 1"
         )
         .bind(uid)
         .fetch_one(db)

@@ -1,6 +1,6 @@
-//! # Helix Event System
+//! # Event System
 //!
-//! This crate provides a comprehensive event-driven architecture for Helix,
+//! This crate provides a comprehensive event-driven architecture for the game,
 //! supporting real-time event dispatch, persistence, and replay capabilities.
 
 pub mod dispatcher;
@@ -28,7 +28,7 @@ pub use stream::{EventStream, EventStreamConfig};
 pub use subscriber::{EventSubscriber, SubscriptionConfig};
 pub use publisher::{EventPublisher, PublishConfig};
 
-use he_helix_core::HelixResult;
+use he_core::HelixResult;
 
 /// Initialize the event system with default configuration
 pub async fn init() -> HelixResult<EventSystem> {
@@ -85,7 +85,7 @@ impl EventSystem {
 
     /// Start the event system
     pub async fn start(&mut self) -> HelixResult<()> {
-        tracing::info!("Starting Helix event system");
+        tracing::info!("Starting event system");
         
         // Start the dispatcher
         self.dispatcher.start().await?;
@@ -93,17 +93,17 @@ impl EventSystem {
         // Connect the dispatcher to the store for persistence
         self.dispatcher.add_persistent_handler(&self.store).await?;
         
-        tracing::info!("Helix event system started successfully");
+        tracing::info!("Event system started successfully");
         Ok(())
     }
 
     /// Stop the event system
     pub async fn stop(&mut self) -> HelixResult<()> {
-        tracing::info!("Stopping Helix event system");
+        tracing::info!("Stopping event system");
         
         self.dispatcher.stop().await?;
         
-        tracing::info!("Helix event system stopped successfully");
+        tracing::info!("Event system stopped successfully");
         Ok(())
     }
 }

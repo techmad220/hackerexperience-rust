@@ -1,7 +1,7 @@
 //! Event streaming utilities for real-time event processing
 
 use crate::event::{Event, EventType, EventCategory};
-use he_helix_core::{HelixError, HelixResult};
+use he_core::{HelixError, HelixResult};
 use futures::{Stream, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::pin::Pin;

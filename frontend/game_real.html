@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackerExperience - Game</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: #111;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            height: 100vh;
+        }
+
+        #sidebar {
+            width: 220px;
+            background: #1a1a1a;
+            border-right: 2px solid #0f0;
+            padding: 20px;
+        }
+
+        #sidebar h3 {
+            color: #0f0;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #0f0;
+        }
+
+        #sidebar ul {
+            list-style: none;
+        }
+
+        #sidebar li {
+            margin-bottom: 10px;
+        }
+
+        #sidebar a {
+            color: #0a0;
+            text-decoration: none;
+            display: block;
+            padding: 8px;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        #sidebar a:hover {
+            border: 1px solid #0f0;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        #main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        #header {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: #1a1a1a;
+            border-bottom: 2px solid #0f0;
+            margin-bottom: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stat {
+            padding: 5px 10px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #0f0;
+        }
+
+        .widget {
+            background: #1a1a1a;
+            border: 1px solid #0f0;
+            margin-bottom: 20px;
+            padding: 15px;
+        }
+
+        .widget h4 {
+            color: #0f0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid #333;
+        }
+
+        th {
+            color: #0f0;
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid #0f0;
+            color: #0f0;
+            padding: 5px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #0f0;
+            color: #000;
+        }
+
+        .error {
+            color: #f00;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #f00;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #0f0;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h3>Navigation</h3>
+        <ul>
+            <li><a href="#dashboard">Dashboard</a></li>
+            <li><a href="#processes">Processes</a></li>
+            <li><a href="#software">Software</a></li>
+            <li><a href="#hardware">Hardware</a></li>
+            <li><a href="#internet">Internet</a></li>
+            <li><a href="#missions">Missions</a></li>
+            <li><a href="#ranking">Ranking</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+    </div>
+
+    <div id="main">
+        <div id="header">
+            <div class="user-info">
+                <span>User: <strong id="username">Loading...</strong></span>
+                <span class="stat">Level: <strong id="level">-</strong></span>
+                <span class="stat">Money: $<strong id="money">-</strong></span>
+                <span class="stat">IP: <strong id="ip">-</strong></span>
+            </div>
+        </div>
+
+        <div id="content">
+            <div class="loading">Loading game data...</div>
+        </div>
+    </div>
+
+    <script>
+        // Cookie-based auth: token is set as httpOnly cookie. Proceed; backend will 401 if missing.
+
+        // API functions
+        async function fetchWithAuth(url) {
+            try {
+                const response = await fetch(url, { credentials: 'include' });
+                if (response.status === 401) {
+                    logout();
+                    return null;
+                }
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                return null;
+            }
+        }
+
+        // Load user data
+        async function loadUserData() {
+            const data = await fetchWithAuth('/api/game/status');
+            if (data) {
+                document.getElementById('username').textContent = data.user.username;
+                document.getElementById('level').textContent = data.user.level;
+                document.getElementById('money').textContent = data.user.money;
+                document.getElementById('ip').textContent = data.user.ip;
+            }
+        }
+
+        // Load dashboard
+        async function loadDashboard() {
+            const content = document.getElementById('content');
+
+            // Get real data from API
+            const [missions, processes, ranking] = await Promise.all([
+                fetch('/api/missions').then(r => r.json()),
+                fetchWithAuth('/api/processes'),
+                fetch('/api/ranking').then(r => r.json()).catch(() => ({ users: [] }))
+            ]);
+
+            content.innerHTML = `
+                <div class="widget">
+                    <h4>Active Processes</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${processes && processes.processes ? processes.processes.map(p => `
+                                <tr>
+                                    <td>${p.id}</td>
+                                    <td>${p.type}</td>
+                                    <td>${p.progress}%</td>
+                                    <td>${p.status}</td>
+                                </tr>
+                            `).join('') : '<tr><td colspan="4">No active processes</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="widget">
+                    <h4>Available Missions</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Difficulty</th>
+                                <th>Reward</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${missions.missions ? missions.missions.map(m => `
+                                <tr>
+                                    <td>${m.title}</td>
+                                    <td>${m.difficulty}</td>
+                                    <td>$${m.reward}</td>
+                                    <td><button class="btn" onclick="acceptMission(${m.id})">Accept</button></td>
+                                </tr>
+                            `).join('') : '<tr><td colspan="4">No missions available</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="widget">
+                    <h4>Top Players (Real Users Only)</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Username</th>
+                                <th>Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${getRegisteredUsers()}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // Get real registered users from server
+        function getRegisteredUsers() {
+            // This would normally fetch from /api/ranking
+            // For now, show only the current logged-in user
+            return `
+                <tr>
+                    <td>1</td>
+                    <td>${username || 'You'}</td>
+                    <td id="userLevel">1</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="text-align: center; opacity: 0.5;">
+                        Register more users to see the leaderboard
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Load different pages
+        async function loadProcesses() {
+            const data = await fetchWithAuth('/api/processes');
+            const content = document.getElementById('content');
+
+            content.innerHTML = `
+                <div class="widget">
+                    <h4>Process Manager</h4>
+                    <button class="btn" onclick="startScan()">Start Scan</button>
+                    <br><br>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Process ID</th>
+                                <th>Type</th>
+                                <th>Target</th>
+                                <th>Progress</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data && data.processes ? data.processes.map(p => `
+                                <tr>
+                                    <td>${p.id}</td>
+                                    <td>${p.type}</td>
+                                    <td>${p.target || '-'}</td>
+                                    <td>${p.progress}%</td>
+                                    <td>${p.status}</td>
+                                </tr>
+                            `).join('') : '<tr><td colspan="5">No processes running</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        async function startScan() {
+            const response = await fetch('/api/hacking/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ target: '192.168.1.1' })
+            });
+
+            if (response.ok) {
+                alert('Scan started!');
+                loadProcesses();
+            }
+        }
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        function acceptMission(id) {
+            alert(`Mission ${id} accepted! (Feature coming soon)`);
+        }
+
+        // Navigation
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.substring(1);
+            switch(hash) {
+                case 'processes':
+                    loadProcesses();
+                    break;
+                case 'dashboard':
+                default:
+                    loadDashboard();
+                    break;
+            }
+        });
+
+        // Initial load
+        loadUserData();
+        loadDashboard();
+
+        // Refresh data every 5 seconds
+        setInterval(() => {
+            loadUserData();
+        }, 5000);
+    </script>
+</body>
+</html>

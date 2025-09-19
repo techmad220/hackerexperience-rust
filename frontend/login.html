@@ -273,7 +273,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/api.js"></script>
+    <!-- Removed api.js - using inline auth handling -->
     <script>
         let currentTab = 'login';
 
@@ -330,14 +330,25 @@
             
             try {
                 console.log('Attempting login...');
-                const result = await API.login(username, password);
+
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password })
+                });
+
+                const result = await response.json();
                 
                 if (result.success) {
+                    // Only store non-sensitive user info
+                    try { localStorage.setItem('username', result.user.username); } catch (_) {}
+
                     showMessage('Login successful! Redirecting...', 'success');
                     
                     // Redirect to game after short delay
                     setTimeout(() => {
-                        window.location.href = 'index.html';
+                        window.location.href = '/game';
                     }, 1500);
                 } else {
                     showMessage(result.error || 'Login failed');
@@ -384,7 +395,14 @@
             
             try {
                 console.log('Attempting registration...');
-                const result = await API.register(username, email, password);
+
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const result = await response.json();
                 
                 if (result.success) {
                     showMessage('Registration successful! You can now log in.', 'success');
@@ -410,16 +428,19 @@
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('Checking authentication status...');
             
-            if (API.isAuthenticated()) {
-                showMessage('You are already logged in. Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-                return;
+            // Check if already authenticated
+            // Cookie-based auth: optionally ping the API; cookies will be sent automatically
+            try {
+                const response = await fetch('/api/game/status', { credentials: 'include' });
+                if (response.ok) {
+                    showMessage('You are already logged in. Redirecting...', 'success');
+                    setTimeout(() => { window.location.href = '/game'; }, 1500);
+                    return;
+                }
+            } catch (e) {
+                // ignore
             }
-
-            // Initialize API connection
-            await API.initialize();
+            
         });
 
         // Handle form submission with Enter key

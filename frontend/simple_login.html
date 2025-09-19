@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Login - HackerExperience</title>
+    <style>
+        body {
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .login-box {
+            background: #111;
+            border: 2px solid #0f0;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            color: #0f0;
+            text-align: center;
+            text-shadow: 0 0 10px #0f0;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #0f0;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            background: #000;
+            border: 1px solid #0f0;
+            color: #0f0;
+            font-family: inherit;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 2px solid #0f0;
+            color: #0f0;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #0f0;
+            color: #000;
+        }
+        #message {
+            margin: 20px 0;
+            padding: 10px;
+            text-align: center;
+            display: none;
+        }
+        .error {
+            background: rgba(255,0,0,0.1);
+            border: 1px solid #f00;
+            color: #f00;
+        }
+        .success {
+            background: rgba(0,255,0,0.1);
+            border: 1px solid #0f0;
+            color: #0f0;
+        }
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .links a {
+            color: #0a0;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h1>HACKEREXPERIENCE</h1>
+        <div id="message"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Username:</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="form-group">
+                <label>Password:</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit">LOGIN</button>
+        </form>
+
+        <div class="links">
+            <a href="/register.html">Create Account</a> |
+            <a href="/">Back to Home</a>
+        </div>
+    </div>
+
+    <script>
+        // NO external scripts, NO api.js, just simple direct login
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const messageDiv = document.getElementById('message');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Show loading
+            messageDiv.className = 'success';
+            messageDiv.textContent = 'Logging in...';
+            messageDiv.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Store non-sensitive user info only
+                    try { localStorage.setItem('username', data.user.username); } catch (_) {}
+
+                    // Show success
+                    messageDiv.className = 'success';
+                    messageDiv.textContent = `✓ Login successful! Welcome ${data.user.username}`;
+
+                    // Redirect to game
+                    setTimeout(() => {
+                        window.location.href = '/game';
+                    }, 1000);
+                } else {
+                    // Show error
+                    messageDiv.className = 'error';
+                    messageDiv.textContent = data.error || 'Login failed';
+                }
+            } catch (error) {
+                // Show error
+                messageDiv.className = 'error';
+                messageDiv.textContent = 'Connection error: ' + error.message;
+            }
+        });
+
+        // Don't check for existing auth - let user login fresh
+        console.log('Simple login page ready - no auth check, no api.js');
+    </script>
+</body>
+</html>

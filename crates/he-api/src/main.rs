@@ -1,6 +1,8 @@
 //! Production-ready HackerExperience Game Server with all safety fixes
 
 use actix_web::{middleware, web, App, HttpResponse, HttpServer, Result};
+use actix_web::cookie::{Cookie, SameSite};
+use actix_web::http::header;
 use actix_cors::Cors;
 use sqlx::PgPool;
 use std::env;
@@ -8,8 +10,8 @@ use std::net::IpAddr;
 use tracing_subscriber::{fmt, EnvFilter};
 
 // Import our safety modules
-use he_helix_core::units::{Units, ResourceCaps, allocate};
-use he_helix_core::process_cancel;
+use he_core::units::{Units, ResourceCaps, allocate};
+use he_core::process_cancel;
 use he_helix_http::auth::{AuthedUser, issue_jwt, verify_password};
 
 // Import security modules
@@ -27,6 +29,11 @@ mod safe_resources;
 mod handlers;
 mod websocket;
 mod jwt_cache;
+mod templates;
+mod legacy_compat;
+mod legacy_router;
+mod dashboard_router;
+mod plugins;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -52,11 +59,14 @@ async fn main() -> std::io::Result<()> {
     let database_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgresql://heuser:hepass@localhost:5432/hedb".to_string());
 
-    let jwt_secret = env::var("JWT_SECRET")
-        .unwrap_or_else(|_| {
-            tracing::warn!("JWT_SECRET not set, using default (CHANGE IN PRODUCTION!)");
-            "change_me_in_production_to_random_string".to_string()
-        });
+    // Enforce JWT secret presence in production
+    let jwt_secret = match env::var("JWT_SECRET") {
+        Ok(v) if !v.trim().is_empty() => v,
+        _ => {
+            // Fail fast rather than running with a weak default
+            panic!("JWT_SECRET must be set to a strong random value");
+        }
+    };
 
     // Connect to database
     let pool = PgPool::connect(&database_url)
@@ -105,17 +115,20 @@ async fn main() -> std::io::Result<()> {
 
     // Start server with production middleware stack
     let server = HttpServer::new(move || {
+        // Template engine (Tera) for HTML pages needing CSP nonces
+        let template_engine = web::Data::new(templates::TemplateEngine::new());
+        // Strict CORS: single allowed origin + credentials
+        let frontend_origin = std::env::var("FRONTEND_ORIGIN")
+            .unwrap_or_else(|_| "http://localhost:8080".to_string());
         let cors = Cors::default()
-            .allowed_origin_fn(|origin, _req_head| {
-                // In production, restrict to your frontend domain
-                origin.as_bytes().starts_with(b"http://localhost") ||
-                origin.as_bytes().starts_with(b"https://yourdomain.com")
-            })
+            .allowed_origin(&frontend_origin)
             .allow_any_method()
-            .allowed_headers(vec!["Authorization", "Content-Type"]);
+            .allowed_headers(vec!["Authorization", "Content-Type"]) 
+            .supports_credentials();
 
         App::new()
             .app_data(app_state.clone())
+            .app_data(template_engine.clone())
             // Security middleware stack
             .wrap(middleware_stack::SecurityHeaders)
             .wrap(middleware_stack::RateLimiter::new(100, 60))  // 100 req/min default
@@ -123,11 +136,25 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .wrap(middleware::Logger::default())
             .wrap(middleware::Compress::default())
+            // Static assets for templated pages
+            .service(actix_files::Files::new("/assets", "crates/he-api/static").prefer_utf8(true))
 
             // Public endpoints (no auth required)
             .route("/health", web::get().to(health_check))
             .route("/api/login", web::post().to(login))
+            .route("/api/logout", web::post().to(logout))
             .route("/api/register", web::post().to(register))
+            // Templated pages with per-request nonce
+            .route("/login.html", web::get().to(templates::render_login))
+            .route("/landing", web::get().to(templates::render_landing))
+            .route("/game", web::get().to(templates::render_game))
+            .route("/game_dashboard.html", web::get().to(templates::render_game))
+            // Legacy-compat scaffolding
+            .configure(legacy_compat::configure)
+            // Complete legacy PHP router - ALL game routes
+            .configure(legacy_router::register_all_routes)
+            // Dashboard API routes
+            .configure(dashboard_router::DashboardRouter::configure)
 
             // Monitoring endpoints
             .route("/metrics", web::get().to(handlers::monitoring::metrics))
@@ -237,14 +264,26 @@ async fn login(
                 let token = issue_jwt(u.id, &data.jwt_secret, 3600)
                     .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
 
-                Ok(HttpResponse::Ok().json(serde_json::json!({
-                    "success": true,
-                    "token": token,
-                    "user": {
-                        "id": u.id,
-                        "username": u.username
-                    }
-                })))
+                // Set secure HttpOnly cookie
+                let secure = std::env::var("COOKIE_SECURE").unwrap_or_else(|_| "true".into()) == "true";
+                let cookie = Cookie::build("auth_token", token.clone())
+                    .http_only(true)
+                    .secure(secure)
+                    .same_site(SameSite::Strict)
+                    .path("/")
+                    .max_age(time::Duration::seconds(3600))
+                    .finish();
+
+                Ok(HttpResponse::Ok()
+                    .insert_header((header::SET_COOKIE, cookie.to_string()))
+                    .json(serde_json::json!({
+                        "success": true,
+                        "useCookie": true,
+                        "user": {
+                            "id": u.id,
+                            "username": u.username
+                        }
+                    })))
             } else {
                 // Log failed login
                 let attempt_count = data.audit_logger.get_failed_login_attempts(ip, 5).await.unwrap_or(0);
@@ -270,6 +309,21 @@ async fn login(
             "error": "Invalid credentials"
         })))
     }
+}
+
+// Logout endpoint clears the auth cookie
+async fn logout() -> Result<HttpResponse> {
+    let cookie = Cookie::build("auth_token", "")
+        .http_only(true)
+        .secure(std::env::var("COOKIE_SECURE").unwrap_or_else(|_| "true".into()) == "true")
+        .same_site(SameSite::Strict)
+        .path("/")
+        .max_age(time::Duration::seconds(0))
+        .finish();
+
+    Ok(HttpResponse::Ok()
+        .insert_header((header::SET_COOKIE, cookie.to_string()))
+        .json(serde_json::json!({ "success": true })))
 }
 
 // Safe process start with resource limits

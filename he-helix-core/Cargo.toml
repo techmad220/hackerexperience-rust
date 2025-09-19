@@ -1,5 +1,5 @@
 [package]
-name = "he-helix-core"
+name = "he-engine-core"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

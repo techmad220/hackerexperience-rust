@@ -54,3 +54,10 @@ mod tests {
         assert_eq!(GAME_TITLE, "Hacker Experience 0.8 BETA");
     }
 }
+
+// Helix compatibility re-exports for normalization
+// Allow downstream crates to import helix units/process APIs via the `he-core` facade.
+pub use he_helix_core::units;
+pub use he_helix_core::process_cancel;
+pub use he_helix_core::{HelixError, HelixResult};
+pub use he_helix_core::types::{HelixId, RequestId, ProcessId};

@@ -19,14 +19,15 @@
         <p><a href="/login.html">Click here if not redirected</a></p>
     </div>
     <script>
-        // Clear session data
-        localStorage.removeItem('auth_token');
-        sessionStorage.clear();
-
-        // Redirect after 3 seconds
-        setTimeout(function() {
-            window.location.href = '/login.html';
-        }, 3000);
+        // Clear non-sensitive local data and call API to clear auth cookie
+        try { sessionStorage.clear(); } catch (e) {}
+        fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+            .catch(function() {})
+            .finally(function() {
+                setTimeout(function() {
+                    window.location.href = '/login.html';
+                }, 1500);
+            });
     </script>
 </body>
 </html>

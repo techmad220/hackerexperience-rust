@@ -3,11 +3,11 @@
 //! Complete port of Helix.Log GenServer with event streaming, audit trails,
 //! log aggregation, and real-time log processing capabilities.
 
-use he_helix_core::genserver::{
+use he_core::genserver::{
     GenServer, GenServerState, GenServerHandle, GenServerMessage, GenServerReply,
     InfoSource, TerminateReason, SupervisionStrategy, GenServerSupervisor
 };
-use he_helix_core::{HelixError, HelixResult, ProcessId};
+use he_core::{HelixError, HelixResult, ProcessId};
 use he_core::id::{AccountId, EntityId, ServerId, LogId};
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};

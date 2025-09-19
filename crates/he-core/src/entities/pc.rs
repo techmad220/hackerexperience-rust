@@ -147,7 +147,7 @@ impl HardwareVPC {
     /// # Returns
     /// HardwareInfo with aggregated hardware stats
     pub async fn get_hardware_info(&mut self, id: Option<i32>, pc_type: &str, xhd: Option<&str>) -> HeResult<HardwareInfo> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
         let user_id = id.unwrap_or(0); // TODO: Get from session
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
@@ -251,7 +251,7 @@ impl HardwareVPC {
     /// # Returns
     /// Total number of PCs
     pub async fn get_total_pcs(&self, id: Option<i32>, pc_type: Option<&str>) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
         let user_id = id.unwrap_or(0);
         let is_npc = match pc_type {
             Some("NPC") => 1,
@@ -278,7 +278,7 @@ impl HardwareVPC {
     /// # Returns
     /// PCSpec with detailed PC information
     pub async fn get_pc_spec(&self, server_id: Option<i32>, pc_type: &str, id: i32, unknown_id: Option<&str>) -> HeResult<PCSpec> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
         let mut query = "SELECT id, serverName, cpu, hdd, ram, net, userID FROM hardware WHERE userID = $1 AND isNPC = $2".to_string();
@@ -331,7 +331,7 @@ impl HardwareVPC {
     /// # Returns
     /// RAM usage in MB
     pub async fn calculate_ram_usage(&self, id: i32, pc_type: &str) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
         let row = sqlx::query(
@@ -356,7 +356,7 @@ impl HardwareVPC {
     /// # Returns
     /// Software RAM usage in MB
     pub async fn get_soft_usage(&self, id: i32, pc_type: &str, soft_id: i32) -> HeResult<i32> {
-        let db = self.db_pool.as_ref().map_err(|e| anyhow::anyhow!("Error: {}", e))?;
+        let db = self.db_pool.as_ref().ok_or_else(|| crate::error::HeError::Database(anyhow::anyhow!("DB pool not set")))?;
         let is_npc = if pc_type == "NPC" { 1 } else { 0 };
 
         let row = sqlx::query(
