@@ -21,7 +21,7 @@ bcrypt = "0.15"
 regex = "1.0"
 rand = "0.8"
 sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "mysql", "chrono", "uuid"] }
-base64 = "0.21"
+base64 = { workspace = true }
 async-trait = "0.1"
 html-escape = "0.2"
 md5 = "0.7"

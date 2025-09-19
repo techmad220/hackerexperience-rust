@@ -7,9 +7,20 @@ use serde::{Deserialize, Serialize};
 use std::time::{Duration, Instant};
 use he_auth::jwt::{JwtManager, JwtClaims, JwtConfig};
 use std::sync::Arc;
+use crate::jwt_cache::{JwtCache, JwtCacheConfig};
+use once_cell::sync::Lazy;
 
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
 const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
+
+// Global JWT cache for WebSocket connections
+static JWT_CACHE: Lazy<JwtCache> = Lazy::new(|| {
+    JwtCache::with_config(JwtCacheConfig {
+        max_entries: 10000,
+        ttl: Duration::from_secs(300), // Cache for 5 minutes
+        cleanup_interval: Duration::from_secs(60), // Cleanup every minute
+    })
+});
 
 #[derive(Serialize, Deserialize)]
 pub struct WSMessage {
@@ -66,36 +77,49 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketSession 
                         "auth" => {
                             // Authenticate WebSocket connection
                             if let Some(token) = msg.data.get("token").and_then(|v| v.as_str()) {
-                                // Validate JWT token using he-auth crate
-                                match validate_jwt_token(token) {
-                                    Ok(claims) => {
-                                        // Set authenticated user_id from validated claims
-                                        self.user_id = Some(claims.user_id.to_string().parse::<i64>().unwrap_or(0));
+                                let token_str = token.to_string();
+                                // Use actix async context to handle async JWT validation with cache
+                                let fut = async move {
+                                    validate_jwt_token_cached(&token_str).await
+                                };
 
-                                        let response = WSMessage {
-                                            event_type: "auth_success".to_string(),
-                                            data: serde_json::json!({
-                                                "message": "Authenticated successfully",
-                                                "user_id": claims.user_id.to_string(),
-                                                "email": claims.email
-                                            }),
-                                        };
-                                        ctx.text(serde_json::to_string(&response).unwrap());
-                                    }
-                                    Err(e) => {
-                                        // Authentication failed
-                                        let response = WSMessage {
-                                            event_type: "auth_failed".to_string(),
-                                            data: serde_json::json!({
-                                                "message": format!("Authentication failed: {}", e)
-                                            }),
-                                        };
-                                        ctx.text(serde_json::to_string(&response).unwrap());
+                                ctx.spawn(
+                                    actix::fut::wrap_future(fut).map(move |result, actor: &mut Self, ctx| {
+                                        match result {
+                                            Ok(claims) => {
+                                                // Set authenticated user_id from validated claims
+                                                actor.user_id = Some(claims.user_id.to_string().parse::<i64>().unwrap_or(0));
 
-                                        // Close connection after failed auth
-                                        ctx.stop();
-                                    }
-                                }
+                                                let response = WSMessage {
+                                                    event_type: "auth_success".to_string(),
+                                                    data: serde_json::json!({
+                                                        "message": "Authenticated successfully",
+                                                        "user_id": claims.user_id.to_string(),
+                                                        "email": claims.email
+                                                    }),
+                                                };
+                                                if let Ok(json) = serde_json::to_string(&response) {
+                                                    ctx.text(json);
+                                                }
+                                            }
+                                            Err(e) => {
+                                                // Authentication failed
+                                                let response = WSMessage {
+                                                    event_type: "auth_failed".to_string(),
+                                                    data: serde_json::json!({
+                                                        "message": format!("Authentication failed: {}", e)
+                                                    }),
+                                                };
+                                                if let Ok(json) = serde_json::to_string(&response) {
+                                                    ctx.text(json);
+                                                }
+
+                                                // Close connection after failed auth
+                                                ctx.stop();
+                                            }
+                                        }
+                                    })
+                                );
                             } else {
                                 // No token provided
                                 let response = WSMessage {
@@ -104,7 +128,9 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketSession 
                                         "message": "No authentication token provided"
                                     }),
                                 };
-                                ctx.text(serde_json::to_string(&response).unwrap());
+                                if let Ok(json) = serde_json::to_string(&response) {
+                                    ctx.text(json);
+                                }
                                 ctx.stop();
                             }
                         }
@@ -118,7 +144,9 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketSession 
                                         "message": format!("Subscribed to {}", event)
                                     }),
                                 };
-                                ctx.text(serde_json::to_string(&response).unwrap());
+                                if let Ok(json) = serde_json::to_string(&response) {
+                                    ctx.text(json);
+                                }
                             }
                         }
                         _ => {
@@ -129,7 +157,9 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketSession 
                                     "message": "Unknown message type"
                                 }),
                             };
-                            ctx.text(serde_json::to_string(&response).unwrap());
+                            if let Ok(json) = serde_json::to_string(&response) {
+                                ctx.text(json);
+                            }
                         }
                     }
                 }
@@ -167,23 +197,37 @@ impl Handler<ProcessUpdate> for WebSocketSession {
                     "status": msg.status
                 }),
             };
-            ctx.text(serde_json::to_string(&update).unwrap());
+            if let Ok(json) = serde_json::to_string(&update) {
+                ctx.text(json);
+            }
         }
     }
 }
 
-/// Validate JWT token for WebSocket authentication
-fn validate_jwt_token(token: &str) -> Result<JwtClaims, String> {
-    // Load JWT configuration from environment variables
-    let jwt_config = JwtConfig::from_env();
+/// Validate JWT token for WebSocket authentication with caching
+async fn validate_jwt_token_cached(token: &str) -> Result<JwtClaims, String> {
+    // Check cache first
+    if let Some(cached_claims) = JWT_CACHE.get(token).await {
+        return Ok(cached_claims);
+    }
 
-    // Initialize JWT manager
+    // If not in cache, validate the token
+    let jwt_config = JwtConfig::from_env();
     let jwt_manager = JwtManager::new(jwt_config)
         .map_err(|e| format!("Failed to initialize JWT manager: {}", e))?;
 
-    // Validate the token
-    jwt_manager.validate_token(token)
-        .map_err(|e| format!("Token validation failed: {}", e))
+    let claims = jwt_manager.validate_token(token)
+        .map_err(|e| format!("Token validation failed: {}", e))?;
+
+    // Store in cache for future use
+    JWT_CACHE.insert(token, claims.clone()).await;
+
+    Ok(claims)
+}
+
+/// Invalidate a token in the cache (for logout/revocation)
+pub async fn invalidate_token(token: &str) {
+    JWT_CACHE.remove(token).await;
 }
 
 pub async fn websocket_handler(

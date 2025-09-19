@@ -25,6 +25,8 @@ mod game_server_v2;
 mod middleware_stack;
 mod safe_resources;
 mod handlers;
+mod websocket;
+mod jwt_cache;
 
 #[derive(Clone)]
 pub struct AppState {

@@ -86,12 +86,24 @@ log = "0.4"
 
 # Error handling
 anyhow = "1.0"
-thiserror = "1.0"
+thiserror = "2.0"  # Standardized to latest version
+
+# Encoding
+base64 = "0.22"  # Standardized to latest version
+
+# Caching
+redis = { version = "0.25", features = ["tokio-comp", "connection-manager", "aio"] }
+bb8-redis = "0.16"
+bincode = "1.3"
+zstd = "0.13"
 
 # Cryptography and security
 bcrypt = "0.15"
+argon2 = { version = "0.5", features = ["std"] }
+zeroize = "1.8"
 jsonwebtoken = "9.0"
 uuid = { version = "1.0", features = ["v4", "serde"] }
+sha2 = "0.10"
 
 # Time and date
 chrono = { version = "0.4", features = ["serde"] }

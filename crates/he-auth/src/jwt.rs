@@ -28,18 +28,9 @@ pub struct JwtConfig {
 
 impl Default for JwtConfig {
     fn default() -> Self {
-        // Load JWT secret from environment variable, panic if not set in production
-        let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| {
-            // Only allow default in development/test environments
-            if cfg!(debug_assertions) || cfg!(test) {
-                eprintln!("WARNING: JWT_SECRET not set, using insecure default. This is only acceptable in development!");
-                // Generate a random secret for development
-                "INSECURE_DEV_SECRET_DO_NOT_USE_IN_PRODUCTION_MUST_BE_32_CHARS".to_string()
-            } else {
-                // Panic in production if JWT_SECRET is not set
-                panic!("JWT_SECRET environment variable must be set in production!");
-            }
-        });
+        // Load JWT secret from environment variable, panic if not set
+        let secret = std::env::var("JWT_SECRET")
+            .expect("JWT_SECRET environment variable must be set. Generate a secure secret with: openssl rand -hex 32");
 
         Self {
             secret,
@@ -56,14 +47,8 @@ impl Default for JwtConfig {
 impl JwtConfig {
     /// Create JWT configuration from environment variables
     pub fn from_env() -> Self {
-        let secret = std::env::var("JWT_SECRET").unwrap_or_else(|_| {
-            if cfg!(debug_assertions) || cfg!(test) {
-                eprintln!("WARNING: JWT_SECRET not set, using insecure default");
-                "INSECURE_DEV_SECRET_DO_NOT_USE_IN_PRODUCTION_MUST_BE_32_CHARS".to_string()
-            } else {
-                panic!("JWT_SECRET environment variable is required in production");
-            }
-        });
+        let secret = std::env::var("JWT_SECRET")
+            .expect("JWT_SECRET environment variable is required. Generate a secure secret with: openssl rand -hex 32");
 
         let expiration_seconds = std::env::var("JWT_EXPIRATION_SECONDS")
             .ok()
@@ -267,20 +252,57 @@ impl JwtManager {
         Ok(claims)
     }
 
-    /// Create a new access token from a refresh token
-    pub fn refresh_access_token(&self, refresh_token: &str) -> Result<(String, JwtClaims)> {
+    /// Create a new access token from a refresh token (requires database access)
+    pub async fn refresh_access_token(
+        &self,
+        refresh_token: &str,
+        pool: &sqlx::PgPool,
+    ) -> Result<(String, JwtClaims)> {
         let refresh_claims = self.validate_refresh_token(refresh_token)?;
+
+        // Check if refresh token exists in database and is valid
+        let stored_token = sqlx::query!(
+            r#"
+            SELECT * FROM refresh_tokens
+            WHERE jti = $1 AND revoked = false AND expires_at > NOW()
+            "#,
+            refresh_claims.jti
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| anyhow!("Database error: {}", e))?;
+
+        if stored_token.is_none() {
+            return Err(anyhow!("Refresh token not found or revoked"));
+        }
+
+        // Get user details from database
+        let user = sqlx::query!(
+            r#"
+            SELECT u.id, u.email, u.login,
+                   COALESCE(array_agg(r.name) FILTER (WHERE r.name IS NOT NULL), '{}') as "roles!"
+            FROM users u
+            LEFT JOIN user_roles ur ON u.id = ur.user_id
+            LEFT JOIN roles r ON ur.role_id = r.id
+            WHERE u.id = $1
+            GROUP BY u.id, u.email, u.login
+            "#,
+            refresh_claims.user_id.to_string().parse::<i64>().unwrap_or(0)
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| anyhow!("Failed to fetch user: {}", e))?
+        .ok_or_else(|| anyhow!("User not found"))?;
 
         let now = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_secs() as usize;
 
-        // TODO: Get user roles and other info from database
         let access_claims = JwtClaims {
             user_id: refresh_claims.user_id,
-            email: "placeholder@example.com".to_string(), // Would get from database
-            roles: vec!["player".to_string()], // Would get from database
+            email: user.email,
+            roles: user.roles,
             session_id: None,
             exp: now + self.config.expiration_seconds as usize,
             iat: now,
@@ -367,7 +389,13 @@ mod tests {
     use std::thread;
     use std::time::Duration;
 
+    // Set test JWT secret for all tests
+    fn init_test_env() {
+        std::env::set_var("JWT_SECRET", "test-secret-key-that-is-long-enough-for-security");
+    }
+
     fn create_test_jwt_manager() -> JwtManager {
+        init_test_env();
         let config = JwtConfig {
             secret: "test-secret-key-that-is-long-enough-for-security".to_string(),
             expiration_seconds: 1,

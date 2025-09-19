@@ -41,7 +41,10 @@ pub async fn scan_server(
     req: HttpRequest,
     data: web::Json<ScanRequest>,
 ) -> ApiResult<HttpResponse> {
-    let user = req.extensions().get::<AuthUser>().unwrap().clone();
+    let user = req.extensions()
+        .get::<AuthUser>()
+        .ok_or_else(|| actix_web::error::ErrorUnauthorized("Not authenticated"))?
+        .clone();
     let world = state.game_world.read().await;
 
     // Check if server exists
@@ -102,7 +105,10 @@ pub async fn hack_server(
     req: HttpRequest,
     data: web::Json<HackRequest>,
 ) -> ApiResult<HttpResponse> {
-    let user = req.extensions().get::<AuthUser>().unwrap().clone();
+    let user = req.extensions()
+        .get::<AuthUser>()
+        .ok_or_else(|| actix_web::error::ErrorUnauthorized("Not authenticated"))?
+        .clone();
     let mut world = state.game_world.write().await;
 
     if let Some(server) = world.get_server_mut(&data.target_ip) {
@@ -194,7 +200,10 @@ pub async fn server_action(
     req: HttpRequest,
     data: web::Json<ServerActionRequest>,
 ) -> ApiResult<HttpResponse> {
-    let user = req.extensions().get::<AuthUser>().unwrap().clone();
+    let user = req.extensions()
+        .get::<AuthUser>()
+        .ok_or_else(|| actix_web::error::ErrorUnauthorized("Not authenticated"))?
+        .clone();
     let mut world = state.game_world.write().await;
 
     // Check if user has access to this server
@@ -366,7 +375,10 @@ pub async fn internet_view(
     state: web::Data<AppState>,
     req: HttpRequest,
 ) -> ApiResult<HttpResponse> {
-    let user = req.extensions().get::<AuthUser>().unwrap().clone();
+    let user = req.extensions()
+        .get::<AuthUser>()
+        .ok_or_else(|| actix_web::error::ErrorUnauthorized("Not authenticated"))?
+        .clone();
     let world = state.game_world.read().await;
 
     // Get player's discovered servers

@@ -155,12 +155,13 @@ impl AuthService {
         Ok(())
     }
 
-    /// Authenticate user with email/password
+    /// Authenticate user with email/password using Argon2id
     pub async fn authenticate(
         &self,
         email: &str,
         password: &str,
         client_ip: Option<String>,
+        pool: &sqlx::PgPool,
     ) -> Result<AuthenticationResult> {
         // Check rate limiting
         if let Some(ip) = &client_ip {
@@ -169,23 +170,79 @@ impl AuthService {
             }
         }
 
-        // TODO: Implement actual user lookup and password verification
-        // This would typically query the database for user credentials
         debug!("Attempting authentication for user: {}", email);
 
-        // Placeholder authentication logic
-        let user_id = Uuid::new_v4(); // Would be from database
-        let user_roles = vec!["player".to_string()]; // Would be from database
+        // Get user from database
+        let user = sqlx::query!(
+            r#"
+            SELECT u.id, u.email, u.pwd as password_hash, u.active, u.email_verified,
+                   COALESCE(array_agg(r.name) FILTER (WHERE r.name IS NOT NULL), '{}') as "roles!"
+            FROM users u
+            LEFT JOIN user_roles ur ON u.id = ur.user_id
+            LEFT JOIN roles r ON ur.role_id = r.id
+            WHERE u.email = $1
+            GROUP BY u.id, u.email, u.pwd, u.active, u.email_verified
+            "#,
+            email
+        )
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| anyhow::anyhow!("Database error: {}", e))?;
 
-        // Verify password (placeholder)
-        let password_valid = self.password_manager.verify_password(password, "$hashed_password$").await?;
-        
+        let user = match user {
+            Some(u) => u,
+            None => {
+                // Record failed attempt even if user doesn't exist (prevent enumeration)
+                if let Some(ip) = client_ip {
+                    self.rate_limiter.record_failed_login(&ip).await;
+                }
+                return Ok(AuthenticationResult::InvalidCredentials);
+            }
+        };
+
+        // Check if account is active
+        if !user.active.unwrap_or(true) {
+            return Ok(AuthenticationResult::AccountLocked);
+        }
+
+        // Check email verification if required
+        if self.config.require_email_verification && !user.email_verified.unwrap_or(false) {
+            return Ok(AuthenticationResult::EmailNotVerified);
+        }
+
+        // Verify password using Argon2id
+        let password_valid = self.password_manager.verify_password_argon2id(
+            password,
+            &user.password_hash
+        ).await?;
+
         if !password_valid {
-            if let Some(ip) = client_ip {
+            // Record failed login attempt
+            if let Some(ip) = &client_ip {
                 self.rate_limiter.record_failed_login(&ip).await;
             }
+
+            // Update failed login count in database
+            sqlx::query!(
+                "UPDATE users SET failed_login_attempts = failed_login_attempts + 1 WHERE id = $1",
+                user.id
+            )
+            .execute(pool)
+            .await?;
+
             return Ok(AuthenticationResult::InvalidCredentials);
         }
+
+        // Reset failed login attempts on successful login
+        sqlx::query!(
+            "UPDATE users SET failed_login_attempts = 0, last_login = NOW() WHERE id = $1",
+            user.id
+        )
+        .execute(pool)
+        .await?;
+
+        let user_id = Uuid::parse_str(&user.id.to_string()).unwrap_or_else(|_| Uuid::new_v4());
+        let user_roles = user.roles;
 
         // Check if MFA is required
         if self.mfa_manager.is_mfa_required(&user_id).await? {

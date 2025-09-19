@@ -51,6 +51,6 @@ futures = "0.3"
 chrono = { workspace = true }
 rand = { workspace = true }
 sha2 = "0.10"
-base64 = "0.21"
+base64 = { workspace = true }
 thiserror = { workspace = true }
 validator = { workspace = true }

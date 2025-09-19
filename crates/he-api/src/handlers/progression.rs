@@ -17,7 +17,9 @@ pub async fn get_progression(
     claims: Claims,
 ) -> ApiResult<HttpResponse> {
     // TODO: Load from database
-    let progression = PlayerProgression::new(claims.sub.parse::<Uuid>().unwrap());
+    let player_id = claims.sub.parse::<Uuid>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid player ID"))?;
+    let progression = PlayerProgression::new(player_id);
 
     Ok(HttpResponse::Ok().json(&progression))
 }
@@ -42,7 +44,9 @@ pub async fn add_experience(
     payload: web::Json<AddExperienceRequest>,
 ) -> ApiResult<HttpResponse> {
     // TODO: Load from database
-    let mut progression = PlayerProgression::new(claims.sub.parse::<Uuid>().unwrap());
+    let player_id = claims.sub.parse::<Uuid>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid player ID"))?;
+    let mut progression = PlayerProgression::new(player_id);
 
     let events = progression.gain_experience(payload.amount);
 
@@ -70,7 +74,9 @@ pub async fn invest_skill(
     payload: web::Json<InvestSkillRequest>,
 ) -> ApiResult<HttpResponse> {
     // TODO: Load from database
-    let mut progression = PlayerProgression::new(claims.sub.parse::<Uuid>().unwrap());
+    let player_id = claims.sub.parse::<Uuid>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid player ID"))?;
+    let mut progression = PlayerProgression::new(player_id);
 
     match progression.skill_tree.invest_skill(&payload.skill_id, payload.points) {
         Ok(()) => {
@@ -90,7 +96,9 @@ pub async fn reset_skills(
     claims: Claims,
 ) -> ApiResult<HttpResponse> {
     // TODO: Load from database
-    let mut progression = PlayerProgression::new(claims.sub.parse::<Uuid>().unwrap());
+    let player_id = claims.sub.parse::<Uuid>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid player ID"))?;
+    let mut progression = PlayerProgression::new(player_id);
 
     // TODO: Check if player has reset item or enough money
     progression.skill_tree.reset_skills();
@@ -105,7 +113,9 @@ pub async fn get_achievements(
     claims: Claims,
 ) -> ApiResult<HttpResponse> {
     // TODO: Load from database
-    let progression = PlayerProgression::new(claims.sub.parse::<Uuid>().unwrap());
+    let player_id = claims.sub.parse::<Uuid>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid player ID"))?;
+    let progression = PlayerProgression::new(player_id);
 
     Ok(HttpResponse::Ok().json(&progression.achievements))
 }
@@ -115,7 +125,9 @@ pub async fn get_unlockables(
     claims: Claims,
 ) -> ApiResult<HttpResponse> {
     // TODO: Load from database
-    let progression = PlayerProgression::new(claims.sub.parse::<Uuid>().unwrap());
+    let player_id = claims.sub.parse::<Uuid>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid player ID"))?;
+    let progression = PlayerProgression::new(player_id);
 
     Ok(HttpResponse::Ok().json(&progression.unlockables))
 }
@@ -125,7 +137,9 @@ pub async fn get_reputation(
     claims: Claims,
 ) -> ApiResult<HttpResponse> {
     // TODO: Load from database
-    let progression = PlayerProgression::new(claims.sub.parse::<Uuid>().unwrap());
+    let player_id = claims.sub.parse::<Uuid>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid player ID"))?;
+    let progression = PlayerProgression::new(player_id);
 
     Ok(HttpResponse::Ok().json(&progression.reputation))
 }
@@ -142,7 +156,9 @@ pub async fn modify_reputation(
     payload: web::Json<ModifyReputationRequest>,
 ) -> ApiResult<HttpResponse> {
     // TODO: Load from database
-    let mut progression = PlayerProgression::new(claims.sub.parse::<Uuid>().unwrap());
+    let player_id = claims.sub.parse::<Uuid>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid player ID"))?;
+    let mut progression = PlayerProgression::new(player_id);
 
     let change = progression.reputation.modify_reputation(&payload.faction_id, payload.amount);
 
@@ -156,7 +172,9 @@ pub async fn get_statistics(
     claims: Claims,
 ) -> ApiResult<HttpResponse> {
     // TODO: Load from database
-    let progression = PlayerProgression::new(claims.sub.parse::<Uuid>().unwrap());
+    let player_id = claims.sub.parse::<Uuid>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid player ID"))?;
+    let progression = PlayerProgression::new(player_id);
 
     Ok(HttpResponse::Ok().json(&progression.statistics))
 }
@@ -173,7 +191,9 @@ pub async fn complete_action(
     payload: web::Json<CompleteActionRequest>,
 ) -> ApiResult<HttpResponse> {
     // TODO: Load from database
-    let mut progression = PlayerProgression::new(claims.sub.parse::<Uuid>().unwrap());
+    let player_id = claims.sub.parse::<Uuid>()
+        .map_err(|_| actix_web::error::ErrorBadRequest("Invalid player ID"))?;
+    let mut progression = PlayerProgression::new(player_id);
 
     // Update statistics based on action
     match payload.action_type.as_str() {

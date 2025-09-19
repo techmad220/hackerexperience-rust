@@ -1,8 +1,10 @@
 //! Advanced caching strategies for improved performance
 
 use anyhow::Result;
+use lru::LruCache as LruImpl;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::num::NonZeroUsize;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::RwLock;
@@ -118,101 +120,65 @@ impl CacheManager {
     }
 }
 
-/// LRU cache implementation
+/// Efficient O(1) LRU cache wrapper using the lru crate
 struct LruCache<K: Clone + Eq + std::hash::Hash, V: Clone> {
-    capacity: usize,
-    cache: HashMap<K, (V, usize)>,
-    access_order: Vec<K>,
-    access_counter: usize,
+    inner: LruImpl<K, V>,
 }
 
 impl<K: Clone + Eq + std::hash::Hash, V: Clone> LruCache<K, V> {
     fn new(capacity: usize) -> Self {
+        // Use a safe default of 100 if capacity is 0
+        let cap = NonZeroUsize::new(capacity)
+            .or_else(|| NonZeroUsize::new(100))
+            .expect("100 is a valid non-zero value");
         Self {
-            capacity,
-            cache: HashMap::with_capacity(capacity),
-            access_order: Vec::with_capacity(capacity),
-            access_counter: 0,
+            inner: LruImpl::new(cap),
         }
     }
 
+    /// Get value from cache - O(1) operation
     fn get(&mut self, key: &K) -> Option<&V> {
-        if let Some((value, last_access)) = self.cache.get_mut(key) {
-            self.access_counter += 1;
-            *last_access = self.access_counter;
-
-            // Move to end of access order
-            if let Some(pos) = self.access_order.iter().position(|k| k == key) {
-                let key_clone = self.access_order.remove(pos);
-                self.access_order.push(key_clone);
-            }
-
-            Some(value)
-        } else {
-            None
-        }
+        self.inner.get(key)
     }
 
+    /// Put value in cache - O(1) operation
     fn put(&mut self, key: K, value: V) {
-        if self.cache.len() >= self.capacity && !self.cache.contains_key(&key) {
-            // Evict least recently used
-            if let Some(lru_key) = self.access_order.first().cloned() {
-                self.cache.remove(&lru_key);
-                self.access_order.remove(0);
-            }
-        }
-
-        self.access_counter += 1;
-        self.cache.insert(key.clone(), (value, self.access_counter));
-
-        // Update access order
-        if let Some(pos) = self.access_order.iter().position(|k| k == &key) {
-            self.access_order.remove(pos);
-        }
-        self.access_order.push(key);
+        self.inner.put(key, value);
     }
 
+    /// Remove value from cache - O(1) operation
     fn remove(&mut self, key: &K) -> Option<V> {
-        if let Some((value, _)) = self.cache.remove(key) {
-            if let Some(pos) = self.access_order.iter().position(|k| k == key) {
-                self.access_order.remove(pos);
-            }
-            Some(value)
-        } else {
-            None
-        }
+        self.inner.pop(key)
     }
 
+    /// Check if cache is at capacity
     fn is_full(&self) -> bool {
-        self.cache.len() >= self.capacity
+        self.inner.len() >= self.inner.cap().get()
     }
 
+    /// Pop the least recently used item - O(1) operation
     fn pop_oldest(&mut self) -> Option<(K, V)> {
-        if let Some(key) = self.access_order.first().cloned() {
-            if let Some((value, _)) = self.cache.remove(&key) {
-                self.access_order.remove(0);
-                return Some((key, value));
-            }
-        }
-        None
+        self.inner.pop_lru()
     }
 
+    /// Clear all entries - O(n) operation
     fn clear(&mut self) {
-        self.cache.clear();
-        self.access_order.clear();
-        self.access_counter = 0;
+        self.inner.clear();
     }
-}
 
-impl LruCache<String, CachedValue> {
-    fn remove_matching(&mut self, pattern: &str) {
-        let keys_to_remove: Vec<String> = self.cache.keys()
-            .filter(|k| k.contains(pattern))
-            .cloned()
+    /// Remove entries matching a pattern - O(n) operation
+    fn remove_matching(&mut self, pattern: &str)
+    where
+        K: ToString
+    {
+        let keys_to_remove: Vec<K> = self.inner
+            .iter()
+            .filter(|(k, _)| k.to_string().contains(pattern))
+            .map(|(k, _)| k.clone())
             .collect();
 
         for key in keys_to_remove {
-            self.remove(&key);
+            self.inner.pop(&key);
         }
     }
 }

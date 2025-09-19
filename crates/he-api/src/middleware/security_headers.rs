@@ -1,4 +1,4 @@
-//! Security Headers Middleware
+//! Security Headers Middleware for Axum
 //!
 //! Adds important security headers to all HTTP responses including:
 //! - Strict-Transport-Security (HSTS)
@@ -6,17 +6,15 @@
 //! - X-Frame-Options
 //! - X-Content-Type-Options
 //! - X-XSS-Protection
+//! - Referrer-Policy
+//! - Permissions-Policy
 
-use actix_web::{
-    dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
-    Error, HttpMessage,
-    http::header::{HeaderName, HeaderValue},
+use axum::{
+    body::Body,
+    http::{header::{HeaderName, HeaderValue}, Request, Response, StatusCode},
+    middleware::Next,
 };
-use futures::future::{ok, Ready};
-use std::future::Future;
-use std::pin::Pin;
-use std::rc::Rc;
-use std::task::{Context, Poll};
+use std::str::FromStr;
 
 /// Security headers configuration
 #[derive(Debug, Clone)]
@@ -70,15 +68,15 @@ impl Default for SecurityHeadersConfig {
 }
 
 impl SecurityHeadersConfig {
-    /// Default Content Security Policy
+    /// Default Content Security Policy (Production-Ready without unsafe-inline)
     fn default_csp() -> String {
         vec![
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Consider removing unsafe-* in production
-            "style-src 'self' 'unsafe-inline'",
+            "script-src 'self'", // No unsafe-inline or unsafe-eval
+            "style-src 'self'",  // No unsafe-inline
             "img-src 'self' data: https:",
             "font-src 'self' data:",
-            "connect-src 'self'",
+            "connect-src 'self' wss: https:",
             "media-src 'self'",
             "object-src 'none'",
             "child-src 'self'",
@@ -86,6 +84,7 @@ impl SecurityHeadersConfig {
             "form-action 'self'",
             "base-uri 'self'",
             "upgrade-insecure-requests",
+            "block-all-mixed-content",
         ].join("; ")
     }
 
@@ -127,7 +126,7 @@ impl SecurityHeadersConfig {
             "style-src 'self'",
             "img-src 'self' data:",
             "font-src 'self'",
-            "connect-src 'self'",
+            "connect-src 'self' wss: https:",
             "media-src 'none'",
             "object-src 'none'",
             "child-src 'none'",
@@ -187,135 +186,100 @@ impl SecurityHeadersConfig {
     }
 }
 
-/// Security Headers Middleware
-pub struct SecurityHeaders {
+/// Axum middleware function for adding security headers
+pub async fn security_headers_middleware(
     config: SecurityHeadersConfig,
-}
+    req: Request<Body>,
+    next: Next,
+) -> Result<Response<Body>, StatusCode> {
+    let mut response = next.run(req).await;
+    let headers = response.headers_mut();
 
-impl SecurityHeaders {
-    pub fn new(config: SecurityHeadersConfig) -> Self {
-        Self { config }
+    // Add HSTS header if enabled
+    if config.hsts_enabled {
+        headers.insert(
+            HeaderName::from_static("strict-transport-security"),
+            HeaderValue::from_str(&config.build_hsts_header())
+                .unwrap_or_else(|_| HeaderValue::from_static("max-age=31536000")),
+        );
     }
 
-    pub fn default() -> Self {
-        Self::new(SecurityHeadersConfig::default())
+    // Add Content Security Policy
+    if !config.csp_directives.is_empty() {
+        headers.insert(
+            HeaderName::from_static("content-security-policy"),
+            HeaderValue::from_str(&config.csp_directives)
+                .unwrap_or_else(|_| HeaderValue::from_static("default-src 'self'")),
+        );
     }
 
-    pub fn strict() -> Self {
-        Self::new(SecurityHeadersConfig::strict())
+    // Add X-Frame-Options
+    headers.insert(
+        HeaderName::from_static("x-frame-options"),
+        HeaderValue::from_str(&config.x_frame_options)
+            .unwrap_or_else(|_| HeaderValue::from_static("DENY")),
+    );
+
+    // Add X-Content-Type-Options
+    if config.x_content_type_options {
+        headers.insert(
+            HeaderName::from_static("x-content-type-options"),
+            HeaderValue::from_static("nosniff"),
+        );
+    }
+
+    // Add X-XSS-Protection
+    if config.x_xss_protection {
+        headers.insert(
+            HeaderName::from_static("x-xss-protection"),
+            HeaderValue::from_static("1; mode=block"),
+        );
+    }
+
+    // Add Referrer-Policy
+    if !config.referrer_policy.is_empty() {
+        headers.insert(
+            HeaderName::from_static("referrer-policy"),
+            HeaderValue::from_str(&config.referrer_policy)
+                .unwrap_or_else(|_| HeaderValue::from_static("strict-origin-when-cross-origin")),
+        );
+    }
+
+    // Add Permissions-Policy
+    if !config.permissions_policy.is_empty() {
+        headers.insert(
+            HeaderName::from_static("permissions-policy"),
+            HeaderValue::from_str(&config.permissions_policy)
+                .unwrap_or_else(|_| HeaderValue::from_static("geolocation=(), camera=(), microphone=()")),
+        );
+    }
+
+    Ok(response)
+}
+
+/// Create middleware layer with default configuration
+pub fn security_headers_layer() -> impl Fn(Request<Body>, Next) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Response<Body>, StatusCode>> + Send>> + Clone {
+    let config = SecurityHeadersConfig::default();
+    move |req, next| {
+        let config = config.clone();
+        Box::pin(security_headers_middleware(config, req, next))
     }
 }
 
-impl<S, B> Transform<S, ServiceRequest> for SecurityHeaders
-where
-    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
-    S::Future: 'static,
-    B: 'static,
-{
-    type Response = ServiceResponse<B>;
-    type Error = Error;
-    type Transform = SecurityHeadersMiddleware<S>;
-    type InitError = ();
-    type Future = Ready<Result<Self::Transform, Self::InitError>>;
-
-    fn new_transform(&self, service: S) -> Self::Future {
-        ok(SecurityHeadersMiddleware {
-            service: Rc::new(service),
-            config: self.config.clone(),
-        })
+/// Create middleware layer with strict configuration
+pub fn strict_security_headers_layer() -> impl Fn(Request<Body>, Next) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Response<Body>, StatusCode>> + Send>> + Clone {
+    let config = SecurityHeadersConfig::strict();
+    move |req, next| {
+        let config = config.clone();
+        Box::pin(security_headers_middleware(config, req, next))
     }
 }
 
-pub struct SecurityHeadersMiddleware<S> {
-    service: Rc<S>,
-    config: SecurityHeadersConfig,
-}
-
-impl<S> Clone for SecurityHeadersMiddleware<S> {
-    fn clone(&self) -> Self {
-        Self {
-            service: self.service.clone(),
-            config: self.config.clone(),
-        }
-    }
-}
-
-impl<S, B> Service<ServiceRequest> for SecurityHeadersMiddleware<S>
-where
-    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
-    S::Future: 'static,
-    B: 'static,
-{
-    type Response = ServiceResponse<B>;
-    type Error = Error;
-    type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>>>>;
-
-    forward_ready!(service);
-
-    fn call(&self, req: ServiceRequest) -> Self::Future {
-        let service = self.service.clone();
-        let config = self.config.clone();
-
-        Box::pin(async move {
-            let mut res = service.call(req).await?;
-            let headers = res.headers_mut();
-
-            // Add HSTS header if enabled and connection is secure
-            if config.hsts_enabled {
-                headers.insert(
-                    HeaderName::from_static("strict-transport-security"),
-                    HeaderValue::from_str(&config.build_hsts_header()).unwrap(),
-                );
-            }
-
-            // Add Content Security Policy
-            if !config.csp_directives.is_empty() {
-                headers.insert(
-                    HeaderName::from_static("content-security-policy"),
-                    HeaderValue::from_str(&config.csp_directives).unwrap(),
-                );
-            }
-
-            // Add X-Frame-Options
-            headers.insert(
-                HeaderName::from_static("x-frame-options"),
-                HeaderValue::from_str(&config.x_frame_options).unwrap(),
-            );
-
-            // Add X-Content-Type-Options
-            if config.x_content_type_options {
-                headers.insert(
-                    HeaderName::from_static("x-content-type-options"),
-                    HeaderValue::from_static("nosniff"),
-                );
-            }
-
-            // Add X-XSS-Protection
-            if config.x_xss_protection {
-                headers.insert(
-                    HeaderName::from_static("x-xss-protection"),
-                    HeaderValue::from_static("1; mode=block"),
-                );
-            }
-
-            // Add Referrer-Policy
-            if !config.referrer_policy.is_empty() {
-                headers.insert(
-                    HeaderName::from_static("referrer-policy"),
-                    HeaderValue::from_str(&config.referrer_policy).unwrap(),
-                );
-            }
-
-            // Add Permissions-Policy
-            if !config.permissions_policy.is_empty() {
-                headers.insert(
-                    HeaderName::from_static("permissions-policy"),
-                    HeaderValue::from_str(&config.permissions_policy).unwrap(),
-                );
-            }
-
-            Ok(res)
-        })
+/// Create middleware layer with custom configuration
+pub fn custom_security_headers_layer(config: SecurityHeadersConfig) -> impl Fn(Request<Body>, Next) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<Response<Body>, StatusCode>> + Send>> + Clone {
+    move |req, next| {
+        let config = config.clone();
+        Box::pin(security_headers_middleware(config, req, next))
     }
 }
 
@@ -355,5 +319,16 @@ mod tests {
 
         config.hsts_preload = true;
         assert_eq!(config.build_hsts_header(), "max-age=86400; includeSubDomains; preload");
+    }
+
+    #[test]
+    fn test_csp_no_unsafe_inline() {
+        let default_csp = SecurityHeadersConfig::default_csp();
+        assert!(!default_csp.contains("unsafe-inline"));
+        assert!(!default_csp.contains("unsafe-eval"));
+
+        let strict_csp = SecurityHeadersConfig::strict_csp();
+        assert!(!strict_csp.contains("unsafe-inline"));
+        assert!(!strict_csp.contains("unsafe-eval"));
     }
 }
